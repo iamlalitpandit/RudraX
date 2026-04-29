@@ -1,7 +1,7 @@
 /**
  * TUI component for managing package resources (enable/disable)
  */
-import { type Component, Container, type Focusable } from "@rudrax/pi-tui";
+import { type Component, Container, type Focusable } from "@imlalitpandit/pi-tui";
 import type { PathMetadata, ResolvedPaths } from "../../../core/package-manager.js";
 import type { SettingsManager } from "../../../core/settings-manager.js";
 type ResourceType = "extensions" | "skills" | "prompts" | "themes";

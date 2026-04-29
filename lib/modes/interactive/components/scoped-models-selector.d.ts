@@ -1,5 +1,5 @@
-import type { Model } from "@rudrax/pi-ai";
-import { Container, type Focusable, Input } from "@rudrax/pi-tui";
+import type { Model } from "@imlalitpandit/pi-ai";
+import { Container, type Focusable, Input } from "@imlalitpandit/pi-tui";
 export interface ModelsConfig {
     allModels: Model<any>[];
     enabledModelIds: Set<string>;

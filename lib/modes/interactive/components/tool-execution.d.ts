@@ -1,4 +1,4 @@
-import { Container, type TUI } from "@rudrax/pi-tui";
+import { Container, type TUI } from "@imlalitpandit/pi-tui";
 import type { ToolDefinition } from "../../../core/extensions/types.js";
 export interface ToolExecutionOptions {
     showImages?: boolean;

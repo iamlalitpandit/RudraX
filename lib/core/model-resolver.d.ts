@@ -1,8 +1,8 @@
 /**
  * Model resolution, scoping, and initial selection
  */
-import type { ThinkingLevel } from "@rudrax/pi-agent-core";
-import { type Api, type KnownProvider, type Model } from "@rudrax/pi-ai";
+import type { ThinkingLevel } from "@imlalitpandit/pi-agent-core";
+import { type Api, type KnownProvider, type Model } from "@imlalitpandit/pi-ai";
 import type { ModelRegistry } from "./model-registry.js";
 /** Default model IDs for each known provider */
 export declare const defaultModelPerProvider: Record<KnownProvider, string>;

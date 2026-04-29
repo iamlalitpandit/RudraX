@@ -1,5 +1,5 @@
-import type { ThinkingLevel } from "@rudrax/pi-agent-core";
-import { Container, SelectList } from "@rudrax/pi-tui";
+import type { ThinkingLevel } from "@imlalitpandit/pi-agent-core";
+import { Container, SelectList } from "@imlalitpandit/pi-tui";
 /**
  * Component that renders a thinking level selector with borders
  */

@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@rudrax/pi-coding-agent";
+import type { ExtensionAPI } from "@imlalitpandit/pi-agent-core";
 
 /**
  * GitHub Repository Manager & DevOps Specialist Extension (devops)

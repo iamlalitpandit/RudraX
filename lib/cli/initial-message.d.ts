@@ -1,4 +1,4 @@
-import type { ImageContent } from "@rudrax/pi-ai";
+import type { ImageContent } from "@imlalitpandit/pi-ai";
 import type { Args } from "./args.js";
 export interface InitialMessageInput {
     parsed: Args;

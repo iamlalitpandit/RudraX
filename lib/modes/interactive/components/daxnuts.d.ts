@@ -3,7 +3,7 @@
  *
  * A heartfelt tribute to dax (@thdxr) for providing free Kimi K2.5 access via OpenCode.
  */
-import type { Component, TUI } from "@rudrax/pi-tui";
+import type { Component, TUI } from "@imlalitpandit/pi-tui";
 export declare class DaxnutsComponent implements Component {
     private ui;
     private image;

@@ -1,4 +1,4 @@
-import type { ImageContent, TextContent } from "@rudrax/pi-ai";
+import type { ImageContent, TextContent } from "@imlalitpandit/pi-ai";
 export declare function shortenPath(path: unknown): string;
 export declare function str(value: unknown): string | null;
 export declare function replaceTabs(text: string): string;

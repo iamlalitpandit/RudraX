@@ -1,4 +1,4 @@
-import { Box, type MarkdownTheme } from "@rudrax/pi-tui";
+import { Box, type MarkdownTheme } from "@imlalitpandit/pi-tui";
 import type { ParsedSkillBlock } from "../../../core/agent-session.js";
 /**
  * Component that renders a skill invocation message with collapsed/expanded state.

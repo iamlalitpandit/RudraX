@@ -1,7 +1,7 @@
 /**
  * Utilities for formatting keybinding hints in the UI.
  */
-import { type Keybinding } from "@rudrax/pi-tui";
+import { type Keybinding } from "@imlalitpandit/pi-tui";
 export declare function keyText(keybinding: Keybinding): string;
 export declare function keyHint(keybinding: Keybinding, description: string): string;
 export declare function rawKeyHint(key: string, description: string): string;

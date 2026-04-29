@@ -1,7 +1,7 @@
 /**
  * CLI argument parsing and help display
  */
-import type { ThinkingLevel } from "@rudrax/pi-agent-core";
+import type { ThinkingLevel } from "@imlalitpandit/pi-agent-core";
 import { type ToolName } from "../core/tools/index.js";
 export type Mode = "text" | "json" | "rpc";
 export interface Args {

@@ -5,7 +5,7 @@
  * - `pi -p "prompt"` - text output
  * - `pi --mode json "prompt"` - JSON event stream
  */
-import type { ImageContent } from "@rudrax/pi-ai";
+import type { ImageContent } from "@imlalitpandit/pi-ai";
 import type { AgentSession } from "../core/agent-session.js";
 /**
  * Options for print mode.

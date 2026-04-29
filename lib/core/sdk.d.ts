@@ -1,5 +1,5 @@
-import { type ThinkingLevel } from "@rudrax/pi-agent-core";
-import { type Model } from "@rudrax/pi-ai";
+import { type ThinkingLevel } from "@imlalitpandit/pi-agent-core";
+import { type Model } from "@imlalitpandit/pi-ai";
 import { AgentSession } from "./agent-session.js";
 import { AuthStorage } from "./auth-storage.js";
 import type { LoadExtensionsResult, ToolDefinition } from "./extensions/index.js";
@@ -60,7 +60,7 @@ export { readTool, bashTool, editTool, writeTool, grepTool, findTool, lsTool, co
  * const { session } = await createAgentSession();
  *
  * // With explicit model
- * import { getModel } from '@rudrax/pi-ai';
+ * import { getModel } from '@imlalitpandit/pi-ai';
  * const { session } = await createAgentSession({
  *   model: getModel('anthropic', 'claude-opus-4-5'),
  *   thinkingLevel: 'high',

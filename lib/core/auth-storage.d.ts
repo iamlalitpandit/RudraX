@@ -5,7 +5,7 @@
  * Uses file locking to prevent race conditions when multiple pi instances
  * try to refresh tokens simultaneously.
  */
-import { type OAuthCredentials, type OAuthLoginCallbacks, type OAuthProviderId } from "@rudrax/pi-ai";
+import { type OAuthCredentials, type OAuthLoginCallbacks, type OAuthProviderId } from "@imlalitpandit/pi-ai";
 export type ApiKeyCredential = {
     type: "api_key";
     key: string;
@@ -126,7 +126,7 @@ export declare class AuthStorage {
     /**
      * Get all registered OAuth providers
      */
-    getOAuthProviders(): import("@rudrax/pi-ai").OAuthProviderInterface[];
+    getOAuthProviders(): import("@imlalitpandit/pi-ai").OAuthProviderInterface[];
 }
 export {};
 //# sourceMappingURL=auth-storage.d.ts.map

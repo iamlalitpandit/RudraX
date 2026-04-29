@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@rudrax/pi-coding-agent";
+import type { ExtensionAPI } from "@imlalitpandit/pi-agent-core";
 
 /**
  * Task: Audit Codebase for UI Pattern Redundancy

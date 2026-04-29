@@ -1,3 +1,3 @@
-import type { ThinkingLevel } from "@rudrax/pi-agent-core";
+import type { ThinkingLevel } from "@imlalitpandit/pi-agent-core";
 export declare const DEFAULT_THINKING_LEVEL: ThinkingLevel;
 //# sourceMappingURL=defaults.d.ts.map

@@ -4,8 +4,8 @@
  * When navigating to a different point in the session tree, this generates
  * a summary of the branch being left so context isn't lost.
  */
-import type { AgentMessage } from "@rudrax/pi-agent-core";
-import type { Model } from "@rudrax/pi-ai";
+import type { AgentMessage } from "@imlalitpandit/pi-agent-core";
+import type { Model } from "@imlalitpandit/pi-ai";
 import type { ReadonlySessionManager, SessionEntry } from "../session-manager.js";
 import { type FileOperations } from "./utils.js";
 export interface BranchSummaryResult {

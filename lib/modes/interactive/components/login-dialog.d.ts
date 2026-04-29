@@ -1,4 +1,4 @@
-import { Container, type Focusable, type TUI } from "@rudrax/pi-tui";
+import { Container, type Focusable, type TUI } from "@imlalitpandit/pi-tui";
 /**
  * Login dialog component - replaces editor during OAuth login flow
  */

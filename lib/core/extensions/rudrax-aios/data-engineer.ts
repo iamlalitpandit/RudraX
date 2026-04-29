@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@rudrax/pi-coding-agent";
+import type { ExtensionAPI } from "@imlalitpandit/pi-agent-core";
 
 /**
  * Database Architect & Operations Engineer Extension (data-engineer)

@@ -1,4 +1,4 @@
-import { Container, SelectList } from "@rudrax/pi-tui";
+import { Container, SelectList } from "@imlalitpandit/pi-tui";
 /**
  * Component that renders a theme selector
  */

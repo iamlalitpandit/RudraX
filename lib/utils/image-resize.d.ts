@@ -1,4 +1,4 @@
-import type { ImageContent } from "@rudrax/pi-ai";
+import type { ImageContent } from "@imlalitpandit/pi-ai";
 export interface ImageResizeOptions {
     maxWidth?: number;
     maxHeight?: number;

@@ -1,4 +1,4 @@
-import type { AgentState } from "@rudrax/pi-agent-core";
+import type { AgentState } from "@imlalitpandit/pi-agent-core";
 import { SessionManager } from "../session-manager.js";
 /**
  * Interface for rendering custom tools to HTML.

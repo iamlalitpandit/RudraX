@@ -1,4 +1,4 @@
-import { Container } from "@rudrax/pi-tui";
+import { Container } from "@imlalitpandit/pi-tui";
 import type { AuthStorage } from "../../../core/auth-storage.js";
 /**
  * Component that renders an OAuth provider selector

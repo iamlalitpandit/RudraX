@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@rudrax/pi-coding-agent";
+import type { ExtensionAPI } from "@imlalitpandit/pi-agent-core";
 
 /**
  * Task: TODO: Create test-suite-checklist.md for validation (follow-up story needed)

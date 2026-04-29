@@ -2,7 +2,7 @@
  * Interactive mode for the coding agent.
  * Handles TUI rendering and user interaction, delegating business logic to AgentSession.
  */
-import type { ImageContent } from "@rudrax/pi-ai";
+import type { ImageContent } from "@imlalitpandit/pi-ai";
 import { type AgentSession } from "../../core/agent-session.js";
 /**
  * Options for InteractiveMode initialization.

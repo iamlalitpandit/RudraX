@@ -1,5 +1,5 @@
-import type { AgentMessage } from "@rudrax/pi-agent-core";
-import type { ImageContent, Message, TextContent } from "@rudrax/pi-ai";
+import type { AgentMessage } from "@imlalitpandit/pi-agent-core";
+import type { ImageContent, Message, TextContent } from "@imlalitpandit/pi-ai";
 import { type BashExecutionMessage, type CustomMessage } from "./messages.js";
 export declare const CURRENT_SESSION_VERSION = 3;
 export interface SessionHeader {

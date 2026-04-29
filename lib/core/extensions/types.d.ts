@@ -7,9 +7,9 @@
  * - Register commands, keyboard shortcuts, and CLI flags
  * - Interact with the user via UI primitives
  */
-import type { AgentMessage, AgentToolResult, AgentToolUpdateCallback, ThinkingLevel } from "@rudrax/pi-agent-core";
-import type { Api, AssistantMessageEvent, AssistantMessageEventStream, Context, ImageContent, Model, OAuthCredentials, OAuthLoginCallbacks, SimpleStreamOptions, TextContent, ToolResultMessage } from "@rudrax/pi-ai";
-import type { AutocompleteItem, Component, EditorComponent, EditorTheme, KeyId, OverlayHandle, OverlayOptions, TUI } from "@rudrax/pi-tui";
+import type { AgentMessage, AgentToolResult, AgentToolUpdateCallback, ThinkingLevel } from "@imlalitpandit/pi-agent-core";
+import type { Api, AssistantMessageEvent, AssistantMessageEventStream, Context, ImageContent, Model, OAuthCredentials, OAuthLoginCallbacks, SimpleStreamOptions, TextContent, ToolResultMessage } from "@imlalitpandit/pi-ai";
+import type { AutocompleteItem, Component, EditorComponent, EditorTheme, KeyId, OverlayHandle, OverlayOptions, TUI } from "@imlalitpandit/pi-tui";
 import type { Static, TSchema } from "@sinclair/typebox";
 import type { Theme } from "../../modes/interactive/theme/theme.js";
 import type { BashResult } from "../bash-executor.js";
@@ -118,12 +118,12 @@ export interface ExtensionUIContext {
      * - `keybindings`: KeybindingsManager for app-level keybindings
      *
      * For full app keybinding support (escape, ctrl+d, model switching, etc.),
-     * extend `CustomEditor` from `@rudrax/pi-coding-agent` and call
+     * extend `CustomEditor` from `@imlalitpandit/pi-coding-agent` and call
      * `super.handleInput(data)` for keys you don't handle.
      *
      * @example
      * ```ts
-     * import { CustomEditor } from "@rudrax/pi-coding-agent";
+     * import { CustomEditor } from "@imlalitpandit/pi-coding-agent";
      *
      * class VimEditor extends CustomEditor {
      *   private mode: "normal" | "insert" = "insert";

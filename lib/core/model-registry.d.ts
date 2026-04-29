@@ -1,7 +1,7 @@
 /**
  * Model registry - manages built-in and custom models, provides API key resolution.
  */
-import { type Api, type AssistantMessageEventStream, type Context, type Model, type OAuthProviderInterface, type SimpleStreamOptions } from "@rudrax/pi-ai";
+import { type Api, type AssistantMessageEventStream, type Context, type Model, type OAuthProviderInterface, type SimpleStreamOptions } from "@imlalitpandit/pi-ai";
 import type { AuthStorage } from "./auth-storage.js";
 import { clearConfigValueCache } from "./resolve-config-value.js";
 export type ResolvedRequestAuth = {

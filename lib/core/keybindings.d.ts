@@ -1,4 +1,4 @@
-import { type Keybinding, type KeybindingsConfig, type KeyId, KeybindingsManager as TuiKeybindingsManager } from "@rudrax/pi-tui";
+import { type Keybinding, type KeybindingsConfig, type KeyId, KeybindingsManager as TuiKeybindingsManager } from "@imlalitpandit/pi-tui";
 export interface AppKeybindings {
     "app.interrupt": true;
     "app.clear": true;
@@ -28,7 +28,7 @@ export interface AppKeybindings {
     "app.session.deleteNoninvasive": true;
 }
 export type AppKeybinding = keyof AppKeybindings;
-declare module "@rudrax/pi-tui" {
+declare module "@imlalitpandit/pi-tui" {
     interface Keybindings extends AppKeybindings {
     }
 }

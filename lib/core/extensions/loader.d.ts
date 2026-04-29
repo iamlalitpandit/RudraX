@@ -1,7 +1,7 @@
 /**
  * Extension loader - loads TypeScript extension modules using jiti.
  *
- * Uses @rudrax/jiti fork with virtualModules support for compiled Bun binaries.
+ * Uses @imlalitpandit/jiti fork with virtualModules support for compiled Bun binaries.
  */
 import { type EventBus } from "../event-bus.js";
 import type { Extension, ExtensionFactory, ExtensionRuntime, LoadExtensionsResult } from "./types.js";

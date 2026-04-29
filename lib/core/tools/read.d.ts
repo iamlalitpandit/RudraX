@@ -1,4 +1,4 @@
-import type { AgentTool } from "@rudrax/pi-agent-core";
+import type { AgentTool } from "@imlalitpandit/pi-agent-core";
 import { type Static } from "@sinclair/typebox";
 import type { ToolDefinition } from "../extensions/types.js";
 import { type TruncationResult } from "./truncate.js";

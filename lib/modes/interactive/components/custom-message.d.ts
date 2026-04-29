@@ -1,4 +1,4 @@
-import { Container, type MarkdownTheme } from "@rudrax/pi-tui";
+import { Container, type MarkdownTheme } from "@imlalitpandit/pi-tui";
 import type { MessageRenderer } from "../../../core/extensions/types.js";
 import type { CustomMessage } from "../../../core/messages.js";
 /**

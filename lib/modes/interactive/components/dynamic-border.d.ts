@@ -1,4 +1,4 @@
-import type { Component } from "@rudrax/pi-tui";
+import type { Component } from "@imlalitpandit/pi-tui";
 /**
  * Dynamic border component that adjusts to viewport width.
  *
