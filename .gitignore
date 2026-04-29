@@ -32,3 +32,4 @@ coverage/
 # Misc
 *.tgz
 .turbo/
+push.sh
