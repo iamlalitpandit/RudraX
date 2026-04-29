@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+/**
+ * RudraX - Build Break Deploy
+ * By Lalit Pandit
+ * 
+ * Interactive AI TUI for development workflows.
+ * Based on @mariozechner/pi-coding-agent architecture.
+ */
+
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load RudraX TUI core
+const RUDRAX_MAIN = join(__dirname, '..', 'lib', 'main.js');
+
+try {
+  const rudrax = await import(RUDRAX_MAIN);
+  if (rudrax.main) {
+    await rudrax.main(process.argv.slice(2));
+  } else {
+    console.error('RudraX: main() export not found');
+    process.exit(1);
+  }
+} catch (err) {
+  console.error('RudraX Error:', err.message);
+  console.error('Stack:', err.stack);
+  process.exit(1);
+}
