@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RudraX — Build · Break · Deploy · Orchestrate</title>
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+
+  <!-- Vendor: Socket.IO -->
+  <script src="/socket.io/socket.io.min.js"></script>
+  <!-- Vendor: Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <!-- Vendor: xterm.js for Terminal -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.min.js"></script>
+
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body class="dark-mode">
+
+<!-- ═══════════════════════════════════════════════
+     RudraX Web UI — Agency Edition
+     Full SPA with Chat, Orchestrator, Agent Picker, Terminal
+     ═══════════════════════════════════════════════ -->
+
+<div class="container">
+
+  <!-- ─── Left Sidebar ─────────────────────────────────────────────────── -->
+  <aside id="left-panel" class="panel left-panel">
+    <!-- Brand -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">🔥</span>
+        <span class="logo-text">RudraX</span>
+      </div>
+      <button class="btn-icon" onclick="toggleSidebar()" title="Close sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" data-tab="chats" onclick="switchSidebarTab('chats')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Chats</span>
+      </button>
+      <button class="sidebar-tab" data-tab="agents" onclick="switchSidebarTab('agents')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Agents</span>
+      </button>
+      <button class="sidebar-tab" data-tab="squads" onclick="switchSidebarTab('squads')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Squads</span>
+      </button>
+      <button class="sidebar-tab" data-tab="memory" onclick="switchSidebarTab('memory')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Memory</span>
+      </button>
+    </div>
+
+    <!-- Tab: Chats -->
+    <div id="tab-chats" class="sidebar-tab-content active">
+      <div class="sidebar-actions">
+        <button class="btn-new-chat" onclick="newContext()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Chat
+        </button>
+      </div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="Search chats..." oninput="filterChats(this.value)">
+      </div>
+      <div class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">History</span>
+        </div>
+        <div id="chats-list" class="chats-list"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Agents -->
+    <div id="tab-agents" class="sidebar-tab-content" style="display:none;">
+      <div class="sidebar-search">
+        <input type="text" id="agent-search" placeholder="Search 186+ agents..." oninput="filterAgents(this.value)">
+      </div>
+      <div class="agent-category-filter" id="agent-categories"></div>
+      <div class="sidebar-section">
+        <div id="agents-list" class="agents-list">
+          <div class="empty-state">Loading agents...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Squads -->
+    <div id="tab-squads" class="sidebar-tab-content" style="display:none;">
+      <div class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">Pre-built Squads</span>
+        </div>
+        <div id="squads-list" class="squads-list">
+          <div class="empty-state">Loading squads...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Memory -->
+    <div id="tab-memory" class="sidebar-tab-content" style="display:none;">
+      <div class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">🗂️ Shared Memory</span>
+          <button class="btn-icon-sm" onclick="refreshMemory()" title="Refresh memory">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+        <div id="memory-project-name" class="memory-project-name" style="display:none;">
+          <span id="mem-project-emoji">🗂️</span>
+          <span id="mem-project-name">Project</span>
+          <span id="mem-project-status" class="mem-status-badge active">active</span>
+        </div>
+
+        <!-- Memory sections -->
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('overview')" >
+            <span>📍 Overview</span>
+            <span class="memory-section-toggle">▾</span>
+          </div>
+          <div id="mem-section-overview" class="memory-section-body">
+            <div id="mem-overview" class="mem-overview">Click a chat or start an orchestration to create shared memory.</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('structure')" >
+            <span>🏗️ Structure</span>
+            <span class="memory-section-toggle">▾</span>
+          </div>
+          <div id="mem-section-structure" class="memory-section-body collapsed">
+            <pre id="mem-structure" class="mem-structure">(not scanned)</pre>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('tasks')" >
+            <span>📋 Tasks</span>
+            <span id="mem-task-count" class="mem-count-badge">0</span>
+          </div>
+          <div id="mem-section-tasks" class="memory-section-body collapsed">
+            <div id="mem-tasks" class="mem-tasks">(no tasks)</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('log')" >
+            <span>📋 Activity</span>
+            <span id="mem-log-count" class="mem-count-badge">0</span>
+          </div>
+          <div id="mem-section-log" class="memory-section-body collapsed">
+            <div id="mem-log" class="mem-log">(no activity)</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('decisions')" >
+            <span>💡 Decisions</span>
+            <span id="mem-decisions-count" class="mem-count-badge">0</span>
+          </div>
+          <div id="mem-section-decisions" class="memory-section-body collapsed">
+            <div id="mem-decisions" class="mem-entries">(none)</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('blockers')" >
+            <span>⚠️ Blockers</span>
+            <span id="mem-blockers-count" class="mem-count-badge danger">0</span>
+          </div>
+          <div id="mem-section-blockers" class="memory-section-body collapsed">
+            <div id="mem-blockers" class="mem-entries">(none)</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('handoffs')" >
+            <span>🤝 Handoffs</span>
+            <span id="mem-handoffs-count" class="mem-count-badge">0</span>
+          </div>
+          <div id="mem-section-handoffs" class="memory-section-body collapsed">
+            <div id="mem-handoffs" class="mem-entries">(none)</div>
+          </div>
+        </div>
+
+        <div class="memory-section">
+          <div class="memory-section-header" onclick="toggleMemorySection('files')" >
+            <span>📝 Files</span>
+            <span id="mem-files-count" class="mem-count-badge">0</span>
+          </div>
+          <div id="mem-section-files" class="memory-section-body collapsed">
+            <div id="mem-files" class="mem-files">(none)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory quick actions -->
+      <div class="memory-quick-actions">
+        <button class="btn-orch-sm" onclick="focusCommandBar('/memory status ')">📋 Status</button>
+        <button class="btn-orch-sm" onclick="focusCommandBar('/memory log ')">📜 Log</button>
+        <button class="btn-orch-sm" onclick="focusCommandBar('/memory tasks ')">📋 Tasks</button>
+        <button class="btn-orch-sm" onclick="openMemoryRaw()">📄 Raw</button>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="active-agent-badge" id="active-agent-badge" style="display:none;">
+        <span class="badge-emoji" id="badge-emoji">🤖</span>
+        <span class="badge-name" id="badge-name">Agent</span>
+        <button class="badge-close" onclick="deactivateAgent()" title="Deactivate">×</button>
+      </div>
+      <div class="footer-controls">
+        <button class="btn-icon" onclick="openSettings()" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="btn-icon" onclick="showShortcuts()" title="Keyboard shortcuts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+        </button>
+        <div class="time-date" id="time-date"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- ─── Main Area ───────────────────────────────────────────────────── -->
+  <main id="right-panel" class="panel right-panel">
+
+    <!-- Top Bar -->
+    <div class="top-section">
+      <div class="top-left">
+        <button class="btn-icon" onclick="toggleSidebar()" title="Toggle sidebar (Ctrl+B)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="chat-title" id="chat-title">RudraX</div>
+        <div class="status-dot disconnected" id="connection-status"></div>
+      </div>
+      <div class="top-right">
+        <!-- Active Squad Badge -->
+        <div class="squad-badge" id="squad-badge" style="display:none;" onclick="switchSidebarTab('squads')">
+          <span class="squad-badge-emoji" id="squad-badge-emoji">🎭</span>
+          <span class="squad-badge-name" id="squad-badge-name"></span>
+          <span class="squad-badge-count" id="squad-badge-count"></span>
+        </div>
+        <!-- Orchestrator Mode Badge -->
+        <div class="orch-mode-badge" id="orch-mode-badge">
+          <span class="orch-mode-dot"></span>
+          <span class="orch-mode-label" id="orch-mode-label">Auto</span>
+        </div>
+        <!-- Toggle Buttons -->
+        <button class="btn-icon-action" onclick="toggleOrchestrator()" title="Orchestrator Panel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="btn-icon-action" onclick="toggleTerminal()" title="Terminal (Ctrl+`)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area (chat + panels) -->
+    <div class="content-area">
+
+      <!-- ─── Chat + Orchestrator Split ──────────────────────────────── -->
+      <div class="chat-orchestrator-split">
+
+        <!-- Chat Area -->
+        <div class="chat-area-wrapper" id="chat-area-wrapper">
+
+          <!-- Welcome Screen -->
+          <div class="welcome-screen" id="welcome-screen">
+            <div class="welcome-content">
+              <div class="welcome-logo">🔥</div>
+              <h1 class="welcome-title">RudraX</h1>
+              <p class="welcome-subtitle">Build · Break · Deploy · Orchestrate</p>
+              <p class="welcome-hint">Autonomous AI Stack with 186+ agents & 9 squads</p>
+              <div class="quick-actions">
+                <button class="quick-action-btn" onclick="insertPrompt('/orchestrate auto Build a REST API with auth')">
+                  <span class="qa-icon">🧠</span> Orchestrate a task
+                </button>
+                <button class="quick-action-btn" onclick="insertPrompt('/dispatch engineering-backend-architect Design database schema')">
+                  <span class="qa-icon">🚀</span> Dispatch an agent
+                </button>
+                <button class="quick-action-btn" onclick="switchSidebarTab('squads'); toggleSidebar();">
+                  <span class="qa-icon">🎭</span> Activate a squad
+                </button>
+                <button class="quick-action-btn" onclick="insertPrompt('/agency list')">
+                  <span class="qa-icon">📋</span> Agency commands
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chat-history" id="chat-history"></div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar hidden" id="progress-bar">
+            <div class="progress-spinner"></div>
+            <span class="progress-text" id="progress-text">Processing...</span>
+          </div>
+
+          <!-- Command Bar + Input -->
+          <div class="input-section">
+            <!-- Command suggestions dropdown -->
+            <div class="command-suggestions hidden" id="command-suggestions"></div>
+
+            <div class="input-row">
+              <div class="input-container">
+                <textarea id="chat-input"
+                  placeholder="Message RudraX... (/ for commands, Shift+Enter for new line)"
+                  onkeydown="handleInputKeydown(event)"
+                  oninput="handleInputChange(this); adjustTextareaHeight(this)"
+                  rows="1"
+                ></textarea>
+              </div>
+              <div class="input-buttons">
+                <button class="send-button" id="send-button" onclick="sendMessage()" title="Send (Enter)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="input-footer">
+              <span class="input-hint">Enter to send · Shift+Enter for new line · / for commands · Ctrl+` terminal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Orchestrator Panel ──────────────────────────────────── -->
+        <div class="orchestrator-panel hidden" id="orchestrator-panel">
+          <div class="orch-header">
+            <h3 class="orch-title">🧠 Orchestrator</h3>
+            <div class="orch-controls">
+              <button class="btn-icon-sm" onclick="toggleOrchMode()" title="Toggle auto/manual">
+                <span id="orch-panel-mode">AUTO</span>
+              </button>
+              <button class="btn-icon-sm" onclick="resetOrchestrator()" title="Reset">↺</button>
+              <button class="btn-icon-sm" onclick="toggleOrchestrator()" title="Close">✕</button>
+            </div>
+          </div>
+
+          <!-- Plan Status -->
+          <div class="orch-plan-section" id="orch-plan-section">
+            <div class="orch-no-plan" id="orch-no-plan">
+              <p>No active plan</p>
+              <button class="btn-orch-start" onclick="focusCommandBar('/orchestrate ')">Start Plan</button>
+            </div>
+            <div class="orch-active-plan hidden" id="orch-active-plan">
+              <div class="orch-plan-header">
+                <span class="orch-plan-status" id="orch-plan-status">PLANNING</span>
+                <span class="orch-plan-task" id="orch-plan-task"></span>
+              </div>
+              <div class="orch-lanes" id="orch-lanes"></div>
+              <div class="orch-plan-actions">
+                <button class="btn-orch-sm" onclick="stopOrchestration()">⏹ Stop</button>
+                <button class="btn-orch-sm" onclick="resetOrchestrator()">↺ Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Agent -->
+          <div class="orch-agent-section" id="orch-agent-section" style="display:none;">
+            <h4 class="orch-section-title">Active Agent</h4>
+            <div class="orch-active-agent" id="orch-active-agent-card"></div>
+          </div>
+
+          <!-- Task History -->
+          <div class="orch-history-section" id="orch-history-section">
+            <h4 class="orch-section-title">Task Log</h4>
+            <div class="orch-task-log" id="orch-task-log">
+              <div class="empty-state">No tasks yet</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="orch-quick-actions">
+            <button class="btn-orch-action" onclick="focusCommandBar('/dispatch ')">🚀 Dispatch</button>
+            <button class="btn-orch-action" onclick="focusCommandBar('/orchestrate auto ')">🧠 Plan</button>
+            <button class="btn-orch-action" onclick="focusCommandBar('/agency status')">📋 Status</button>
+            <button class="btn-orch-action" onclick="switchSidebarTab('squads')">🎭 Squads</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Terminal Panel ──────────────────────────────────────────── -->
+      <div class="terminal-panel hidden" id="terminal-panel">
+        <div class="terminal-header">
+          <div class="terminal-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Terminal
+          </div>
+          <div class="terminal-controls">
+            <button class="btn-icon-sm" onclick="resetTerminal()" title="Reset">↺</button>
+            <button class="btn-icon-sm" onclick="toggleTerminal()" title="Close">✕</button>
+          </div>
+        </div>
+        <div class="terminal-container" id="terminal-container"></div>
+      </div>
+
+    </div><!-- /content-area -->
+  </main>
+</div>
+
+<!-- ─── Settings Modal ────────────────────────────────────────────────────── -->
+<div class="modal hidden" id="settings-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="btn-icon" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-group">
+        <label class="settings-label">Theme</label>
+        <select class="settings-select" id="theme-select" onchange="setTheme(this.value)">
+          <option value="dark">🌙 Dark</option>
+          <option value="light">☀️ Light</option>
+        </select>
+      </div>
+      <div class="settings-group">
+        <label class="settings-label">Font Size</label>
+        <input type="range" class="settings-range" min="12" max="20" value="14" step="1" oninput="setFontSize(+this.value)" id="font-size-range">
+        <span class="settings-value" id="font-size-value">14px</span>
+      </div>
+      <div class="settings-group">
+        <label class="settings-label">Orchestrator Mode</label>
+        <select class="settings-select" id="orch-settings-mode" onchange="setOrchMode(this.value)">
+          <option value="auto">🧠 Auto (orchestrator plans + dispatches)</option>
+          <option value="manual">👤 Manual (you pick agents)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- App JS -->
+<script src="js/terminal.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

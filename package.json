@@ -10,12 +10,21 @@
   },
   "bin": {
     "rudrax": "bin/rudrax",
-    "rx": "bin/rudrax"
+    "rx": "bin/rudrax",
+    "rudrax-tools": "tools/bin/rudrax-tools",
+    "rudrax-web": "webui/server.js"
   },
   "scripts": {
     "start": "node bin/rudrax",
     "test": "echo 'RudraX TUI tests not included'",
-    "install-global": "npm install -g ."
+    "install-global": "npm install -g .",
+    "tools": "node tools/bin/rudrax-tools",
+    "tools:status": "node tools/bin/rudrax-tools status",
+    "tools:server": "node tools/bin/rudrax-tools server 8080",
+    "webui": "node webui/server.js",
+    "webui:dev": "RUDRAX_WEBUI_PORT=5555 node webui/server.js",
+    "webui:bg": "node lib/core/webui-manager.js",
+    "webui:install-service": "bash deploy/install-webui-service.sh"
   },
   "keywords": [
     "rudrax",
@@ -45,6 +54,7 @@
     "chalk": "^5.x",
     "cli-highlight": "^2.1.11",
     "diff": "^8.0.4",
+    "express": "^5.2.1",
     "extract-zip": "^2.0.1",
     "file-type": "^22.0.0",
     "get-east-asian-width": "^1.5.0",
@@ -59,6 +69,7 @@
     "partial-json": "^0.1.7",
     "proper-lockfile": "^4.1.2",
     "proxy-agent": "^8.0.1",
+    "socket.io": "^4.8.3",
     "undici": "^8.1.0",
     "yaml": "^2.8.3",
     "zod-to-json-schema": "^3.25.2"

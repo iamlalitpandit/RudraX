@@ -91,6 +91,21 @@ rudrax/
 ### AI Operating Systems
 - **RudraX AIOS** - AI Operating System for autonomous task execution
 
+### Agency Agents (186+ AI Specialists) + Autonomous Orchestrator
+- **🧠 Orchestrator** — Analyzes prompts, plans execution lanes, dispatches to specialized agents, monitors completion
+- **🚀 Parallel Dispatch** — Multiple agents run simultaneously for maximum speed
+- **📋 Execution Plans** — Dependency-aware lane system (Lane 1 parallel → Lane 2 → ...)
+- **Engineering** — Frontend, Backend, DevOps, Security, Mobile, AI, SRE (29 agents)
+- **Marketing** — Growth, SEO, Content, Social Media, TikTok, LinkedIn (30 agents)
+- **Design** — UX Architect, UI Designer, Brand Guardian (8 agents)
+- **Specialized** — MCP Builder, Legal, Healthcare, Blockchain (41 agents)
+- **Game Dev** — Unity, Unreal, Godot, Blender (20 agents)
+- **Finance** — Analysts, Bookkeeper, Tax Strategist (5 agents)
+- **+9 more divisions** — Academic, Product, Sales, Testing, Support, etc.
+- **NEXUS Orchestrator** — Multi-agent coordination with playbooks & runbooks
+- **9 Pre-defined Squads** — Startup, Enterprise, Security, QA, AI, Web3, Growth, Incident
+- See [tools/agency/README.md](tools/agency/README.md) for full list and setup
+
 ### Squads (Multi-Agent Teams)
 - `team-all` - Full development squad
 - `team-fullstack` - Web fullstack team
