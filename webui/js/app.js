@@ -1,19 +1,21 @@
 /**
- * RudraX Web UI — Agency Edition
- * Main Application Module
+ * RudraX Web UI — Agency Edition 🔱
+ * Rudraksh Theme · Incremental Rendering · Socket.IO Streaming
  * Build · Break · Deploy · Orchestrate
+ * By Lalit Pandit
  */
 
-// ─── Config ─────────────────────────────────────────────────────────────────
+// ═══ Config ═══════════════════════════════════════════════════════════════════
 
 const CONFIG = {
   API_BASE: window.location.origin,
-  POLL_INTERVAL: 500,
+  POLL_INTERVAL: 2000,   // Fallback poll interval (Socket.IO is primary)
   RECONNECT_INTERVAL: 3000,
   MAX_RETRIES: 5,
+  STREAM_DEBOUNCE: 16,   // ~60fps for streaming updates
 };
 
-// ─── Command Registry ──────────────────────────────────────────────────────
+// ═══ Command Registry ═════════════════════════════════════════════════════════
 
 const COMMANDS = [
   { name: '/orchestrate', desc: 'Plan and execute multi-agent tasks', icon: '🧠', usage: '/orchestrate <auto|manual> <task>' },
@@ -26,12 +28,12 @@ const COMMANDS = [
   { name: '/clear', desc: 'Clear chat history', icon: '🧹', usage: '/clear' },
 ];
 
-// ─── State ─────────────────────────────────────────────────────────────────
+// ═══ State ═════════════════════════════════════════════════════════════════════
 
 const state = {
   context: null,
   contexts: [],
-  logs: [],
+  logs: [],            // Ordered array of log entries
   logVersion: 0,
   logGuid: '',
   connected: false,
@@ -43,6 +45,7 @@ const state = {
   socket: null,
   pollTimer: null,
   retryCount: 0,
+
   // Agency state
   agents: [],
   agentCategories: {},
@@ -52,6 +55,7 @@ const state = {
   activeSquad: null,
   activeSquadAgents: [],
   squads: {},
+
   // Orchestrator state
   orchestrator: {
     mode: 'auto',
@@ -60,18 +64,27 @@ const state = {
     taskHistory: [],
   },
   orchestratorOpen: false,
+
   // Terminal state
   terminalOpen: false,
   terminal: null,
   terminalFit: null,
+
+  // Agent Activity
+  activityLog: [],       // Array of {ts, type, agent, content}
+  activityOpen: false,
+
+  // Rendering state
+  _renderedIds: new Set(),  // IDs of messages already in DOM
+  _streamTimers: {},        // Timers for debounced stream updates
 };
 
-// ─── DOM References ─────────────────────────────────────────────────────────
+// ═══ DOM Helpers ═════════════════════════════════════════════════════════════
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-// ─── Initialization ────────────────────────────────────────────────────────
+// ═══ Initialization ═══════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -84,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   adjustTextareaHeight($('#chat-input'));
 });
 
-// ─── Socket.IO ──────────────────────────────────────────────────────────────
+// ═══ Socket.IO — Primary real-time channel ════════════════════════════════════
 
 function initSocketIO() {
   state.socket = io(CONFIG.API_BASE, {
@@ -117,23 +130,25 @@ function initSocketIO() {
     applyOrchestratorUpdate(orchState);
   });
 
-  state.socket.on('connect_error', (err) => {
-    console.error('[RudraX] Socket error:', err);
-    state.connected = false;
-    updateConnectionStatus('disconnected');
+  state.socket.on('memory_update', (data) => {
+    if (data.contextId === memoryState.contextId) {
+      memoryState.data = data.memory;
+      renderMemory(data.memory);
+    }
+  });
+
+  // ═══ Agent Activity Events ═════════════════════════════════════════════════
+  state.socket.on('agent_activity', (event) => {
+    addAgentActivity(event);
   });
 
   // Terminal events
   state.socket.on('terminal_data', (data) => {
-    if (state.terminal) {
-      state.terminal.write(data);
-    }
+    if (state.terminal) state.terminal.write(data);
   });
-
   state.socket.on('terminal_ready', (info) => {
     console.log('[RudraX] Terminal ready:', info);
   });
-
   state.socket.on('terminal_exit', (info) => {
     if (state.terminal) {
       state.terminal.write(`\r\n\x1b[33m[Process exited with code ${info.code}]\x1b[0m\r\n`);
@@ -141,7 +156,7 @@ function initSocketIO() {
   });
 }
 
-// ─── Polling (fallback) ────────────────────────────────────────────────────
+// ═══ Fallback Polling (only when Socket.IO is disconnected) ══════════════════
 
 function startPolling() {
   if (state.pollTimer) clearInterval(state.pollTimer);
@@ -149,6 +164,7 @@ function startPolling() {
 }
 
 async function poll() {
+  if (state.socket?.connected) return; // Socket.IO is primary, skip polling
   try {
     const response = await fetch(`${CONFIG.API_BASE}/poll`, {
       method: 'POST',
@@ -172,7 +188,7 @@ async function poll() {
   }
 }
 
-// ─── Apply State Snapshot ──────────────────────────────────────────────────
+// ═══ Apply State Snapshot — INCREMENTAL DOM UPDATES ══════════════════════════
 
 function applySnapshot(snapshot) {
   if (!snapshot) return;
@@ -193,33 +209,19 @@ function applySnapshot(snapshot) {
     renderContextsList();
   }
 
+  // Reset logs if GUID changed (new context)
   if (snapshot.log_guid && snapshot.log_guid !== state.logGuid) {
     state.logGuid = snapshot.log_guid;
     state.logVersion = 0;
     state.logs = [];
+    state._renderedIds.clear();
+    clearMessages();
   }
 
   if (snapshot.log_version !== undefined && snapshot.log_version > state.logVersion) {
     const newLogs = snapshot.logs || [];
-    for (const log of newLogs) {
-      if (log._update) {
-        const existing = state.logs.find(l => l.id === log.id);
-        if (existing) {
-          Object.assign(existing, log, { _update: undefined });
-        } else {
-          state.logs.push({ ...log, _update: undefined });
-        }
-      } else {
-        const existingIndex = state.logs.findIndex(l => l.id === log.id);
-        if (existingIndex >= 0) {
-          state.logs[existingIndex] = { ...log };
-        } else {
-          state.logs.push({ ...log });
-        }
-      }
-    }
+    applyLogUpdates(newLogs);
     state.logVersion = snapshot.log_version;
-    renderMessages();
   }
 
   if (snapshot.log_progress !== undefined) {
@@ -230,37 +232,161 @@ function applySnapshot(snapshot) {
   state.paused = snapshot.paused || false;
   updateSendButton();
 
-  if (state.context) {
-    hideWelcome();
+  if (state.context) hideWelcome();
+}
+
+/**
+ * Apply log updates incrementally — only update/add changed entries.
+ * This is the KEY change: instead of rebuild entire innerHTML, we
+ * surgically update only what changed.
+ */
+function applyLogUpdates(newLogs) {
+  const container = $('#chat-history');
+  if (!container) return;
+
+  let needsScroll = false;
+
+  for (const log of newLogs) {
+    const existingIdx = state.logs.findIndex(l => l.id === log.id);
+    const isUpdate = log._update === true;
+    const isFinal = log._final === true;
+    const isStreaming = log._streaming === true;
+
+    if (isUpdate || isFinal) {
+      // Update existing entry in state
+      if (existingIdx >= 0) {
+        const existing = state.logs[existingIdx];
+        // Merge content for streaming updates
+        if (isStreaming && log.content && existing.content) {
+          state.logs[existingIdx] = {
+            ...existing,
+            ...log,
+            content: log.content,  // Streaming: replace with latest content
+            _update: undefined,
+            _final: undefined,
+            _streaming: undefined,
+          };
+        } else {
+          state.logs[existingIdx] = {
+            ...existing,
+            ...log,
+            _update: undefined,
+            _final: undefined,
+            _streaming: undefined,
+          };
+        }
+        // Update DOM element directly (no full re-render!)
+        const domEl = document.getElementById(`msg-${existing.id}`);
+        if (domEl) {
+          const updatedEntry = state.logs[existingIdx];
+          const newHTML = renderLogMessage(updatedEntry);
+          // Only update content area for streaming, not the whole message
+          if (isStreaming) {
+            const textEl = domEl.querySelector('.message-text');
+            if (textEl) {
+              textEl.innerHTML = renderMarkdown(updatedEntry.content || '');
+              // Add streaming cursor class
+              domEl.classList.add('streaming');
+            }
+          } else {
+            // Full update of this message
+            domEl.outerHTML = newHTML;
+          }
+        } else {
+          // DOM element missing, add it
+          appendMessage(state.logs[existingIdx], container);
+        }
+      }
+    } else {
+      // New entry
+      if (existingIdx >= 0) {
+        // Replace
+        state.logs[existingIdx] = { ...log };
+        const domEl = document.getElementById(`msg-${log.id}`);
+        if (domEl) {
+          domEl.outerHTML = renderLogMessage(state.logs[existingIdx]);
+        }
+      } else {
+        // Append
+        state.logs.push({ ...log });
+        appendMessage(log, container);
+        needsScroll = true;
+      }
+    }
+
+    // Track rendered
+    state._renderedIds.add(log.id);
+  }
+
+  // Auto-scroll if new messages added
+  if (needsScroll && state.autoScroll) {
+    scrollToBottom();
+  }
+
+  // Log agent activity
+  for (const log of newLogs) {
+    if (log.type === 'tool' || log.type === 'tool_result') {
+      addAgentActivity({
+        ts: log.timestamp || Date.now(),
+        type: log.type,
+        agent: log.kvps?.agent || log.kvps?.tool_name || 'system',
+        content: log.content || log.heading || '',
+      });
+    } else if (log.type === 'response' && log.content) {
+      addAgentActivity({
+        ts: log.timestamp || Date.now(),
+        type: 'response',
+        agent: 'RudraX',
+        content: log.content.slice(0, 100),
+      });
+    }
   }
 }
 
-// ─── Orchestrator Updates ──────────────────────────────────────────────────
+/**
+ * Append a single message to the DOM without re-rendering everything.
+ */
+function appendMessage(log, container) {
+  const div = document.createElement('div');
+  div.innerHTML = renderLogMessage(log);
+  const msgEl = div.firstElementChild;
+  if (msgEl) {
+    msgEl.style.animation = 'fadeIn 0.2s ease';
+    container.appendChild(msgEl);
+  }
+}
+
+// ═══ DEPRECATED: full re-render (only used for clear/reset) ═══════════════════
+
+function renderMessages() {
+  const container = $('#chat-history');
+  if (!container) return;
+  container.innerHTML = state.logs.map(log => renderLogMessage(log)).join('');
+  // Mark all as rendered
+  state._renderedIds = new Set(state.logs.map(l => l.id));
+  if (state.autoScroll) scrollToBottom();
+}
+
+function clearMessages() {
+  const container = $('#chat-history');
+  if (container) container.innerHTML = '';
+  state._renderedIds.clear();
+}
+
+// ═══ Orchestrator Updates ═════════════════════════════════════════════════════
 
 function applyOrchestratorUpdate(orchState) {
   state.orchestrator = { ...state.orchestrator, ...orchState };
-
-  // Update mode badge
   const modeLabel = $('#orch-mode-label');
   if (modeLabel) modeLabel.textContent = orchState.mode === 'auto' ? 'Auto' : 'Manual';
-
-  const panelMode = $('#orch-panel-mode');
-  if (panelMode) panelMode.textContent = orchState.mode?.toUpperCase() || 'AUTO';
-
   const settingsMode = $('#orch-settings-mode');
   if (settingsMode) settingsMode.value = orchState.mode || 'auto';
-
-  // Update active agent badge
   updateActiveAgentBadge(orchState.activeAgent);
-
-  // Update squad badge
   updateSquadBadge(orchState.activeSquad, orchState.activeSquadAgents);
-
-  // Update orchestrator panel
   renderOrchestratorPanel();
 }
 
-// ─── Context Management ────────────────────────────────────────────────────
+// ═══ Context Management ═══════════════════════════════════════════════════════
 
 async function newContext() {
   try {
@@ -275,14 +401,14 @@ async function newContext() {
     state.logs = [];
     state.logVersion = 0;
     state.logGuid = '';
+    state._renderedIds.clear();
     hideWelcome();
-    renderMessages();
+    clearMessages();
     updateChatTitle(data.name || 'New Chat');
     renderContextsList();
     if (state.socket?.connected) {
       state.socket.emit('state_request', { context: state.context });
     }
-    // Initialize shared memory for new context
     await loadMemory(data.context);
     $('#chat-input')?.focus();
   } catch (err) {
@@ -296,6 +422,7 @@ async function selectContext(contextId) {
   state.logVersion = 0;
   state.logGuid = '';
   state.logs = [];
+  state._renderedIds.clear();
   hideWelcome();
   clearMessages();
   updateChatTitle(getContextName(contextId));
@@ -304,7 +431,6 @@ async function selectContext(contextId) {
     state.socket.emit('state_request', { context: state.context });
   }
   await poll();
-  // Load shared memory for this context
   await loadMemory(contextId);
 }
 
@@ -316,6 +442,7 @@ async function deleteContext(contextId, event) {
     if (state.context === contextId) {
       state.context = null;
       state.logs = [];
+      state._renderedIds.clear();
       showWelcome();
     }
     renderContextsList();
@@ -324,15 +451,13 @@ async function deleteContext(contextId, event) {
   }
 }
 
-// ─── Agent Loading ─────────────────────────────────────────────────────────
+// ═══ Agent Loading ════════════════════════════════════════════════════════════
 
 async function loadAgents() {
   try {
     const response = await fetch(`${CONFIG.API_BASE}/api/skills`);
     if (!response.ok) throw new Error('Failed to load agents');
     state.agents = await response.json();
-
-    // Build categories
     state.agentCategories = {};
     for (const agent of state.agents) {
       if (!state.agentCategories[agent.category]) {
@@ -340,7 +465,6 @@ async function loadAgents() {
       }
       state.agentCategories[agent.category].count++;
     }
-
     renderAgentCategories();
     renderAgentsList();
   } catch (err) {
@@ -361,14 +485,12 @@ async function loadSquads() {
   }
 }
 
-// ─── Rendering: Agents ──────────────────────────────────────────────────────
+// ═══ Rendering: Agents ══════════════════════════════════════════════════════
 
 function renderAgentCategories() {
   const container = $('#agent-categories');
   if (!container) return;
-
   const categories = Object.entries(state.agentCategories).sort((a, b) => b[1].count - a[1].count);
-
   container.innerHTML = `
     <span class="agent-cat-chip ${state.agentCategoryFilter === 'all' ? 'active' : ''}"
           onclick="filterAgentCategory('all')">All (${state.agents.length})</span>
@@ -396,15 +518,10 @@ function filterAgents(query) {
 function renderAgentsList() {
   const container = $('#agents-list');
   if (!container) return;
-
   let agents = state.agents;
-
-  // Apply category filter
   if (state.agentCategoryFilter !== 'all') {
     agents = agents.filter(a => a.category === state.agentCategoryFilter);
   }
-
-  // Apply text search
   if (state.agentFilter) {
     agents = agents.filter(a =>
       a.name.toLowerCase().includes(state.agentFilter) ||
@@ -412,12 +529,10 @@ function renderAgentsList() {
       a.skillName.toLowerCase().includes(state.agentFilter)
     );
   }
-
   if (agents.length === 0) {
     container.innerHTML = '<div class="empty-state">No agents found</div>';
     return;
   }
-
   container.innerHTML = agents.map(agent => `
     <div class="agent-item ${state.activeAgent === agent.skillName ? 'active' : ''}"
          onclick="activateAgent('${agent.skillName}')" title="${escapeHtml(agent.vibe || agent.description)}">
@@ -446,18 +561,16 @@ function getCatColor(category) {
   return colors[category] || '#78909c';
 }
 
-// ─── Rendering: Squads ─────────────────────────────────────────────────────
+// ═══ Rendering: Squads ═══════════════════════════════════════════════════════
 
 function renderSquadsList() {
   const container = $('#squads-list');
   if (!container) return;
-
   const entries = Object.entries(state.squads);
   if (entries.length === 0) {
     container.innerHTML = '<div class="empty-state">No squads available</div>';
     return;
   }
-
   container.innerHTML = entries.map(([key, squad]) => `
     <div class="squad-card ${state.activeSquad === key ? 'active' : ''}"
          onclick="activateSquad('${key}')" title="${escapeHtml(squad.description)}">
@@ -475,7 +588,7 @@ function renderSquadsList() {
   `).join('');
 }
 
-// ─── Agent/Squad Actions ───────────────────────────────────────────────────
+// ═══ Agent/Squad Actions ═════════════════════════════════════════════════════
 
 async function activateAgent(skillName) {
   try {
@@ -490,6 +603,7 @@ async function activateAgent(skillName) {
       updateActiveAgentBadge(skillName);
       renderAgentsList();
       showToast(`✅ Agent ${skillName} activated`, 'success');
+      addAgentActivity({ ts: Date.now(), type: 'system', agent: skillName, content: 'Agent activated' });
     }
   } catch (err) {
     showToast('Failed to activate agent', 'error');
@@ -503,9 +617,7 @@ async function deactivateAgent() {
     updateActiveAgentBadge(null);
     renderAgentsList();
     showToast('Agent deactivated', 'info');
-  } catch (err) {
-    // Ignore
-  }
+  } catch (err) { /* Ignore */ }
 }
 
 async function activateSquad(squadName) {
@@ -536,17 +648,14 @@ async function deactivateSquad() {
     updateSquadBadge(null, []);
     renderSquadsList();
     showToast('Squad deactivated', 'info');
-  } catch (err) {
-    // Ignore
-  }
+  } catch (err) { /* Ignore */ }
 }
 
-// ─── Agent/Squad Badge Updates ─────────────────────────────────────────────
+// ═══ Agent/Squad Badge Updates ══════════════════════════════════════════════
 
 function updateActiveAgentBadge(agentName) {
   const badge = $('#active-agent-badge');
   if (!badge) return;
-
   if (agentName) {
     const agent = state.agents.find(a => a.skillName === agentName);
     $('#badge-emoji').textContent = agent?.emoji || '🤖';
@@ -560,7 +669,6 @@ function updateActiveAgentBadge(agentName) {
 function updateSquadBadge(squadName, agents) {
   const badge = $('#squad-badge');
   if (!badge) return;
-
   if (squadName && state.squads[squadName]) {
     const squad = state.squads[squadName];
     $('#squad-badge-emoji').textContent = squad.emoji;
@@ -572,7 +680,7 @@ function updateSquadBadge(squadName, agents) {
   }
 }
 
-// ─── Orchestrator Panel ────────────────────────────────────────────────────
+// ═══ Orchestrator Panel ══════════════════════════════════════════════════════
 
 function toggleOrchestrator() {
   state.orchestratorOpen = !state.orchestratorOpen;
@@ -594,26 +702,20 @@ function renderOrchestratorPanel() {
     if (noPlan) noPlan.style.display = 'none';
     if (activePlan) {
       activePlan.classList.remove('hidden');
-
       const statusEl = $('#orch-plan-status');
       const taskEl = $('#orch-plan-task');
-      if (statusEl) statusEl.textContent = plan.status?.toUpperCase() || 'PLANNING';
-      if (taskEl) taskEl.textContent = plan.task || '';
-
-      // Update status badge class
       if (statusEl) {
+        statusEl.textContent = plan.status?.toUpperCase() || 'PLANNING';
         statusEl.className = 'orch-plan-status';
         if (plan.status === 'completed') statusEl.classList.add('completed');
         else if (plan.status === 'stopped') statusEl.classList.add('stopped');
         else if (plan.status === 'running') statusEl.classList.add('running');
       }
-
-      // Render lanes
+      if (taskEl) taskEl.textContent = plan.task || '';
       renderOrchLanes(plan.lanes || []);
     }
   }
 
-  // Active agent section
   if (state.orchestrator.activeAgent && agentSection) {
     agentSection.style.display = '';
     const agent = state.agents.find(a => a.skillName === state.orchestrator.activeAgent);
@@ -624,20 +726,16 @@ function renderOrchestratorPanel() {
   } else if (agentSection) {
     agentSection.style.display = 'none';
   }
-
-  // Task history
   renderOrchTaskLog();
 }
 
 function renderOrchLanes(lanes) {
   const container = $('#orch-lanes');
   if (!container) return;
-
   if (!lanes || lanes.length === 0) {
     container.innerHTML = '<div class="empty-state" style="padding:8px">Planning in progress...</div>';
     return;
   }
-
   container.innerHTML = lanes.map((lane, i) => `
     <div class="orch-lane">
       <div class="orch-lane-header">
@@ -666,13 +764,11 @@ function getLaneStatusText(lane) {
 function renderOrchTaskLog() {
   const container = $('#orch-task-log');
   if (!container) return;
-
   const history = state.orchestrator.taskHistory || [];
   if (history.length === 0) {
     container.innerHTML = '<div class="empty-state" style="padding:8px">No tasks yet</div>';
     return;
   }
-
   container.innerHTML = history.slice(-20).reverse().map(h => `
     <div class="orch-log-entry ${h.success ? 'success' : h.error ? 'error' : ''}">
       <span>${new Date(h.completedAt || Date.now()).toLocaleTimeString()}</span>
@@ -681,7 +777,7 @@ function renderOrchTaskLog() {
   `).join('');
 }
 
-// ─── Orchestration Actions ─────────────────────────────────────────────────
+// ═══ Orchestration Actions ════════════════════════════════════════════════════
 
 async function startOrchestration(task) {
   try {
@@ -695,6 +791,7 @@ async function startOrchestration(task) {
       state.orchestrator.activePlan = data.plan;
       renderOrchestratorPanel();
       showToast('🧠 Orchestration plan created', 'success');
+      addAgentActivity({ ts: Date.now(), type: 'system', agent: 'Orchestrator', content: `Plan created: ${task.slice(0, 80)}` });
     }
   } catch (err) {
     showToast('Failed to start orchestration', 'error');
@@ -704,14 +801,10 @@ async function startOrchestration(task) {
 async function stopOrchestration() {
   try {
     await fetch(`${CONFIG.API_BASE}/api/orchestrator/stop`, { method: 'POST' });
-    if (state.orchestrator.activePlan) {
-      state.orchestrator.activePlan.status = 'stopped';
-    }
+    if (state.orchestrator.activePlan) state.orchestrator.activePlan.status = 'stopped';
     renderOrchestratorPanel();
     showToast('⏹ Orchestration stopped', 'info');
-  } catch (err) {
-    // Ignore
-  }
+  } catch (err) { /* Ignore */ }
 }
 
 async function resetOrchestrator() {
@@ -722,47 +815,67 @@ async function resetOrchestrator() {
     state.orchestrator.taskHistory = [];
     renderOrchestratorPanel();
     showToast('↺ Orchestrator reset', 'info');
-  } catch (err) {
-    // Ignore
-  }
-}
-
-async function toggleOrchMode() {
-  const newMode = state.orchestrator.mode === 'auto' ? 'manual' : 'auto';
-  try {
-    await fetch(`${CONFIG.API_BASE}/api/orchestrator/mode`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: newMode }),
-    });
-    state.orchestrator.mode = newMode;
-    const modeLabel = $('#orch-mode-label');
-    if (modeLabel) modeLabel.textContent = newMode === 'auto' ? 'Auto' : 'Manual';
-    const panelMode = $('#orch-panel-mode');
-    if (panelMode) panelMode.textContent = newMode.toUpperCase();
-    showToast(`🧠 Mode: ${newMode}`, 'info');
-  } catch (err) {
-    // Ignore
-  }
+  } catch (err) { /* Ignore */ }
 }
 
 function setOrchMode(mode) {
+  state.orchestrator.mode = mode;
   fetch(`${CONFIG.API_BASE}/api/orchestrator/mode`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mode }),
   });
-  state.orchestrator.mode = mode;
+  const autoBtn = $('#orch-mode-auto');
+  const manualBtn = $('#orch-mode-manual');
+  if (autoBtn) autoBtn.classList.toggle('active', mode === 'auto');
+  if (manualBtn) manualBtn.classList.toggle('active', mode === 'manual');
 }
 
-// ─── Message Sending ────────────────────────────────────────────────────────
+// ═══ Agent Activity Panel ════════════════════════════════════════════════════
+
+function toggleAgentActivity() {
+  state.activityOpen = !state.activityOpen;
+  const panel = $('#agent-activity-panel');
+  if (panel) panel.classList.toggle('hidden', !state.activityOpen);
+}
+
+function addAgentActivity(event) {
+  state.activityLog.push(event);
+  // Keep last 200 entries
+  if (state.activityLog.length > 200) {
+    state.activityLog = state.activityLog.slice(-200);
+  }
+  // Render to DOM
+  const body = $('#agent-activity-body');
+  if (body) {
+    const entry = document.createElement('div');
+    entry.className = `activity-entry ${event.type === 'error' ? 'error' : event.type === 'success' ? 'success' : ''}`;
+    const ts = event.ts ? new Date(event.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+    const agent = escapeHtml(event.agent || 'system');
+    const content = escapeHtml((event.content || '').slice(0, 200));
+    const action = escapeHtml(event.action || event.type || '');
+    entry.innerHTML = `<span class="ts">${ts}</span> <span class="agent-name">[${agent}]</span> <span class="action">${action}</span> <span class="content">${content}</span>`;
+    body.appendChild(entry);
+    // Auto-scroll
+    if (state.activityOpen) {
+      body.scrollTop = body.scrollHeight;
+    }
+  }
+}
+
+function clearAgentActivity() {
+  state.activityLog = [];
+  const body = $('#agent-activity-body');
+  if (body) body.innerHTML = '';
+}
+
+// ═══ Message Sending ══════════════════════════════════════════════════════════
 
 async function sendMessage() {
   const input = $('#chat-input');
   const text = input?.value?.trim();
   if (!text) return;
 
-  // If no context, create one
   if (!state.context) {
     try {
       const response = await fetch(`${CONFIG.API_BASE}/api/contexts`, {
@@ -779,7 +892,6 @@ async function sendMessage() {
     }
   }
 
-  // Clear input
   input.value = '';
   adjustTextareaHeight(input);
   hideCommandSuggestions();
@@ -795,11 +907,11 @@ async function sendMessage() {
     timestamp: Date.now(),
   };
   state.logs.push(userMsg);
-  state.logVersion++;
-  renderMessages();
+  state._renderedIds.add(userMsg.id);
+  appendMessage(userMsg, $('#chat-history'));
   scrollToBottom();
 
-  // Parse orchestration commands locally
+  // Parse orchestration commands
   if (text.startsWith('/orchestrate ')) {
     const parts = text.slice('/orchestrate '.length);
     const modeMatch = parts.match(/^(auto|manual)\s+(.+)/);
@@ -810,10 +922,11 @@ async function sendMessage() {
     }
   }
 
-  // Send to server
   state.running = true;
   updateSendButton();
   showProgress('Processing...');
+
+  addAgentActivity({ ts: Date.now(), type: 'user', agent: 'You', content: text.slice(0, 100), action: 'message' });
 
   try {
     const response = await fetch(`${CONFIG.API_BASE}/message_async`, {
@@ -834,6 +947,8 @@ async function sendMessage() {
     console.error('[RudraX] Send error:', err);
     showToast(err.message || 'Failed to send message', 'error');
     state.logs = state.logs.filter(l => l.id !== userMsg.id);
+    const domEl = document.getElementById(`msg-${userMsg.id}`);
+    if (domEl) domEl.remove();
     state.running = false;
     updateSendButton();
     hideProgress();
@@ -855,13 +970,11 @@ function focusCommandBar(prefix) {
     input.value = prefix || '/';
     input.focus();
     adjustTextareaHeight(input);
-    if (prefix?.startsWith('/')) {
-      showCommandSuggestions(prefix);
-    }
+    if (prefix?.startsWith('/')) showCommandSuggestions(prefix);
   }
 }
 
-// ─── Command Suggestions ───────────────────────────────────────────────────
+// ═══ Command Suggestions ══════════════════════════════════════════════════════
 
 function handleInputChange(el) {
   const val = el.value;
@@ -875,24 +988,15 @@ function handleInputChange(el) {
 function showCommandSuggestions(prefix) {
   const container = $('#command-suggestions');
   if (!container) return;
-
   const matches = COMMANDS.filter(c => c.name.startsWith(prefix.toLowerCase()));
-  if (matches.length === 0) {
-    hideCommandSuggestions();
-    return;
-  }
+  if (matches.length === 0) { hideCommandSuggestions(); return; }
 
-  // Also add agent suggestions for /dispatch and /skill
   let agentSuggestions = [];
   if (prefix.startsWith('/dispatch') || prefix.startsWith('/skill:')) {
     agentSuggestions = state.agents
       .filter(a => a.skillName.toLowerCase().includes(prefix.split(' ').pop()?.toLowerCase() || ''))
       .slice(0, 5)
-      .map(a => ({
-        name: `/dispatch ${a.skillName}`,
-        desc: a.description.substring(0, 60),
-        icon: a.emoji,
-      }));
+      .map(a => ({ name: `/dispatch ${a.skillName}`, desc: a.description.substring(0, 60), icon: a.emoji }));
   }
 
   container.innerHTML = [
@@ -911,7 +1015,6 @@ function showCommandSuggestions(prefix) {
       </div>
     `),
   ].join('');
-
   container.classList.remove('hidden');
 }
 
@@ -920,26 +1023,11 @@ function hideCommandSuggestions() {
   if (container) container.classList.add('hidden');
 }
 
-// ─── Message Rendering ─────────────────────────────────────────────────────
-
-function renderMessages() {
-  const container = $('#chat-history');
-  if (!container) return;
-
-  const newHTML = state.logs.map(log => renderLogMessage(log)).join('');
-  if (container.innerHTML !== newHTML) {
-    container.innerHTML = newHTML;
-    if (state.autoScroll) scrollToBottom();
-  }
-}
-
-function clearMessages() {
-  const container = $('#chat-history');
-  if (container) container.innerHTML = '';
-}
+// ═══ Message Rendering ═══════════════════════════════════════════════════════
 
 function renderLogMessage(log) {
   const time = log.timestamp ? formatTime(log.timestamp) : '';
+  const isStreaming = log._streaming ? ' streaming' : '';
 
   switch (log.type) {
     case 'user':
@@ -956,7 +1044,7 @@ function renderLogMessage(log) {
 
     case 'agent':
       return `
-        <div class="message agent" id="msg-${log.id}">
+        <div class="message agent${isStreaming}" id="msg-${log.id}">
           <div class="message-avatar">🤖</div>
           <div class="message-content">
             ${log.heading ? `<div class="message-heading">${escapeHtml(log.heading)}</div>` : ''}
@@ -967,7 +1055,7 @@ function renderLogMessage(log) {
 
     case 'response':
       return `
-        <div class="message response" id="msg-${log.id}">
+        <div class="message response${isStreaming}" id="msg-${log.id}">
           <div class="message-avatar">🔥</div>
           <div class="message-content">
             <div class="message-meta">
@@ -1014,7 +1102,7 @@ function renderLogMessage(log) {
 
     default:
       return `
-        <div class="message agent" id="msg-${log.id}">
+        <div class="message agent${isStreaming}" id="msg-${log.id}">
           <div class="message-content">
             <div class="message-text">${renderMarkdown(log.content || '')}</div>
           </div>
@@ -1022,24 +1110,22 @@ function renderLogMessage(log) {
   }
 }
 
-// ─── Context List Rendering ────────────────────────────────────────────────
+// ═══ Context List Rendering ══════════════════════════════════════════════════
 
 function renderContextsList() {
   const container = $('#chats-list');
   if (!container) return;
-
   if (state.contexts.length === 0) {
     container.innerHTML = '<div class="empty-state">No chats yet</div>';
     return;
   }
-
   container.innerHTML = state.contexts.map(ctx => `
     <div class="chat-item ${ctx.id === state.context ? 'active' : ''}"
          onclick="selectContext('${ctx.id}')">
       <span class="chat-item-icon">${ctx.running ? '⚡' : '💬'}</span>
       <span class="chat-item-name">${escapeHtml(ctx.name || ctx.id)}</span>
       <button class="chat-item-delete" onclick="deleteContext('${ctx.id}', event)" title="Delete">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        ✕
       </button>
     </div>
   `).join('');
@@ -1059,19 +1145,11 @@ function filterChats(query) {
   });
 }
 
-// ─── Sidebar Tab Switching ──────────────────────────────────────────────────
+// ═══ Sidebar Tab Switching ════════════════════════════════════════════════════
 
 function switchSidebarTab(tabName) {
-  // Update tab buttons
-  $$('.sidebar-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.tab === tabName);
-  });
-
-  // Update tab content
-  $$('.sidebar-tab-content').forEach(content => {
-    content.style.display = 'none';
-  });
-
+  $$('.sidebar-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabName));
+  $$('.sidebar-tab-content').forEach(content => content.style.display = 'none');
   const target = $(`#tab-${tabName}`);
   if (target) {
     target.style.display = '';
@@ -1079,26 +1157,20 @@ function switchSidebarTab(tabName) {
   }
 }
 
-// ─── UI Helpers ─────────────────────────────────────────────────────────────
+// ═══ UI Helpers ══════════════════════════════════════════════════════════════
 
 function showWelcome() {
-  $('#welcome-screen')?.classList.remove('hidden');
-  $('#chat-area-wrapper')?.classList.remove('hidden');
-  // Hide chat history, show welcome
-  const wrapper = $('#chat-area-wrapper');
-  if (wrapper) {
-    $('#welcome-screen').style.display = '';
-    $('#chat-history').style.display = 'none';
-  }
+  const welcome = $('#welcome-screen');
+  const history = $('#chat-history');
+  if (welcome) welcome.style.display = '';
+  if (history) history.style.display = 'none';
 }
 
 function hideWelcome() {
-  $('#welcome-screen')?.classList.add('hidden');
-  const wrapper = $('#chat-area-wrapper');
-  if (wrapper) {
-    $('#welcome-screen').style.display = 'none';
-    $('#chat-history').style.display = '';
-  }
+  const welcome = $('#welcome-screen');
+  const history = $('#chat-history');
+  if (welcome) welcome.style.display = 'none';
+  if (history) history.style.display = '';
 }
 
 function updateConnectionStatus(status) {
@@ -1115,8 +1187,7 @@ function updateChatTitle(title) {
 
 function updateSendButton() {
   const btn = $('#send-button');
-  if (!btn) return;
-  btn.disabled = state.running;
+  if (btn) btn.disabled = state.running;
 }
 
 function showProgress(text) {
@@ -1137,7 +1208,6 @@ function toggleSidebar() {
   const sidebar = $('#left-panel');
   const overlay = $('#sidebar-overlay');
   state.sidebarOpen = !state.sidebarOpen;
-
   if (state.sidebarOpen) {
     sidebar?.classList.remove('hidden');
     if (window.innerWidth <= 768) overlay?.classList.add('visible');
@@ -1149,12 +1219,7 @@ function toggleSidebar() {
 
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');
-  toast.style.cssText = `
-    position:fixed;bottom:24px;right:24px;padding:12px 24px;
-    background:${type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : '#333'};
-    color:white;border-radius:8px;font-size:14px;z-index:9999;
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:fadeIn 0.3s ease;
-  `;
+  toast.className = `toast ${type}`;
   toast.textContent = message;
   document.body.appendChild(toast);
   setTimeout(() => {
@@ -1164,17 +1229,13 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
-// ─── Terminal ───────────────────────────────────────────────────────────────
+// ═══ Terminal ═════════════════════════════════════════════════════════════════
 
 function toggleTerminal() {
   state.terminalOpen = !state.terminalOpen;
   const panel = $('#terminal-panel');
   if (panel) panel.classList.toggle('hidden', !state.terminalOpen);
-
-  if (state.terminalOpen && !state.terminal) {
-    initTerminal();
-  }
-
+  if (state.terminalOpen && !state.terminal) initTerminal();
   if (state.terminalOpen && state.terminal) {
     setTimeout(() => {
       if (state.terminalFit) state.terminalFit.fit();
@@ -1197,11 +1258,10 @@ function resetTerminal() {
 }
 
 function process_cwd() {
-  // Try to get a sensible CWD
   return new URLSearchParams(window.location.search).get('cwd') || '/';
 }
 
-// ─── Clock ──────────────────────────────────────────────────────────────────
+// ═══ Clock ═══════════════════════════════════════════════════════════════════
 
 function initClock() {
   const el = $('#time-date');
@@ -1217,7 +1277,7 @@ function initClock() {
   setInterval(update, 1000);
 }
 
-// ─── Theme ──────────────────────────────────────────────────────────────────
+// ═══ Theme ═══════════════════════════════════════════════════════════════════
 
 function initTheme() {
   const saved = localStorage.getItem('rudrax-theme');
@@ -1244,7 +1304,7 @@ function applyTheme() {
   document.body.classList.toggle('dark-mode', state.theme !== 'light');
 }
 
-// ─── Font Size ──────────────────────────────────────────────────────────────
+// ═══ Font Size ═══════════════════════════════════════════════════════════════
 
 function setFontSize(size) {
   document.documentElement.style.setProperty('--fs-base', `${size}px`);
@@ -1252,41 +1312,26 @@ function setFontSize(size) {
   if (display) display.textContent = `${size}px`;
 }
 
-// ─── Keyboard Shortcuts ─────────────────────────────────────────────────────
+// ═══ Keyboard Shortcuts ═══════════════════════════════════════════════════════
 
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-      e.preventDefault();
-      newContext();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-      e.preventDefault();
-      toggleSidebar();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === '`') {
-      e.preventDefault();
-      toggleTerminal();
-    }
-    if (e.key === 'Escape') {
-      closeSettings();
-      hideCommandSuggestions();
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); newContext(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleSidebar(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '`') { e.preventDefault(); toggleTerminal(); }
+    if (e.key === 'Escape') { closeSettings(); hideCommandSuggestions(); }
   });
 }
 
-// ─── Input Handling ─────────────────────────────────────────────────────────
+// ═══ Input Handling ════════════════════════════════════════════════════════════
 
 function handleInputKeydown(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     sendMessage();
   }
-  if (event.key === 'Escape') {
-    hideCommandSuggestions();
-  }
+  if (event.key === 'Escape') hideCommandSuggestions();
   if (event.key === 'Tab') {
-    // Autocomplete commands
     const input = event.target;
     const val = input.value;
     if (val.startsWith('/') && !val.includes(' ')) {
@@ -1306,7 +1351,7 @@ function adjustTextareaHeight(el) {
   el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
 }
 
-// ─── Scroll ─────────────────────────────────────────────────────────────────
+// ═══ Scroll ═══════════════════════════════════════════════════════════════════
 
 function scrollToBottom() {
   requestAnimationFrame(() => {
@@ -1315,7 +1360,7 @@ function scrollToBottom() {
   });
 }
 
-// ─── Settings Modal ─────────────────────────────────────────────────────────
+// ═══ Settings Modal ═══════════════════════════════════════════════════════════
 
 function openSettings() {
   $('#settings-modal')?.classList.remove('hidden');
@@ -1329,11 +1374,7 @@ function closeSettings() {
   $('#settings-modal')?.classList.add('hidden');
 }
 
-function showShortcuts() {
-  showToast('⌨️ Ctrl+N: New chat · Ctrl+B: Sidebar · Ctrl+`: Terminal · Shift+Enter: New line · /: Commands', 'info');
-}
-
-// ─── Session Restore ────────────────────────────────────────────────────────
+// ═══ Session Restore ══════════════════════════════════════════════════════════
 
 async function restoreSession() {
   try {
@@ -1342,7 +1383,6 @@ async function restoreSession() {
       const data = await response.json();
       state.contexts = data;
       renderContextsList();
-
       const lastContext = localStorage.getItem('rudrax-last-context');
       if (lastContext && data.find(c => c.id === lastContext)) {
         selectContext(lastContext);
@@ -1351,20 +1391,16 @@ async function restoreSession() {
   } catch (err) {
     console.error('[RudraX] Failed to restore session:', err);
   }
-
-  // Restore orchestrator state
   try {
     const orchResp = await fetch(`${CONFIG.API_BASE}/api/orchestrator`);
     if (orchResp.ok) {
       const orchData = await orchResp.json();
       applyOrchestratorUpdate(orchData);
     }
-  } catch (err) {
-    // Non-critical
-  }
+  } catch (err) { /* Non-critical */ }
 }
 
-// ─── Markdown Rendering ─────────────────────────────────────────────────────
+// ═══ Markdown Rendering ══════════════════════════════════════════════════════
 
 function renderMarkdown(text) {
   if (!text) return '';
@@ -1379,7 +1415,7 @@ function renderMarkdown(text) {
   return escapeHtml(text).replace(/\n/g, '<br>');
 }
 
-// ─── Utility Functions ──────────────────────────────────────────────────────
+// ═══ Utilities ════════════════════════════════════════════════════════════════
 
 function escapeHtml(text) {
   if (!text) return '';
@@ -1400,7 +1436,7 @@ function formatTime(timestamp) {
   return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// ─── Shared Memory ───────────────────────────────────────────────────────────
+// ═══ Shared Memory ════════════════════════════════════════════════════════════
 
 const memoryState = {
   contextId: null,
@@ -1408,7 +1444,6 @@ const memoryState = {
   sections: {},
 };
 
-/** Load memory for the current context */
 async function loadMemory(contextId) {
   if (!contextId) return;
   memoryState.contextId = contextId;
@@ -1419,7 +1454,6 @@ async function loadMemory(contextId) {
       renderMemory(memoryState.data);
       return;
     }
-    // Try to initialize
     const initResp = await fetch(`${CONFIG.API_BASE}/api/memory`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1434,7 +1468,6 @@ async function loadMemory(contextId) {
   }
 }
 
-/** Refresh memory data */
 async function refreshMemory() {
   if (memoryState.contextId) {
     await loadMemory(memoryState.contextId);
@@ -1444,180 +1477,118 @@ async function refreshMemory() {
   }
 }
 
-/** Render memory data to the sidebar */
 function renderMemory(mem) {
   if (!mem) return;
-
-  // Project name
-  const nameEl = $('#memory-project-name');
-  if (nameEl) {
-    nameEl.style.display = 'flex';
-    $('#mem-project-name').textContent = mem.project || 'Project';
-    const statusEl = $('#mem-project-status');
-    if (statusEl) {
-      statusEl.textContent = mem.status || 'active';
-      statusEl.className = `mem-status-badge ${mem.status || 'active'}`;
-    }
+  const nameEl = $('#mem-project-name');
+  if (nameEl) nameEl.textContent = mem.project || 'Project';
+  const statusEl = $('#mem-project-status');
+  if (statusEl) {
+    statusEl.textContent = mem.status || 'active';
+    statusEl.className = `mem-status-badge ${mem.status || 'active'}`;
   }
-
-  // Overview
   const overviewEl = $('#mem-overview');
-  if (overviewEl) {
-    overviewEl.textContent = mem.overview || '(No overview yet)';
-  }
-
-  // Structure
-  const structEl = $('#mem-structure');
-  if (structEl) {
-    const structText = mem.structure || '';
-    structEl.textContent = structText.replace(/```[\w]*\n?/g, '').replace(/```/g, '') || '(not scanned)';
-  }
-
-  // Task board - parse from markdown text
-  const tasksEl = $('#mem-tasks');
-  const taskCountEl = $('#mem-task-count');
-  if (tasksEl) {
-    const taskHtml = parseMemoryTasks(mem.taskBoard || '');
-    tasksEl.innerHTML = taskHtml;
-    const taskCount = (mem.taskBoard?.match(/\|.*\|.*\|.*\|/g) || []).filter(l => !l.includes('Task ID')).length;
-    if (taskCountEl) taskCountEl.textContent = taskCount;
-  }
-
-  // Activity log - parse from markdown text
-  const logEl = $('#mem-log');
-  const logCountEl = $('#mem-log-count');
-  if (logEl) {
-    const logEntries = parseMemoryLog(mem.activityLog || '');
-    logEl.innerHTML = logEntries;
-    const logCount = (mem.activityLog?.match(/^\s*-/gm) || []).length;
-    if (logCountEl) logCountEl.textContent = logCount;
-  }
-
-  // Decisions
-  const decisionsEl = $('#mem-decisions');
-  const decisionsCountEl = $('#mem-decisions-count');
-  if (decisionsEl) {
-    const entries = parseMemoryEntries(mem.decisions || '');
-    decisionsEl.innerHTML = entries;
-    const count = (mem.decisions?.match(/^\s*-/gm) || []).length;
-    if (decisionsCountEl) decisionsCountEl.textContent = count;
-  }
-
-  // Blockers
-  const blockersEl = $('#mem-blockers');
-  const blockersCountEl = $('#mem-blockers-count');
-  if (blockersEl) {
-    const entries = parseMemoryEntries(mem.blockers || '');
-    blockersEl.innerHTML = entries;
-    const count = (mem.blockers?.match(/^\s*-/gm) || []).length;
-    if (blockersCountEl) blockersCountEl.textContent = count;
-    if (count > 0 && blockersCountEl) blockersCountEl.classList.add('danger');
-  }
-
-  // Handoffs
-  const handoffsEl = $('#mem-handoffs');
-  const handoffsCountEl = $('#mem-handoffs-count');
-  if (handoffsEl) {
-    const entries = parseMemoryEntries(mem.handoffs || '');
-    handoffsEl.innerHTML = entries;
-    const count = (mem.handoffs?.match(/^\s*-/gm) || []).length;
-    if (handoffsCountEl) handoffsCountEl.textContent = count;
-  }
-
-  // Files changed
-  const filesEl = $('#mem-files');
-  const filesCountEl = $('#mem-files-count');
-  if (filesEl) {
-    const files = parseMemoryFiles(mem.filesChanged || '');
-    filesEl.innerHTML = files;
-    const count = (mem.filesChanged?.match(/^\s*[-*]/gm) || []).length;
-    if (filesCountEl) filesCountEl.textContent = count;
-  }
+  if (overviewEl) overviewEl.textContent = mem.overview || '(No overview yet)';
+  renderMemoryTasks(mem.taskBoard || '');
+  renderMemoryLog(mem.activityLog || '');
+  renderMemorySection('decisions', mem.decisions || '');
+  renderMemorySection('blockers', mem.blockers || '');
+  renderMemorySection('handoffs', mem.handoffs || '');
+  renderMemoryFiles(mem.filesChanged || '');
 }
 
-/** Parse task board markdown to HTML */
-function parseMemoryTasks(md) {
+function renderMemoryTasks(md) {
+  const el = $('#mem-tasks');
+  const countEl = $('#mem-task-count');
   if (!md || md.includes('(No tasks') || md.includes('(empty)')) {
-    return '<div class="empty-state">No tasks yet</div>';
+    if (el) el.innerHTML = '<div class="empty-state">No tasks yet</div>';
+    if (countEl) countEl.textContent = '0';
+    return;
   }
   const rows = md.split('\n').filter(l => l.trim().startsWith('|') && !l.includes('Task ID') && !l.includes('-----'));
-  return rows.map(row => {
-    const cells = row.split('|').filter(c => c.trim());
-    if (cells.length < 3) return '';
-    const id = cells[0]?.trim() || '';
-    const agent = cells[1]?.trim() || '';
-    const status = cells[2]?.trim() || '';
-    const desc = cells[3]?.trim() || '';
-    const icon = status.includes('✅') ? '✅' : status.includes('🔄') ? '🔄' : status.includes('🚫') ? '🚫' : '⏳';
-    return `
-      <div class="mem-task-row">
-        <span class="mem-task-icon">${icon}</span>
-        <div class="mem-task-info">
-          <span class="mem-task-id">${escapeHtml(id)}</span>
-          <div class="mem-task-desc">${escapeHtml(desc)}</div>
-          <span class="mem-task-agent">${escapeHtml(agent)}</span>
-        </div>
-      </div>`;
-  }).join('');
+  if (el) {
+    el.innerHTML = rows.map(row => {
+      const cells = row.split('|').filter(c => c.trim());
+      if (cells.length < 3) return '';
+      const id = cells[0]?.trim() || '';
+      const agent = cells[1]?.trim() || '';
+      const status = cells[2]?.trim() || '';
+      const desc = cells[3]?.trim() || '';
+      const icon = status.includes('✅') ? '✅' : status.includes('🔄') ? '🔄' : status.includes('🚫') ? '🚫' : '⏳';
+      return `<div class="mem-task-row"><span class="mem-task-icon">${icon}</span><div class="mem-task-info"><span class="mem-task-id">${escapeHtml(id)}</span><div class="mem-task-desc">${escapeHtml(desc)}</div><span class="mem-task-agent">${escapeHtml(agent)}</span></div></div>`;
+    }).join('');
+  }
+  if (countEl) countEl.textContent = rows.length;
 }
 
-/** Parse activity log markdown to HTML */
-function parseMemoryLog(md) {
+function renderMemoryLog(md) {
+  const el = $('#mem-log');
+  const countEl = $('#mem-log-count');
   if (!md || md.includes('(No activity') || md.includes('(empty)')) {
-    return '<div class="empty-state">No activity yet</div>';
+    if (el) el.innerHTML = '<div class="empty-state">No activity yet</div>';
+    if (countEl) countEl.textContent = '0';
+    return;
   }
   const lines = md.split('\n').filter(l => l.trim().startsWith('-'));
-  return lines.slice(0, 30).map(line => {
-    const agentMatch = line.match(/\*\*\[([^]]+)\]\*\*/);
-    const agent = agentMatch ? agentMatch[1] : '?';
-    const typeMatch = line.match(/\|\s*(\w+)\s*\|/);
-    const type = typeMatch ? typeMatch[1].toLowerCase() : 'note';
-    const content = line.replace(/^[-*]\s*/, '').replace(/\*\[([^]]+)\]\*\*/g, '').replace(/\|[^|]*\|[^|]*\|/, '').replace(/^[ ✅💡🚫🤝📝🏗️📌]+/, '').trim();
-    return `
-      <div class="mem-log-entry ${type}">
-        <span class="mem-log-agent">[${escapeHtml(agent)}]</span>
-        <span class="mem-log-type">${type}</span>
-        <div class="mem-log-content">${escapeHtml(content.slice(0, 120))}</div>
-      </div>`;
-  }).join('');
+  if (el) {
+    el.innerHTML = lines.slice(0, 30).map(line => {
+      const agentMatch = line.match(/\*\*\[([^]]+)\]\*\*/);
+      const agent = agentMatch ? agentMatch[1] : '?';
+      const typeMatch = line.match(/\|\s*(\w+)\s*\|/);
+      const type = typeMatch ? typeMatch[1].toLowerCase() : 'note';
+      const content = line.replace(/^[-*]\s*/, '').replace(/\*\[([^]]+)\]\*\*/g, '').replace(/\|[^|]*\|[^|]*\|/, '').replace(/^[ ✅💡🚫🤝📝🏗️📌]+/, '').trim();
+      return `<div class="mem-log-entry ${type}"><span class="mem-log-agent">[${escapeHtml(agent)}]</span><span class="mem-log-type">${type}</span><div class="mem-log-content">${escapeHtml(content.slice(0, 120))}</div></div>`;
+    }).join('');
+  }
+  if (countEl) countEl.textContent = lines.length;
 }
 
-/** Parse generic entries (decisions, blockers, handoffs) */
-function parseMemoryEntries(md) {
+function renderMemorySection(section, md) {
+  const el = $(`#mem-${section}`);
+  const countEl = $(`#mem-${section}-count`);
   if (!md || md.includes('(No ') || md.includes('(none)') || md.includes('smooth sailing')) {
-    return '<div class="empty-state">None</div>';
+    if (el) el.innerHTML = '<div class="empty-state">None</div>';
+    if (countEl) countEl.textContent = '0';
+    return;
   }
   const lines = md.split('\n').filter(l => l.trim().startsWith('-'));
-  return lines.slice(0, 20).map(line => {
-    const agentMatch = line.match(/\*\*\[([^]]+)\]\*\*/);
-    const agent = agentMatch ? agentMatch[1] : '';
-    const content = line.replace(/^[-*]\s*/, '').replace(/\*\*\[([^]]+)\]\*\*/g, '').replace(/[💡🚫🤝]/g, '').trim();
-    return `
-      <div class="mem-entry">
-        ${agent ? `<span class="mem-entry-agent">[${escapeHtml(agent)}]</span> ` : ''}${escapeHtml(content.slice(0, 150))}
-      </div>`;
-  }).join('');
+  if (el) {
+    el.innerHTML = lines.slice(0, 20).map(line => {
+      const agentMatch = line.match(/\*\*\[([^]]+)\]\*\*/);
+      const agent = agentMatch ? agentMatch[1] : '';
+      const content = line.replace(/^[-*]\s*/, '').replace(/\*\*\[([^]]+)\]\*\*/g, '').replace(/[💡🚫🤝]/g, '').trim();
+      return `<div class="mem-entry">${agent ? `<span class="mem-entry-agent">[${escapeHtml(agent)}]</span> ` : ''}${escapeHtml(content.slice(0, 150))}</div>`;
+    }).join('');
+  }
+  if (countEl) {
+    const count = lines.length;
+    countEl.textContent = count;
+    if (section === 'blockers' && count > 0) countEl.classList.add('danger');
+  }
 }
 
-/** Parse files section */
-function parseMemoryFiles(md) {
+function renderMemoryFiles(md) {
+  const el = $('#mem-files');
+  const countEl = $('#mem-files-count');
   if (!md || md.includes('(No files') || md.includes('(none)')) {
-    return '<div class="empty-state">No files tracked</div>';
+    if (el) el.innerHTML = '<div class="empty-state">No files tracked</div>';
+    if (countEl) countEl.textContent = '0';
+    return;
   }
   const lines = md.split('\n').filter(l => l.trim().startsWith('-') || l.trim().startsWith('*'));
-  return lines.slice(0, 30).map(line => {
-    const file = line.replace(/^[-*]\s*/, '').replace(/`/g, '').trim();
-    return `<div class="mem-file-row">${escapeHtml(file)}</div>`;
-  }).join('');
+  if (el) {
+    el.innerHTML = lines.slice(0, 30).map(line => {
+      const file = line.replace(/^[-*]\s*/, '').replace(/`/g, '').trim();
+      return `<div class="mem-file-row">${escapeHtml(file)}</div>`;
+    }).join('');
+  }
+  if (countEl) countEl.textContent = lines.length;
 }
 
-/** Toggle a memory section */
 function toggleMemorySection(sectionId) {
   const section = $(`#mem-section-${sectionId}`);
   if (section) section.classList.toggle('collapsed');
 }
 
-/** Open raw memory file in a modal */
 async function openMemoryRaw() {
   if (!memoryState.contextId) {
     showToast('⚠️ No active context', 'info');
@@ -1647,12 +1618,6 @@ async function openMemoryRaw() {
   }
 }
 
-// Listen for memory updates from server
-if (state.socket) {
-  state.socket.on('memory_update', (data) => {
-    if (data.contextId === memoryState.contextId) {
-      memoryState.data = data.memory;
-      renderMemory(data.memory);
-    }
-  });
-}
+// ═══ Start Polling as Fallback ═══════════════════════════════════════════════
+
+startPolling();

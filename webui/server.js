@@ -1,12 +1,15 @@
 /**
- * RudraX Web UI Server — Agency Edition
+ * RudraX Web UI Server — Rudraksh Edition
  *
  * Express + Socket.IO server that bridges the web UI to the RudraX AgentSession SDK.
- * Now includes Agency orchestration, agent discovery, squad management, and terminal.
+ * Agency orchestration, agent discovery, squad management, terminal, shared memory.
+ * Incremental DOM rendering for smooth streaming. Agent Activity panel.
  *
  * Architecture:
  *   Browser ←→ Socket.IO ←→ server.js ←→ AgentSession ←→ Agent ←→ LLM
  *   Browser ←→ WebSocket  ←→ server.js ←→ child_process (Terminal)
+ *
+ * By Lalit Pandit
  */
 
 import express from 'express';
@@ -45,6 +48,11 @@ const io = new SocketIOServer(httpServer, {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(join(__dirname)));
 app.use('/socket.io', express.static(join(process.cwd(), 'node_modules', 'socket.io', 'client-dist')));
+
+// Favicon route
+app.get('/favicon.ico', (req, res) => {
+  res.redirect(301, '/favicon.svg');
+});
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -402,7 +410,16 @@ function handleSessionEvent(ctx, event) {
     if (existing) {
       existing.content = entry.content;
       ctx.logVersion++;
-      broadcastState(ctx);
+      // Broadcast only the updated entry for incremental rendering
+      io.emit('state_update', {
+        context: ctx.id,
+        logs: [{ ...existing, _update: true }],
+        log_version: ctx.logVersion,
+        log_guid: ctx.logGuid,
+        log_progress: ctx.running ? 'Processing...' : '',
+        log_progress_active: ctx.running,
+        paused: ctx.paused,
+      });
       return;
     }
   }
@@ -412,7 +429,23 @@ function handleSessionEvent(ctx, event) {
     if (existingIndex >= 0) {
       ctx.logs[existingIndex] = { ...entry, no: ctx.logs[existingIndex].no };
       ctx.logVersion++;
-      broadcastState(ctx);
+      // Broadcast only the finalized entry for incremental rendering
+      io.emit('state_update', {
+        context: ctx.id,
+        logs: [{ ...entry, _final: true }],
+        log_version: ctx.logVersion,
+        log_guid: ctx.logGuid,
+        log_progress: ctx.running ? 'Processing...' : '',
+        log_progress_active: ctx.running,
+        paused: ctx.paused,
+      });
+      // Broadcast agent activity for this final response
+      broadcastAgentActivity({
+        type: entry.type === 'response' ? 'response' : entry.type,
+        agent: entry.type === 'response' ? 'RudraX' : (entry.kvps?.agent || entry.kvps?.tool_name || 'system'),
+        content: (entry.content || '').slice(0, 200),
+        action: entry.type === 'response' ? 'responded' : 'completed',
+      });
       return;
     }
   }
@@ -420,8 +453,35 @@ function handleSessionEvent(ctx, event) {
   if (entry._streaming) {
     const existingIndex = ctx.logs.findIndex(l => l.id === entry.id);
     if (existingIndex >= 0) {
+      // Update existing streaming entry content
+      ctx.logs[existingIndex] = { ...ctx.logs[existingIndex], content: entry.content };
+      ctx.logVersion++;
+      // Broadcast streaming update (only this entry) for smooth incremental rendering
+      io.emit('state_update', {
+        context: ctx.id,
+        logs: [{ ...ctx.logs[existingIndex], _update: true, _streaming: true }],
+        log_version: ctx.logVersion,
+        log_guid: ctx.logGuid,
+        log_progress: ctx.running ? 'Processing...' : '',
+        log_progress_active: ctx.running,
+        paused: ctx.paused,
+      });
       return;
     }
+    // First streaming chunk — add new entry
+    entry.no = ctx.logs.length + 1;
+    ctx.logs.push(entry);
+    ctx.logVersion++;
+    io.emit('state_update', {
+      context: ctx.id,
+      logs: [entry],
+      log_version: ctx.logVersion,
+      log_guid: ctx.logGuid,
+      log_progress: ctx.running ? 'Processing...' : '',
+      log_progress_active: ctx.running,
+      paused: ctx.paused,
+    });
+    return;
   }
 
   entry.no = ctx.logs.length + 1;
@@ -431,6 +491,23 @@ function handleSessionEvent(ctx, event) {
   // Parse orchestration events from tool calls
   if (entry.type === 'tool' && entry.kvps?.tool_name) {
     parseOrchestratorToolCall(entry.kvps.tool_name, entry.content);
+    // Broadcast agent activity for tool calls
+    broadcastAgentActivity({
+      type: 'tool',
+      agent: entry.kvps?.tool_name || 'system',
+      content: (entry.content || '').slice(0, 200),
+      action: 'tool_call',
+    });
+  }
+
+  // Broadcast agent activity for user messages
+  if (entry.type === 'user') {
+    broadcastAgentActivity({
+      type: 'user',
+      agent: 'You',
+      content: (entry.content || '').slice(0, 100),
+      action: 'message',
+    });
   }
 
   broadcastState(ctx);
@@ -493,6 +570,17 @@ function broadcastState(ctx) {
   };
 
   io.emit('state_update', snapshot);
+}
+
+/** Broadcast an agent activity event (for the Agent Activity panel) */
+function broadcastAgentActivity(event) {
+  io.emit('agent_activity', {
+    ts: event.ts || Date.now(),
+    type: event.type || 'info',
+    agent: event.agent || 'system',
+    content: event.content || '',
+    action: event.action || '',
+  });
 }
 
 function getContextSnapshot(ctx) {
@@ -1461,11 +1549,11 @@ function startServer(port) {
     httpServer.listen(serverPort, () => {
       console.log('');
       console.log('  ╔══════════════════════════════════════════════╗');
-      console.log('  ║      🔥 RudraX Web UI — Agency Edition 🔥    ║');
-      console.log('  ║      Build · Break · Deploy · Orchestrate     ║');
+      console.log('  ║    🔱 RudraX — Rudraksh Edition 🔱           ║');
+      console.log('  ║    Build · Break · Deploy · Orchestrate      ║');
       console.log('  ╠══════════════════════════════════════════════╣');
       console.log(`  ║  http://localhost:${serverPort}                      ║`);
-      console.log('  ║  🤖 186+ Agents  🎭 9 Squads  🧠 Orchestrator  ║');
+      console.log('  ║  🤖 191 Agents  🎭 9 Squads  🧠 Orchestrator  ║');
       console.log('  ╚══════════════════════════════════════════════╝');
       console.log('');
       console.log('  💡 Tip: Install node-pty for full terminal PTY support');

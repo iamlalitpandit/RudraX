@@ -102,10 +102,11 @@ function initTerminal() {
   // ─── Welcome Message ─────────────────────────────────────────────────
 
   term.writeln('\x1b[1;33m');
-  term.writeln('  ╔══════════════════════════════════════════╗');
-  term.writeln('  ║     🔥 RudraX Terminal 🔥               ║');
-  term.writeln('  ╚══════════════════════════════════════════╝');
-  term.writeln('\x1b[0m');
+  term.writeln('  \x1b[38;5;178m╔════════════════════════════════════════╗\x1b[0m');
+  term.writeln('  \x1b[38;5;178m║\x1b[38;5;220m   \U0001f525 RudraX Terminal \U0001f525                 \x1b[38;5;178m║\x1b[0m');
+  term.writeln('  \x1b[38;5;178m╚════════════════════════════════════════╝\x1b[0m');
+  term.writeln('\x1b[38;5;136m  \U0001f56a Build \u00b7 Break \u00b7 Deploy \u00b7 Orchestrate\x1b[0m');
+  term.writeln('');
   term.writeln('\x1b[2m💡 Tip: This is a basic shell. Install node-pty for full PTY support (vim, htop, etc.)\x1b[0m');
   term.writeln('');
 
@@ -144,52 +145,52 @@ function getTerminalTheme() {
   const isLight = document.body.classList.contains('light-mode');
   if (isLight) {
     return {
-      background: '#fafafa',
-      foreground: '#1a1a1a',
-      cursor: '#ff6b35',
-      cursorAccent: '#fafafa',
-      selectionBackground: 'rgba(255, 107, 53, 0.3)',
-      selectionForeground: '#1a1a1a',
+      background: '#fafaf6',
+      foreground: '#1a0e07',
+      cursor: '#d4a843',
+      cursorAccent: '#fafaf6',
+      selectionBackground: 'rgba(212, 168, 67, 0.3)',
+      selectionForeground: '#1a0e07',
       black: '#1a1a1a',
-      red: '#e74c3c',
+      red: '#c0392b',
       green: '#27ae60',
-      yellow: '#f39c12',
+      yellow: '#d4a843',
       blue: '#3498db',
       magenta: '#9b59b6',
       cyan: '#00bcd4',
-      white: '#f0f0f0',
+      white: '#f5f0eb',
       brightBlack: '#666',
       brightRed: '#e74c3c',
       brightGreen: '#2ecc71',
-      brightYellow: '#f1c40f',
-      brightBlue: '#3498db',
-      brightMagenta: '#9b59b6',
-      brightCyan: '#00bcd4',
+      brightYellow: '#f0c850',
+      brightBlue: '#5dade2',
+      brightMagenta: '#af7ac5',
+      brightCyan: '#48c9b0',
       brightWhite: '#ffffff',
     };
   }
   return {
-    background: '#0f0f0f',
-    foreground: '#f0f0f0',
-    cursor: '#ff6b35',
-    cursorAccent: '#0f0f0f',
-    selectionBackground: 'rgba(255, 107, 53, 0.3)',
-    selectionForeground: '#f0f0f0',
-    black: '#1a1a1a',
-    red: '#e74c3c',
+    background: '#070504',
+    foreground: '#f5f0eb',
+    cursor: '#d4a843',
+    cursorAccent: '#070504',
+    selectionBackground: 'rgba(212, 168, 67, 0.3)',
+    selectionForeground: '#f5f0eb',
+    black: '#151210',
+    red: '#c0392b',
     green: '#27ae60',
-    yellow: '#f39c12',
-    blue: '#3498db',
-    magenta: '#9b59b6',
-    cyan: '#00bcd4',
-    white: '#f0f0f0',
-    brightBlack: '#666',
-    brightRed: '#ff6b6b',
-    brightGreen: '#2ecc71',
-    brightYellow: '#ffd166',
+      yellow: '#d4a843',
+    blue: '#4fc3f7',
+    magenta: '#ce93d8',
+    cyan: '#26c6da',
+    white: '#f5f0eb',
+    brightBlack: '#5a534a',
+    brightRed: '#e74c3c',
+    brightGreen: '#66bb6a',
+    brightYellow: '#f0c850',
     brightBlue: '#5dade2',
-    brightMagenta: '#af7ac5',
-    brightCyan: '#48c9b0',
+    brightMagenta: '#ce93d8',
+    brightCyan: '#29b6f6',
     brightWhite: '#ffffff',
   };
 }

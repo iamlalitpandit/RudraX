@@ -1,179 +1,168 @@
-# RudraX Web UI — Agency Edition
+# RudraX Web UI — Rudraksh Edition 🔱
 
-Full-featured web interface for RudraX with autonomous multi-agent orchestration.
+> **Build · Break · Deploy · Orchestrate**  
+> By **Lalit Pandit**
+
+The RudraX Web UI provides a browser-based interface for interacting with RudraX's autonomous agentic AI system, featuring 191+ agents, 9 squads, an orchestrator, shared memory, and real-time streaming.
+
+## 🔱 Rudraksh Design System
+
+Inspired by Lord Shiva's Rudraksha — sacred, powerful, grounding.
+
+- **Deep browns** (`#1a0e07` → `#5c4233`) — earthy, grounding
+- **Warm golds** (`#f0c850` → `#a67c00`) — divine, illuminating
+- **Sacred reds** (`#c0392b` → `#8b1a1a`) — Trishul energy
+- **Spiritual saffron** (`#ff8c00` → `#cc7000`) — creation, transformation
+- **Void blacks** (`#070504` → `#292420`) — depth, mystery
+- **Light mode** — Warm Sand (`#faf6f1`) palette
 
 ## Features
 
-### 🧠 Chat Interface
-- Real-time streaming via Socket.IO + HTTP polling fallback
-- Markdown rendering (marked.js)
-- Collapsible tool call display
-- Multi-context chats (create, switch, delete, rename)
-- Dark/Light themes
-- Keyboard shortcuts (Ctrl+N, Ctrl+B, Ctrl+`, /)
+### 🖥️ 4-Panel Layout
+- **Left Sidebar** — Chats, Agents, Squads, Memory tabs
+- **Main Chat** — Real-time incremental streaming with smooth DOM updates
+- **Orchestrator Panel** — Auto/Manual mode, task planning, live lane view
+- **Agent Activity Panel** — Real-time stream of all agent/model actions
 
-### 🤖 Agent Picker (186+ Agents)
-- Browse all agency agents by category
-- Search agents by name, description, vibe
-- Filter by category (engineering, marketing, design, specialized, etc.)
-- One-click activation/deactivation
-- Agent personality badge in sidebar
+### 🤖 191+ Agents, 9 Squads
+- Browse agents by category with emoji badges and color coding
+- Activate agents to inject personality
+- Deploy squads for coordinated multi-agent workflows
 
-### 👥 Squad Selector (9 Squads)
-- Pre-built squads: Startup, Enterprise, Full Product, Security, QA, AI Infra, Web3, Growth, Incident
-- One-click squad activation
-- Squad badge in top bar
-- Agent chips showing squad composition
-
-### 🧠 Orchestrator Panel
-- Visual execution plan with lanes and task cards
-- Task status indicators (pending/running/completed/failed/skipped)
-- Auto/Manual mode toggle
-- Active agent display
+### 🧠 Orchestrator
+- **Auto** — Orchestrator plans and dispatches agents automatically
+- **Manual** — You pick which agents handle which tasks
+- Live lane view showing task status per agent
 - Task history log
-- Quick action buttons (Dispatch, Plan, Status, Squads)
 
-### 📊 Live Task Monitor
-- Real-time orchestrator state updates via WebSocket
-- Active agent tracking with emoji badge
-- Squad status with agent count
-- Orchestrator mode badge (Auto/Manual)
+### 🗂️ Shared Memory
+- Per-project memory files with structured sections
+- Activity Log, Task Board, Decisions, Blockers, Handoffs, Files Changed
+- Real-time updates via Socket.IO
+- Raw memory view
 
-### 💬 Command Bar
-- `/orchestrate <auto|manual> <task>` — Plan and execute multi-agent tasks
-- `/dispatch <agent-name> <task>` — Quick dispatch a specific agent
-- `/agency <list|activate|deactivate|squad|status>` — Manage agency agents
-- `/memory <status|log|tasks|decisions|blockers|handoffs|overview|files|structure|reset|list>` — Shared memory
-- `/skill:<name>` — Load a specific skill/agent personality
-- Tab autocomplete for commands
-- Command suggestions dropdown
+### ⌨️ Terminal
+- xterm.js based terminal panel
+- Socket.IO connection to server shell
+- Rudraksh-themed color palette
 
-### 🗂️ Shared Memory Tab
-- Project name and status badge
-- Expandable sections: Overview, Structure, Tasks, Activity Log, Decisions, Blockers, Handoffs, Files
-- Real-time updates via WebSocket (`memory_update`)
-- Raw file viewer modal
-- Quick action buttons (Status, Log, Tasks, Raw)
-- Auto-loaded when selecting a chat context
+### 📡 Agent Activity Panel
+- Real-time stream of agent actions (tool calls, responses, system events)
+- Color-coded by type (tool, response, error, system, user)
+- Expandable, clearable
 
-### 🖥️ Integrated Terminal
-- xterm.js terminal with full ANSI color support
-- WebSocket-based shell connection
-- Dark/Light theme aware
-- Auto-fit to container
-- Web links detection
-- `Ctrl+`` to toggle terminal panel
-- Resizable panel
+### 🔄 Smooth Streaming
+- **Incremental DOM updates** — only changed messages are re-rendered
+- Socket.IO primary, polling fallback
+- Streaming cursor animation on in-progress messages
+- No flickering or DOM thrashing
 
-## Architecture
-
-```
-Browser ←→ Socket.IO ←→ server.js ←→ AgentSession ←→ Agent ←→ LLM
-Browser ←→ WebSocket  ←→ server.js ←→ child_process (Terminal)
-```
-
-### Server API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Health check with feature list |
-| `/api/contexts` | GET/POST/DELETE/PATCH | Chat context CRUD |
-| `/api/skills` | GET | List all agency agents (with search/filter) |
-| `/api/skills/categories` | GET | Agent categories with counts |
-| `/api/squads` | GET | List all squads |
-| `/api/squads/:name/activate` | POST | Activate a squad |
-| `/api/squads/deactivate` | POST | Deactivate current squad |
-| `/api/orchestrator` | GET | Get orchestrator state |
-| `/api/orchestrator/mode` | POST | Set auto/manual mode |
-| `/api/orchestrator/plan` | POST | Create execution plan |
-| `/api/orchestrator/stop` | POST | Stop execution |
-| `/api/orchestrator/reset` | POST | Reset orchestrator |
-| `/api/dispatch` | POST | Dispatch specific agent |
-| `/api/agents/:name/activate` | POST | Activate agent personality |
-| `/api/agents/deactivate` | POST | Deactivate agent |
-| `/api/memory` | GET/POST | List all memories / Initialize memory |
-| `/api/memory/:contextId` | GET | Get memory for context |
-| `/api/memory/:contextId/raw` | GET | Get raw markdown memory file |
-| `/api/memory/:contextId/write` | POST | Write entry to memory |
-| `/api/memory/:contextId/overview` | PATCH | Update project overview |
-| `/api/memory/:contextId/blockers/:index` | DELETE | Resolve a blocker |
-| `/message_async` | POST | Send message to agent |
-| `/poll` | POST | HTTP polling fallback |
-
-### WebSocket Events
-
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `state_update` | Server→Client | Chat state snapshot |
-| `orchestrator_update` | Server→Client | Orchestrator state |
-| `memory_update` | Server→Client | Shared memory updated |
-| `terminal_create` | Client→Server | Create terminal session |
-| `terminal_input` | Client→Server | Terminal keyboard input |
-| `terminal_data` | Server→Client | Terminal output data |
-| `terminal_resize` | Client→Server | Terminal resize |
-| `terminal_ready` | Server→Client | Terminal initialized |
-| `terminal_exit` | Server→Client | Terminal process exited |
+### ⚡ Compaction-Safe
+- Compaction events display clearly as "📦 Compacting..." messages
+- UI remains interactive during compaction
+- Agent Activity panel continues streaming during compaction
 
 ## Quick Start
 
 ```bash
-# Start the web UI
+# Start the WebUI
 npm run webui
 
-# Or with custom port
-RUDRAX_WEBUI_PORT=8080 npm run webui
+# Or with a specific port
+RUDRAX_WEBUI_PORT=8080 node webui/server.js
 
-# Or directly
-node webui/server.js 8080
+# Or run in background
+npm run webui:bg
 ```
 
-## Dependencies
+## API Endpoints (28)
 
-### Runtime
-- Express 5.x
-- Socket.IO 4.x
-- RudraX SDK (AgentSession)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Health check |
+| `/api/contexts` | GET/POST | List/create contexts |
+| `/api/contexts/:id` | GET/DELETE | Get/delete context |
+| `/message_async` | POST | Send message |
+| `/message_stop` | POST | Stop generation |
+| `/poll` | POST | Poll for state updates |
+| `/api/skills` | GET | List all agent skills |
+| `/api/agents/:name/activate` | POST | Activate agent personality |
+| `/api/agents/deactivate` | POST | Deactivate agent |
+| `/api/squads` | GET | List squads |
+| `/api/squads/:name/activate` | POST | Activate squad |
+| `/api/squads/deactivate` | POST | Deactivate squad |
+| `/api/orchestrator` | GET | Get orchestrator state |
+| `/api/orchestrator/plan` | POST | Create orchestration plan |
+| `/api/orchestrator/stop` | POST | Stop orchestration |
+| `/api/orchestrator/reset` | POST | Reset orchestrator |
+| `/api/orchestrator/mode` | POST | Set mode (auto/manual) |
+| `/api/memory` | POST | Create/initialize memory |
+| `/api/memory/:id` | GET | Get memory |
+| `/api/memory/:id` | PUT | Update memory |
+| `/api/memory/:id/raw` | GET | Get raw memory file |
+| `/api/memory/:id/overview` | GET | Get structured overview |
+| `/api/memory/:id/blocker-resolve` | POST | Resolve a blocker |
+| `/api/memory/:id/write` | POST | Write to memory section |
+| `/api/models` | GET | List available models |
+| `/api/settings` | GET/PUT | Get/set settings |
+| `/favicon.svg` | GET | Rudraksh SVG favicon |
 
-### CDN (frontend)
-- marked.js 12.x (Markdown rendering)
-- xterm.js 5.3.x (Terminal emulator)
-- xterm-addon-fit 0.8.x (Terminal auto-fit)
-- xterm-addon-web-links 0.9.x (Link detection)
+## Socket.IO Events
 
-### Optional
-- **node-pty** — Full PTY terminal support (vim, htop, etc.)
-  ```bash
-  npm install node-pty
-  ```
-  When node-pty is installed, the terminal automatically uses it for proper PTY support.
+### Server → Client
+| Event | Description |
+|-------|-------------|
+| `state_update` | Incremental state snapshot (logs, progress, contexts) |
+| `orchestrator_update` | Orchestrator state change |
+| `memory_update` | Shared memory changed |
+| `agent_activity` | Agent action event (tool call, response, system) |
+| `terminal_data` | Terminal output data |
+| `terminal_ready` | Terminal session ready |
+| `terminal_exit` | Terminal process exited |
 
-## Keyboard Shortcuts
+### Client → Server
+| Event | Description |
+|-------|-------------|
+| `state_request` | Request current state |
+| `terminal_input` | Terminal keystroke |
+| `terminal_resize` | Terminal dimensions changed |
+| `terminal_create` | Create terminal session |
+| `terminal_kill` | Kill terminal process |
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+N` | New chat |
-| `Ctrl+B` | Toggle sidebar |
-| `Ctrl+`` ` | Toggle terminal |
-| `Enter` | Send message |
-| `Shift+Enter` | New line |
-| `Tab` | Autocomplete commands |
-| `/` | Show command suggestions |
-| `Escape` | Close suggestions/modal |
+## Configuration
 
-## File Structure
+```bash
+# Port (default: 5555)
+RUDRAX_WEBUI_PORT=8080 node webui/server.js
+
+# Run as child process (for auto-start)
+RUDRAX_WEBUI_CHILD=1 node webui/server.js
+```
+
+## Architecture
 
 ```
-webui/
-├── index.html          Main SPA shell
-├── server.js           Express + Socket.IO + Terminal backend
-├── launch.js           Launcher script
-├── css/
-│   └── index.css       Full design system (dark/light)
-├── js/
-│   ├── app.js          Main application logic
-│   └── terminal.js     xterm.js terminal module
-├── public/
-│   └── favicon.svg     Brand favicon
-├── components/          (reserved for future)
-└── vendor/              (reserved for future)
+Browser
+  ├── index.html — 4-panel layout
+  ├── css/index.css — Rudraksh design system
+  ├── js/app.js — State management, incremental rendering, Socket.IO
+  ├── js/terminal.js — xterm.js terminal module
+  └── favicon.svg — Rudraksh SVG logo
+
+Server (server.js)
+  ├── Express routes — REST API
+  ├── Socket.IO — Real-time events
+  ├── AgentSession bridge — RudraX core SDK
+  ├── Memory API — Shared project memory
+  ├── Agency API — Agents, squads, orchestrator
+  └── Terminal — Shell process management
+
+Services
+  ├── webui-manager.js — Auto-start, PID management
+  ├── systemd user service — Persistent background
+  └── PM2 ecosystem — Production process manager
 ```
+
+---
+
+🔱 **ॐ नमः शिवाय** — RudraX by Lalit Pandit
