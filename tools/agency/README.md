@@ -254,7 +254,7 @@ tools/agency/
 
 ```bash
 cd /tmp/agency-agents && git pull
-cd /home/lalit/RudraX && ./tools/agency/convert.sh --source /tmp/agency-agents
+cd /path/to/RudraX && ./tools/agency/convert.sh --source /tmp/agency-agents
 ./tools/agency/install.sh
 # Then /reload in RudraX
 ```

@@ -1,0 +1,526 @@
+{
+  "name": "rudrax-integrated-tools",
+  "version": "2.0.0",
+  "description": "RudraX Tools - Systematically organized tools, agents, and capabilities",
+  "categories": {
+    "ai-assistants": {
+      "label": "🤖 AI Assistants",
+      "description": "AI-powered coding and reasoning assistants",
+      "tools": ["codex", "claude", "ollama"]
+    },
+    "ide": {
+      "label": "💻 IDE & Server",
+      "description": "Development environments and web servers",
+      "tools": ["code-server"]
+    },
+    "search": {
+      "label": "🔍 Search & Utility",
+      "description": "Code search, analysis, and utility tools",
+      "tools": ["ripgrep"]
+    },
+    "adapters": {
+      "label": "🔌 Adapters & Integration",
+      "description": "Integration bridges between AI assistants and RudraX",
+      "tools": ["codex-adapter", "claude-adapter"]
+    }
+  },
+  "tools": {
+    "codex": {
+      "name": "OpenAI Codex CLI",
+      "description": "AI-powered coding assistant from OpenAI",
+      "type": "cli",
+      "path": "./integrated/codex/linux-x64/bin/codex",
+      "launcher": "./launchers/codex-launcher.sh",
+      "available": true,
+      "category": "ai-assistants",
+      "tags": ["ai", "coding", "openai"],
+      "commands": {
+        "launch": "rudrax tools codex [args...]",
+        "help": "rudrax tools codex --help"
+      }
+    },
+    "claude": {
+      "name": "Claude Code CLI",
+      "description": "Anthropic's Claude code assistant for AI-powered development",
+      "type": "cli",
+      "path": "./integrated/claude-code/linux-x64/bin/claude",
+      "launcher": "./launchers/claude-launcher.sh",
+      "available": true,
+      "category": "ai-assistants",
+      "tags": ["ai", "coding", "anthropic"],
+      "commands": {
+        "launch": "rudrax tools claude [args...]",
+        "help": "rudrax tools claude --help"
+      }
+    },
+    "ollama": {
+      "name": "Ollama Bridge",
+      "description": "Direct Ollama API integration for local LLM access",
+      "type": "api",
+      "endpoint": "http://172.31.32.172:11434",
+      "models": ["minimax-m2.7:cloud", "kimi-k2.6:cloud"],
+      "defaultModel": "kimi-k2.6:cloud",
+      "available": true,
+      "category": "ai-assistants",
+      "tags": ["ai", "ollama", "local-llm"],
+      "commands": {
+        "prompt": "rudrax tools ollama <prompt>",
+        "models": "rudrax tools models"
+      }
+    },
+    "code-server": {
+      "name": "VS Code Server",
+      "description": "VS Code in browser - full IDE accessible via web",
+      "type": "web-ide",
+      "path": "./integrated/code-server/linux-x64/bin/code-server",
+      "launcher": "./launchers/code-server-launcher.sh",
+      "available": true,
+      "category": "ide",
+      "tags": ["ide", "vscode", "web"],
+      "config": {
+        "defaultPort": 8080,
+        "bindAddress": "0.0.0.0",
+        "auth": "none"
+      },
+      "commands": {
+        "launch": "rudrax tools server [port]",
+        "status": "curl -s http://127.0.0.1:8080"
+      }
+    },
+    "ripgrep": {
+      "name": "Ripgrep",
+      "description": "Ultra-fast text search tool that respects .gitignore",
+      "type": "utility",
+      "path": "./integrated/codex/linux-x64/bin/rg",
+      "available": true,
+      "category": "search",
+      "tags": ["search", "grep", "utility"],
+      "commands": {
+        "search": "rudrax tools rg <pattern> [path]",
+        "files": "rudrax tools rg <pattern> --files-with-matches"
+      }
+    },
+    "codex-adapter": {
+      "name": "Codex Integration Adapter",
+      "description": "Adapter bridging Codex with RudraX internals",
+      "type": "adapter",
+      "path": "./integrated/@orchids/codex-adapter",
+      "entry": "./integrated/@orchids/codex-adapter/dist/index.js",
+      "available": true,
+      "category": "adapters",
+      "tags": ["adapter", "codex", "integration"],
+      "commands": {
+        "import": "import { rudraxTools } from './tools/lib/rudrax-tools.js'; const a = await rudraxTools.loadCodexAdapter();"
+      }
+    },
+    "claude-adapter": {
+      "name": "Claude Code Adapter",
+      "description": "Adapter bridging Claude Code with RudraX internals",
+      "type": "adapter",
+      "path": "./integrated/@orchids/claude-code-adapter",
+      "entry": "./integrated/@orchids/claude-code-adapter/dist/index.js",
+      "available": true,
+      "category": "adapters",
+      "tags": ["adapter", "claude", "integration"],
+      "commands": {
+        "import": "import { rudraxTools } from './tools/lib/rudrax-tools.js'; const a = await rudraxTools.loadClaudeAdapter();"
+      }
+    }
+  },
+  "agents": {
+    "_meta": {
+      "location": "lib/core/extensions/rudrax-aios/",
+      "description": "AIOS Agent extensions - specialized AI personas for different software engineering roles"
+    },
+    "orchestration": {
+      "label": "👑 Orchestration",
+      "agents": {
+        "aios-master": {
+          "name": "AIOS Master Orchestrator",
+          "icon": "👑",
+          "description": "Master orchestrator & framework developer - coordinates all agents and workflows",
+          "file": "aios-master.ts"
+        }
+      }
+    },
+    "architecture-design": {
+      "label": "🏗️ Architecture & Design",
+      "agents": {
+        "architect": {
+          "name": "System Architect",
+          "icon": "🏗️",
+          "description": "System architecture analysis, impact assessment, and design decisions",
+          "file": "architect.ts"
+        },
+        "ux-design-expert": {
+          "name": "UX/UI Designer",
+          "icon": "🎨",
+          "description": "Design system architect, wireframes, user research, and token extraction",
+          "file": "ux-design-expert.ts"
+        }
+      }
+    },
+    "development": {
+      "label": "💻 Development",
+      "agents": {
+        "dev": {
+          "name": "Full Stack Developer",
+          "icon": "💻",
+          "description": "Story development, code quality, refactoring, and performance optimization",
+          "file": "dev.ts"
+        },
+        "data-engineer": {
+          "name": "Database Engineer",
+          "icon": "🗄️",
+          "description": "Database architecture, migrations, schema audits, and data operations",
+          "file": "data-engineer.ts"
+        }
+      }
+    },
+    "analysis": {
+      "label": "📊 Analysis & Strategy",
+      "agents": {
+        "analyst": {
+          "name": "Business Analyst",
+          "icon": "📊",
+          "description": "Brainstorming facilitation, cross-artifact analysis, and ROI calculation",
+          "file": "analyst.ts"
+        }
+      }
+    },
+    "quality": {
+      "label": "✅ Quality Assurance",
+      "agents": {
+        "qa": {
+          "name": "Test Architect & Quality Advisor",
+          "icon": "✅",
+          "description": "Test design, security scanning, migration validation, and evidence-based quality",
+          "file": "qa.ts"
+        }
+      }
+    },
+    "management": {
+      "label": "📋 Product & Project Management",
+      "agents": {
+        "pm": {
+          "name": "Project Manager",
+          "icon": "📋",
+          "description": "Project coordination, documentation, and delivery management",
+          "file": "pm.ts"
+        },
+        "po": {
+          "name": "Product Owner",
+          "icon": "🎯",
+          "description": "Backlog management, story creation, sprint planning, and acceptance criteria",
+          "file": "po.ts"
+        },
+        "sm": {
+          "name": "Scrum Master",
+          "icon": "🔄",
+          "description": "Sprint facilitation, story prioritization, and team coordination",
+          "file": "sm.ts"
+        }
+      }
+    },
+    "devops": {
+      "label": "🚀 DevOps & Infrastructure",
+      "agents": {
+        "devops": {
+          "name": "DevOps Specialist",
+          "icon": "🚀",
+          "description": "GitHub management, CI/CD configuration, and infrastructure automation",
+          "file": "devops.ts"
+        }
+      }
+    },
+    "squad": {
+      "label": "👥 Squad Management",
+      "agents": {
+        "squad-creator": {
+          "name": "Squad Creator",
+          "icon": "👥",
+          "description": "Agent team design, validation, and coordination for multi-agent workflows",
+          "file": "squad-creator.ts"
+        }
+      }
+    }
+  },
+  "tasks": {
+    "_meta": {
+      "location": "lib/core/extensions/rudrax-aios/tasks/",
+      "description": "AIOS Task definitions - granular action units assigned to agents"
+    },
+    "architecture-analysis": {
+      "label": "🏗️ Architecture & Analysis",
+      "tasks": [
+        "architect-analyze-impact",
+        "analyze-brownfield",
+        "analyze-cross-artifact",
+        "analyze-framework",
+        "analyze-performance",
+        "analyze-project-structure",
+        "advanced-elicitation"
+      ]
+    },
+    "development": {
+      "label": "💻 Development",
+      "tasks": [
+        "build",
+        "build-autonomous",
+        "build-component",
+        "build-resume",
+        "build-status",
+        "dev-apply-qa-fixes",
+        "dev-backlog-debt",
+        "dev-develop-story",
+        "dev-improve-code-quality",
+        "dev-optimize-performance",
+        "dev-suggest-refactoring",
+        "dev-validate-next-story",
+        "compose-molecule",
+        "extend-pattern",
+        "create-service",
+        "collaborative-edit",
+        "correct-course"
+      ]
+    },
+    "database": {
+      "label": "🗄️ Database Operations",
+      "tasks": [
+        "db-analyze-hotpaths",
+        "db-apply-migration",
+        "db-bootstrap",
+        "db-domain-modeling",
+        "db-dry-run",
+        "db-env-check",
+        "db-explain",
+        "db-impersonate",
+        "db-load-csv",
+        "db-policy-apply",
+        "db-rls-audit",
+        "db-rollback",
+        "db-run-sql",
+        "db-schema-audit",
+        "db-seed",
+        "db-smoke-test",
+        "db-snapshot",
+        "db-squad-integration",
+        "db-supabase-setup",
+        "db-verify-order"
+      ]
+    },
+    "quality-testing": {
+      "label": "✅ Quality & Testing",
+      "tasks": [
+        "apply-qa-fixes",
+        "qa-create-fix-request",
+        "qa-evidence-requirements",
+        "qa-migration-validation",
+        "qa-trace-requirements",
+        "security-scan",
+        "execute-checklist"
+      ]
+    },
+    "product-management": {
+      "label": "📋 Product & Project Management",
+      "tasks": [
+        "brownfield-create-epic",
+        "brownfield-create-story",
+        "create-brownfield-story",
+        "create-next-story",
+        "create-task",
+        "sm-create-next-story",
+        "calculate-roi",
+        "execute-epic-plan",
+        "story-checkpoint"
+      ]
+    },
+    "devops-infra": {
+      "label": "🚀 DevOps & Infrastructure",
+      "tasks": [
+        "ci-cd-configuration",
+        "cleanup-utilities",
+        "cleanup-worktrees",
+        "create-worktree",
+        "environment-bootstrap",
+        "add-mcp"
+      ]
+    },
+    "documentation": {
+      "label": "📄 Documentation",
+      "tasks": [
+        "create-doc",
+        "document-gotchas",
+        "document-project",
+        "generate-documentation",
+        "generate-ai-frontend-prompt",
+        "index-docs",
+        "check-docs-links",
+        "sync-documentation",
+        "create-deep-research-prompt"
+      ]
+    },
+    "design-system": {
+      "label": "🎨 Design System",
+      "tasks": [
+        "bootstrap-shadcn-library",
+        "audit-tailwind-config",
+        "extract-patterns",
+        "extract-tokens",
+        "learn-patterns",
+        "consolidate-patterns",
+        "export-design-tokens-dtcg",
+        "deprecate-component"
+      ]
+    },
+    "aios-agent": {
+      "label": "🤖 AIOS Agent & Squad",
+      "tasks": [
+        "create-agent",
+        "create-suite",
+        "create-workflow",
+        "squad-creator-design",
+        "squad-creator-extend",
+        "squad-creator-validate"
+      ]
+    },
+    "brainstorming-research": {
+      "label": "💡 Brainstorming & Research",
+      "tasks": [
+        "analyst-facilitate-brainstorming",
+        "facilitate-brainstorming-session",
+        "audit-codebase",
+        "audit-utilities"
+      ]
+    }
+  },
+  "workflows": {
+    "_meta": {
+      "location": "lib/core/extensions/rudrax-aios/workflows/",
+      "description": "AIOS Workflows - multi-step orchestrated processes"
+    },
+    "greenfield": {
+      "label": "🟢 Greenfield (New Projects)",
+      "workflows": [
+        {"id": "greenfield-fullstack", "name": "Greenfield Fullstack", "description": "New project with both frontend and backend"},
+        {"id": "greenfield-service", "name": "Greenfield Service", "description": "New backend service/API project"},
+        {"id": "greenfield-ui", "name": "Greenfield UI", "description": "New frontend/UI-only project"}
+      ]
+    },
+    "brownfield": {
+      "label": "🟤 Brownfield (Existing Projects)",
+      "workflows": [
+        {"id": "brownfield-discovery", "name": "Brownfield Discovery", "description": "Analyze and understand existing codebase"},
+        {"id": "brownfield-fullstack", "name": "Brownfield Fullstack", "description": "Work on existing fullstack project"},
+        {"id": "brownfield-service", "name": "Brownfield Service", "description": "Work on existing backend service"},
+        {"id": "brownfield-ui", "name": "Brownfield UI", "description": "Work on existing frontend project"}
+      ]
+    },
+    "development-cycle": {
+      "label": "🔄 Development Cycles",
+      "workflows": [
+        {"id": "development-cycle", "name": "Development Cycle", "description": "Standard dev-build-test loop"},
+        {"id": "story-development-cycle", "name": "Story Development Cycle", "description": "User story driven development"},
+        {"id": "spec-pipeline", "name": "Spec Pipeline", "description": "Specification to implementation pipeline"}
+      ]
+    },
+    "quality": {
+      "label": "✅ Quality Assurance",
+      "workflows": [
+        {"id": "qa-loop", "name": "QA Loop", "description": "Iterative quality assurance cycle"},
+        {"id": "design-system-build-quality", "name": "Design System Build Quality", "description": "Quality gate for design system builds"}
+      ]
+    },
+    "orchestration": {
+      "label": "🏗️ Orchestration",
+      "workflows": [
+        {"id": "epic-orchestration", "name": "Epic Orchestration", "description": "Multi-story epic management"},
+        {"id": "auto-worktree", "name": "Auto Worktree", "description": "Automatic git worktree management"}
+      ]
+    }
+  },
+  "squads": {
+    "_meta": {
+      "location": "lib/core/extensions/rudrax-aios/squads/",
+      "description": "AIOS Squads - preconfigured agent teams"
+    },
+    "team-all": {
+      "name": "Full Team",
+      "icon": "👥",
+      "description": "All available agents for maximum coverage",
+      "file": "team-all.ts"
+    },
+    "team-fullstack": {
+      "name": "Fullstack Team",
+      "icon": "💻",
+      "description": "Full stack development team (dev + architect + qa)",
+      "file": "team-fullstack.ts"
+    },
+    "team-qa-focused": {
+      "name": "QA Focused",
+      "icon": "✅",
+      "description": "Quality assurance focused team (qa + dev + analyst)",
+      "file": "team-qa-focused.ts"
+    },
+    "team-no-ui": {
+      "name": "Backend Only",
+      "icon": "🖥️",
+      "description": "Backend development team (dev + data-engineer + devops)",
+      "file": "team-no-ui.ts"
+    },
+    "team-ide-minimal": {
+      "name": "IDE Minimal",
+      "icon": "⚡",
+      "description": "Minimal team for IDE-based development",
+      "file": "team-ide-minimal.ts"
+    }
+  },
+  "coreTools": {
+    "_meta": {
+      "location": "lib/core/tools/",
+      "description": "Built-in RudraX agent tools - always available"
+    },
+    "file-operations": {
+      "label": "📁 File Operations",
+      "tools": {
+        "read": "Read file contents (text + images)",
+        "write": "Create or overwrite files",
+        "edit": "Precise text replacement in files"
+      }
+    },
+    "system": {
+      "label": "⚡ System",
+      "tools": {
+        "bash": "Execute shell commands with timeout support"
+      }
+    },
+    "search-explore": {
+      "label": "🔍 Search & Explore",
+      "tools": {
+        "grep": "Search file contents with regex patterns",
+        "find": "Find files matching patterns",
+        "ls": "List directory contents"
+      }
+    }
+  },
+  "config": {
+    "ollama": {
+      "enabled": true,
+      "endpoint": "http://172.31.32.172:11434",
+      "models": [
+        "minimax-m2.7:cloud",
+        "kimi-k2.6:cloud"
+      ],
+      "defaultModel": "kimi-k2.6:cloud"
+    },
+    "code-server": {
+      "auth": "none",
+      "defaultPort": 8080,
+      "bindAddress": "127.0.0.1"
+    },
+    "integration": {
+      "mode": "standalone",
+      "priority": "ollama-custom"
+    }
+  }
+}

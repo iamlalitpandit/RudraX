@@ -123,7 +123,7 @@ const AGENT_REGISTRY: Record<string, { primary: string; fallback: string[] }> = 
   "tax":          { primary: "finance-tax-strategist", fallback: ["finance-bookkeeper-controller"] },
 
   // Support
-  "support":      { primary: "support-support-responder", fallback: ["customer-service"] },
+  "support":      { primary: "customer-service", fallback: ["customer-service"] },
 
   // Project Management
   "pm":           { primary: "project-management-project-shepherd", fallback: ["project-management-studio-producer"] },
@@ -142,13 +142,13 @@ const AGENT_REGISTRY: Record<string, { primary: string; fallback: string[] }> = 
   "xr":           { primary: "xr-immersive-developer", fallback: ["xr-interface-architect"] },
 
   // Specialized
-  "compliance":   { primary: "compliance-auditor", fallback: ["specialized-workflow-architect"] },
-  "legal":        { primary: "specialized-workflow-architect", fallback: ["compliance-auditor"] },
+  "compliance":   { primary: "compliance-auditor", fallback: ["compliance-auditor"] },
+  "legal":        { primary: "compliance-auditor", fallback: ["compliance-auditor"] },
   "blockchain":   { primary: "blockchain-security-auditor", fallback: ["engineering-solidity-smart-contract-engineer"] },
   "mcp":          { primary: "specialized-mcp-builder", fallback: ["engineering-backend-architect"] },
 
   // NEXUS orchestrator for complex multi-domain
-  "orchestration": { primary: "nexus-orchestrator", fallback: ["agents-orchestrator"] },
+  "orchestration": { primary: "deputy-chief-of-staff", fallback: ["deputy-chief-of-staff"] },
 };
 
 // Category keywords for prompt analysis
@@ -986,7 +986,7 @@ Active Tasks: ${activeTasks.map(t => t.id).join(", ") || "none"}
 
 ${completedResults ? `Completed Results:\n${completedResults}` : ""}
 
-**Your Role:** You are the orchestrator coordinating multiple specialized agents.
+**Your Role:** You are the 🔱 Chief of Staff. You receive missions from the user, forward them to the 🎛️ Deputy Chief of Staff for execution, and maintain situational awareness over all operations.
 - When a task is dispatched to you, execute it with focus on your assigned domain.
 - When you complete a task, summarize the key result concisely.
 - Use agency_task_complete to report completion.
@@ -1001,14 +1001,14 @@ Available Tools: agency_analyze, agency_dispatch, agency_task_complete, agency_t
     if (!orchestratorActive) {
       systemAddition = `
 
-<agency-orchestrator-awareness>
-🧠 You have access to The Agency's 186+ specialized agents via the agency tools.
+<rudrax-chief-of-staff-awareness>
+🧠 You have access to The Agency's 179 specialized agents via the agency tools.
 - For complex multi-domain tasks, use agency_analyze to create a plan with parallel execution lanes.
 - For single specialized tasks, use agency_dispatch to activate the right agent.
-- You are the orchestrator — plan, dispatch, monitor, and integrate.
+- You are the 🔱 Chief of Staff — receive user prompts, forward to the 🎛️ Deputy Chief of Staff, monitor execution, and deliver consolidated results.
 
 Available Tools: agency_analyze, agency_dispatch, agency_task_complete, agency_task_status, agency_report, agency_parallel_dispatch
-</agency-orchestrator-awareness>`;
+</rudrax-chief-of-staff-awareness>`;
     }
 
     return {

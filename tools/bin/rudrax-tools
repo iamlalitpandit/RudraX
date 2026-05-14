@@ -1,0 +1,241 @@
+#!/usr/bin/env node
+/**
+ * RudraX Tools CLI v2.0
+ * Systematically organized tool gateway
+ * 
+ * Usage: rudrax tools <command> [options]
+ */
+
+import { RudraXTools } from '../lib/rudrax-tools.js';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const TOOLS_ROOT = join(__dirname, '..');
+
+const tools = new RudraXTools();
+const command = process.argv[2];
+
+const help = `
+🔧 RudraX Tools v2.0 — Systematic Tool Gateway
+
+Usage: rudrax tools <command> [options]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤖  AI ASSISTANTS
+  codex [args...]          Launch OpenAI Codex CLI
+  claude [args...]         Launch Claude Code CLI
+  ollama <prompt>          Send prompt to Ollama
+  models                   List available Ollama models
+
+💻  IDE & SERVER
+  server [port]            Launch Code-Server (default: 8080)
+
+🔍  SEARCH & UTILITY
+  rg <pattern> [path]      Run Ripgrep search
+
+📋  INFO & STATUS
+  status                   Show all tools & availability
+  categories               Show tool categories
+  agents                   Show AIOS agent registry
+  tasks                    Show AIOS task categories
+  workflows                Show AIOS workflows
+  squads                   Show AIOS squad configurations
+  adapters                 Show adapter info
+  webui [port]             Launch RudraX Web UI (default: 5555)
+  help                     Show this help message
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Examples:
+  rudrax tools codex --help
+  rudrax tools server 9090
+  rudrax tools webui 8080
+  rudrax tools rg "function" ./src
+  rudrax tools ollama "Write a Python function"
+  rudrax tools models
+  rudrax tools agents
+  rudrax tools tasks
+
+Ollama Endpoint: ${tools.ollamaEndpoint}
+`;
+
+async function main() {
+  switch (command) {
+    case 'codex':
+      await tools.launchCodex(process.argv.slice(3));
+      break;
+
+    case 'claude':
+      await tools.launchClaude(process.argv.slice(3));
+      break;
+
+    case 'server': {
+      const port = process.argv[3] || 8080;
+      console.log(`💻 Starting Code-Server on port ${port}...`);
+      await tools.launchCodeServer(port);
+      break;
+    }
+
+    case 'rg': {
+      const pattern = process.argv[3];
+      const path = process.argv[4] || '.';
+      if (!pattern) {
+        console.error('❌ Usage: rudrax tools rg <pattern> [path]');
+        process.exit(1);
+      }
+      const results = tools.rg(pattern, path);
+      console.log(results);
+      break;
+    }
+
+    case 'ollama': {
+      const prompt = process.argv.slice(3).join(' ');
+      if (!prompt) {
+        console.error('❌ Usage: rudrax tools ollama <prompt>');
+        process.exit(1);
+      }
+      try {
+        const response = await tools.ollamaGenerate(prompt);
+        console.log('\n🤖 Response:\n');
+        console.log(response.response);
+      } catch (e) {
+        console.error('❌ Error:', e.message);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case 'models': {
+      try {
+        const models = await tools.getOllamaModels();
+        console.log('\n📦 Available Ollama Models:\n');
+        models.forEach(m => {
+          console.log(`  • ${m.name} (${m.details?.parameter_size || 'unknown'})`);
+        });
+      } catch (e) {
+        console.error('❌ Error fetching models:', e.message);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case 'status': {
+      console.log('\n🔧 RudraX Tools Status\n');
+      const categorized = tools.getAllCategorized();
+      
+      for (const [catKey, cat] of Object.entries(categorized)) {
+        console.log(`\n${cat.label}`);
+        console.log(`  ${cat.description}`);
+        for (const tool of cat.tools) {
+          console.log(`    ${tool.available ? '✅' : '❌'} ${tool.id} — ${tool.name || tool.id}`);
+        }
+      }
+      console.log(`\n🌐 Ollama Endpoint: ${tools.ollamaEndpoint}`);
+      console.log(`🤖 Default Model: ${tools.ollamaDefaultModel}`);
+      break;
+    }
+
+    case 'categories': {
+      const categories = tools.getCategories();
+      console.log('\n📁 Tool Categories\n');
+      for (const [key, cat] of Object.entries(categories)) {
+        console.log(`  ${cat.label}`);
+        console.log(`    ${cat.description}`);
+        console.log(`    Tools: ${cat.tools.join(', ')}`);
+      }
+      break;
+    }
+
+    case 'agents': {
+      const agentCats = tools.getAgentCategories();
+      console.log('\n👥 AIOS Agent Registry\n');
+      for (const [catKey, cat] of Object.entries(agentCats)) {
+        console.log(`\n  ${cat.label}`);
+        for (const agent of cat.agents) {
+          console.log(`    ${agent.icon} ${agent.id} — ${agent.name}`);
+          console.log(`       ${agent.description}`);
+        }
+      }
+      break;
+    }
+
+    case 'tasks': {
+      const taskCats = tools.getTaskCategories();
+      console.log('\n📋 AIOS Task Categories\n');
+      for (const [catKey, cat] of Object.entries(taskCats)) {
+        console.log(`\n  ${cat.label} (${cat.tasks.length} tasks)`);
+        for (const task of cat.tasks) {
+          console.log(`    • ${task}`);
+        }
+      }
+      break;
+    }
+
+    case 'workflows': {
+      const workflowCats = tools.getWorkflows();
+      console.log('\n🔄 AIOS Workflows\n');
+      for (const [catKey, cat] of Object.entries(workflowCats)) {
+        console.log(`\n  ${cat.label}`);
+        for (const wf of cat.workflows) {
+          console.log(`    🔄 ${wf.name} (${wf.id})`);
+          console.log(`       ${wf.description}`);
+        }
+      }
+      break;
+    }
+
+    case 'squads': {
+      const squads = tools.getSquads();
+      console.log('\n👥 AIOS Squad Configurations\n');
+      for (const [id, squad] of Object.entries(squads)) {
+        console.log(`  ${squad.icon} ${squad.name} (${id})`);
+        console.log(`     ${squad.description}`);
+      }
+      break;
+    }
+
+    case 'adapters':
+      console.log('\n🔌 Integration Adapters\n');
+      console.log('  📦 Codex Adapter:');
+      console.log('     Path: integrated/@orchids/codex-adapter/');
+      console.log('  📦 Claude Adapter:');
+      console.log('     Path: integrated/@orchids/claude-code-adapter/');
+      console.log('\n  Import in code:');
+      console.log('    import { rudraxTools } from "./tools/lib/rudrax-tools.js"');
+      console.log('    const adapter = await rudraxTools.loadCodexAdapter();');
+      break;
+
+    case 'webui': {
+      const port = process.argv[3] || process.env.RUDRAX_WEBUI_PORT || '5555';
+      console.log('\n🔥 Launching RudraX Web UI...\n');
+      console.log(`   URL: http://localhost:${port}`);
+      console.log('\n   Press Ctrl+C to stop the server.\n');
+      const { spawn } = await import('child_process');
+      const serverPath = join(TOOLS_ROOT, '..', 'webui', 'server.js');
+      const child = spawn('node', [serverPath, port], {
+        stdio: 'inherit',
+        env: { ...process.env, RUDRAX_WEBUI_PORT: port }
+      });
+      child.on('error', (err) => {
+        console.error('❌ Failed to start Web UI:', err.message);
+        process.exit(1);
+      });
+      process.on('SIGINT', () => { child.kill('SIGINT'); process.exit(0); });
+      process.on('SIGTERM', () => { child.kill('SIGTERM'); process.exit(0); });
+      break;
+    }
+
+    case 'help':
+    default:
+      console.log(help);
+  }
+}
+
+main().catch(e => {
+  console.error('❌ Error:', e.message);
+  process.exit(1);
+});

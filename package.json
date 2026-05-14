@@ -1,7 +1,7 @@
 {
   "name": "rudrax",
-  "version": "1.0.0",
-  "description": "RudraX - Build Break Deploy: Interactive AI TUI for development workflows",
+  "version": "4.1.0",
+  "description": "RudraX Army v4.1.0 — Build · Break · Deploy · Orchestrate: Hierarchical Multi-Agent Command System by Lalit Pandit",
   "type": "module",
   "main": "lib/main.js",
   "piConfig": {
@@ -28,14 +28,23 @@
   },
   "keywords": [
     "rudrax",
+    "rudrax-army",
+    "ai-agent",
+    "multi-agent",
+    "command-hierarchy",
+    "agent-orchestration",
     "tui",
     "cli",
-    "ai",
     "coding-agent",
-    "interactive",
-    "build-break-deploy"
+    "build-break-deploy",
+    "agent-swarm",
+    "autonomous-ai"
   ],
-  "author": "Lalit Pandit",
+  "author": {
+    "name": "Lalit Pandit",
+    "email": "admin@rudrax.cloud",
+    "url": "https://www.lalitpandit.in"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
@@ -51,7 +60,7 @@
     "@types/mime-types": "^3.0.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "chalk": "^5.x",
+    "chalk": "^5.4.0",
     "cli-highlight": "^2.1.11",
     "diff": "^8.0.4",
     "express": "^5.2.1",
@@ -79,5 +88,9 @@
     "type": "git",
     "url": "https://github.com/iamlalitpandit/RudraX"
   },
-  "homepage": "https://github.com/iamlalitpandit/RudraX"
+  "homepage": "https://github.com/iamlalitpandit/RudraX",
+  "bugs": {
+    "url": "https://github.com/iamlalitpandit/RudraX/issues",
+    "email": "admin@rudrax.cloud"
+  }
 }

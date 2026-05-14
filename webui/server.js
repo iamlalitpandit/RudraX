@@ -1,5 +1,5 @@
 /**
- * RudraX Web UI Server — Rudraksh Edition
+ * RudraX Army Web UI Server — Command & Control Edition
  *
  * Express + Socket.IO server that bridges the web UI to the RudraX AgentSession SDK.
  * Agency orchestration, agent discovery, squad management, terminal, shared memory.
@@ -32,6 +32,86 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT_DIR = join(__dirname, '..');
 
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
+const AUTH_DIR = join(os.homedir(), '.rudrax');
+const AUTH_FILE = join(AUTH_DIR, 'webui-auth.json');
+const JWT_SECRET = crypto.randomBytes(32).toString('hex'); // Rotates on server restart
+const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+
+// Load or initialize auth store
+function loadAuthStore() {
+  try {
+    if (fsSync.existsSync(AUTH_FILE)) {
+      return JSON.parse(fsSync.readFileSync(AUTH_FILE, 'utf-8'));
+    }
+  } catch (e) { /* corrupt file, recreate */ }
+  return null;
+}
+
+function saveAuthStore(store) {
+  if (!fsSync.existsSync(AUTH_DIR)) fsSync.mkdirSync(AUTH_DIR, { recursive: true });
+  fsSync.writeFileSync(AUTH_FILE, JSON.stringify(store, null, 2));
+}
+
+function hashPassword(password, salt) {
+  salt = salt || crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  return { hash, salt };
+}
+
+function verifyPassword(password, salt, hash) {
+  const { hash: computed } = hashPassword(password, salt);
+  return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(hash));
+}
+
+// Initialize default admin/password
+let authStore = loadAuthStore();
+if (!authStore) {
+  const { hash, salt } = hashPassword('password');
+  authStore = { username: 'admin', hash, salt, createdAt: Date.now() };
+  saveAuthStore(authStore);
+  console.log('[RudraX Army] 🔐 Default credentials: admin / password');
+}
+
+// JWT helpers
+function createToken(username) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({
+    sub: username,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor((Date.now() + TOKEN_EXPIRY) / 1000),
+  })).toString('base64url');
+  const sig = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${payload}`).digest('base64url');
+  return `${header}.${payload}.${sig}`;
+}
+
+function verifyToken(token) {
+  try {
+    const [header, payload, sig] = token.split('.');
+    const expected = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${payload}`).digest('base64url');
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    if (data.exp * 1000 < Date.now()) return null;
+    return data;
+  } catch { return null; }
+}
+
+// Auth middleware
+function requireAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  const token = auth.slice(7);
+  const data = verifyToken(token);
+  if (!data) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+  req.user = data;
+  next();
+}
+
 // ─── Port Config ────────────────────────────────────────────────────────────
 
 const PORT = parseInt(process.argv[2], 10) || parseInt(process.env.RUDRAX_WEBUI_PORT, 10) || 5555;
@@ -46,8 +126,51 @@ const io = new SocketIOServer(httpServer, {
 });
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(join(__dirname)));
+app.use(express.static(join(__dirname), { setHeaders: (res) => { res.set('Cache-Control', 'no-cache, no-store, must-revalidate'); } }));
 app.use('/socket.io', express.static(join(process.cwd(), 'node_modules', 'socket.io', 'client-dist')));
+
+// ═══ Auth Middleware — protect all /api/ routes ═══
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/')) return next();
+  if (req.path === '/api/login' || req.path === '/api/health') return next();
+  requireAuth(req, res, next);
+});
+
+// Protect non-/api/ endpoints too
+const authGuard = (req, res, next) => requireAuth(req, res, next);
+
+// ═══ Auth Endpoints ═══
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
+  }
+  // Reload auth store (allows password changes to take effect without restart)
+  const store = loadAuthStore() || authStore;
+  if (username !== store.username || !verifyPassword(password, store.salt, store.hash)) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+  const token = createToken(username);
+  res.json({ ok: true, token, username, expiresAt: Date.now() + TOKEN_EXPIRY });
+});
+
+app.post('/api/change-password', (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current and new password required' });
+  }
+  if (newPassword.length < 4) {
+    return res.status(400).json({ error: 'New password must be at least 4 characters' });
+  }
+  const store = loadAuthStore() || authStore;
+  if (!verifyPassword(currentPassword, store.salt, store.hash)) {
+    return res.status(401).json({ error: 'Current password is incorrect' });
+  }
+  const { hash, salt } = hashPassword(newPassword);
+  authStore = { username: store.username, hash, salt, updatedAt: Date.now() };
+  saveAuthStore(authStore);
+  res.json({ ok: true, message: 'Password changed successfully. Use new password on next login.' });
+});
 
 // Favicon route
 app.get('/favicon.ico', (req, res) => {
@@ -63,10 +186,17 @@ const contexts = new Map(); // contextId → { session, name, created, logs[], l
 let orchestratorState = {
   mode: 'auto',           // 'auto' | 'manual'
   activePlan: null,       // ExecutionPlan object or null
-  activeAgent: null,      // Currently active agent name
+  activeAgent: null,      // Currently dispatched specialist agent
   activeSquad: null,      // Currently active squad name
   activeSquadAgents: [],  // Agents in the active squad
   taskHistory: [],        // Completed tasks
+  commandRole: 'RudraX-Chief of Staff', // 🔱 Primary command role
+  deputyRole: 'Deputy Chief of Staff',   // 🎛️ Planning/orchestration role
+  hierarchy: {
+    level1: '🔱 RudraX-Chief of Staff — Strategic Commander',
+    level2: '🎛️ Deputy Chief of Staff — Operational Commander',
+    level3: '🤖 Specialist Agents & Squads — 179 agents / 45 divisions'
+  }
 };
 
 // ─── Squad Definitions ──────────────────────────────────────────────────────
@@ -226,11 +356,16 @@ function eventToLogEntry(event, ctx) {
         } else if (Array.isArray(msg.content)) {
           text = msg.content.filter(c => c.type === 'text').map(c => c.text).join('\n');
         }
-        return { no: 0, id: `user-${ts}`, type: 'user', content: text, timestamp: ts };
+        // Use client-provided message ID if available to prevent duplicates
+        const userId = (ctx && ctx.pendingUserMessageId) ? ctx.pendingUserMessageId : `user-${ts}`;
+        if (ctx) ctx.pendingUserMessageId = null; // Clear after use
+        return { no: 0, id: userId, type: 'user', content: text, timestamp: ts };
       }
       if (msg.role === 'assistant') {
         const turnNum = ctx ? (ctx.turnCounter || 1) : 1;
-        return { no: 0, id: `response-${turnNum}`, type: 'response', content: '', timestamp: ts, _streaming: true };
+        const agName = orchestratorState.activeAgent || null;
+        const sqName = orchestratorState.activeSquad || null;
+        return { no: 0, id: `response-${turnNum}`, type: 'response', content: '', timestamp: ts, _streaming: true, agentName: agName, squadName: sqName };
       }
       return null;
     }
@@ -239,6 +374,8 @@ function eventToLogEntry(event, ctx) {
       const msg = event.message || {};
       if (msg.role === 'assistant') {
         const turnNum = ctx ? (ctx.turnCounter || 1) : 1;
+        const agName = orchestratorState.activeAgent || null;
+        const sqName = orchestratorState.activeSquad || null;
         let text = '';
         if (typeof msg.content === 'string') {
           text = msg.content;
@@ -247,7 +384,7 @@ function eventToLogEntry(event, ctx) {
         }
         return {
           no: 0, id: `response-${turnNum}`, type: 'response', content: text, timestamp: ts,
-          _update: true,
+          _update: true, agentName: agName, squadName: sqName,
         };
       }
       return null;
@@ -257,13 +394,15 @@ function eventToLogEntry(event, ctx) {
       const msg = event.message || {};
       if (msg.role === 'assistant') {
         const turnNum = ctx ? (ctx.turnCounter || 1) : 1;
+        const agName = orchestratorState.activeAgent || null;
+        const sqName = orchestratorState.activeSquad || null;
         let text = '';
         if (typeof msg.content === 'string') {
           text = msg.content;
         } else if (Array.isArray(msg.content)) {
           text = msg.content.filter(c => c.type === 'text').map(c => c.text).join('\n');
         }
-        return { no: 0, id: `response-${turnNum}`, type: 'response', content: text, timestamp: ts, _final: true };
+        return { no: 0, id: `response-${turnNum}`, type: 'response', content: text, timestamp: ts, _final: true, agentName: agName, squadName: sqName };
       }
       return null;
     }
@@ -288,7 +427,22 @@ function eventToLogEntry(event, ctx) {
       return null;
 
     case 'compaction_start':
-      return { no: 0, id: crypto.randomUUID(), type: 'agent', heading: '📦 Compacting...', content: event.reason || 'Auto-compaction', timestamp: ts };
+      // Store compaction message ID so we can update it on compaction_end
+      if (ctx) ctx._compactionMsgId = `compact-${ts}`;
+      return { no: 0, id: ctx?._compactionMsgId || `compact-${ts}`, type: 'agent', heading: '📦 Compacting...', content: event.reason || 'Auto-compaction', timestamp: ts };
+
+    case 'compaction_end': {
+      const compactId = ctx?._compactionMsgId;
+      if (ctx) ctx._compactionMsgId = null;
+      const success = !event.aborted && !event.errorMessage;
+      const heading = success ? '✅ Compaction complete' : (event.aborted ? '⏹ Compaction aborted' : '❌ Compaction failed');
+      const content = event.errorMessage || (success ? '' : event.reason || '');
+      // If we have the compaction message ID, update it; otherwise create a new entry
+      if (compactId) {
+        return { no: 0, id: compactId, type: 'agent', heading, content, timestamp: ts, _update: true };
+      }
+      return { no: 0, id: `compact-end-${ts}`, type: 'agent', heading, content, timestamp: ts };
+    }
 
     case 'queue_update':
       return null;
@@ -377,6 +531,7 @@ async function createContext(name) {
       running: false,
       paused: false,
       turnCounter: 0,
+      lastActivity: Date.now(),
     };
 
     session.subscribe((event) => {
@@ -392,6 +547,7 @@ async function createContext(name) {
 }
 
 function handleSessionEvent(ctx, event) {
+  ctx.lastActivity = Date.now();
   const entry = eventToLogEntry(event, ctx);
   if (!entry) {
     if (event.type === 'agent_start') ctx.running = true;
@@ -442,7 +598,8 @@ function handleSessionEvent(ctx, event) {
       // Broadcast agent activity for this final response
       broadcastAgentActivity({
         type: entry.type === 'response' ? 'response' : entry.type,
-        agent: entry.type === 'response' ? 'RudraX' : (entry.kvps?.agent || entry.kvps?.tool_name || 'system'),
+        agent: entry.agentName || (entry.type === 'response' ? 'RudraX-Chief of Staff' : (entry.kvps?.agent || entry.kvps?.tool_name || 'system')),
+        squad: entry.squadName || null,
         content: (entry.content || '').slice(0, 200),
         action: entry.type === 'response' ? 'responded' : 'completed',
       });
@@ -555,6 +712,9 @@ function broadcastOrchestratorState() {
     activeSquad: orchestratorState.activeSquad,
     activeSquadAgents: orchestratorState.activeSquadAgents,
     taskHistory: orchestratorState.taskHistory.slice(-50), // Keep last 50
+    commandRole: orchestratorState.commandRole,
+    deputyRole: orchestratorState.deputyRole,
+    hierarchy: orchestratorState.hierarchy,
   });
 }
 
@@ -1314,8 +1474,8 @@ app.delete('/api/memory/:contextId', (req, res) => {
 
 // ─── Message Endpoints ──────────────────────────────────────────────────────
 
-app.post('/message_async', async (req, res) => {
-  const { text, context: contextId, message_id } = req.body;
+app.post('/message_async', authGuard, async (req, res) => {
+  const { text, context: contextId, message_id, files } = req.body;
 
   if (!text) {
     return res.status(400).json({ error: 'Message text is required' });
@@ -1331,8 +1491,28 @@ app.post('/message_async', async (req, res) => {
     }
   }
 
+  // Store client message ID so eventToLogEntry can use it for the user message
+  ctx.pendingUserMessageId = message_id;
+
+  // Check if agent is already processing — inform client to use steering
+  if (ctx.running) {
+    ctx.pendingUserMessageId = null; // Clear — client will show steer panel instead
+    return res.status(409).json({
+      error: 'Agent is already processing. Use steering options (followUp/steer/stop) to interact.',
+      code: 'ALREADY_PROCESSING',
+      context: ctx.id,
+    });
+  }
+
   try {
-    ctx.session.prompt(text, { expandPromptTemplates: false }).catch(err => {
+    // If files are attached, include file info
+    let promptText = text;
+    if (files && files.length > 0) {
+      const fileList = files.map(f => `- ${f.name} (${(f.size / 1024).toFixed(1)}KB, ${f.type})`).join('\n');
+      promptText = `${text}\n\n## Attached Files\n${fileList}\n\nPlease analyze these files if needed.`;
+    }
+
+    ctx.session.prompt(promptText, { expandPromptTemplates: false }).catch(err => {
       console.error('[RudraX] Stream error:', err.message);
       ctx.logs.push({
         no: ctx.logs.length + 1,
@@ -1353,7 +1533,21 @@ app.post('/message_async', async (req, res) => {
   }
 });
 
-app.post('/poll', (req, res) => {
+// ── Manual stuck-state recovery endpoint ──────────────────────────────────
+app.post('/force_unstick', authGuard, (req, res) => {
+  const { context: contextId } = req.body;
+  const ctx = contextId ? contexts.get(contextId) : null;
+  if (!ctx) {
+    return res.status(404).json({ error: 'Context not found' });
+  }
+  console.warn(`[RudraX] Force unsticking context ${ctx.id}`);
+  ctx.running = false;
+  ctx.lastActivity = Date.now();
+  broadcastState(ctx);
+  res.json({ ok: true, context: ctx.id });
+});
+
+app.post('/poll', authGuard, (req, res) => {
   const { context: contextId, log_from } = req.body;
 
   if (!contextId) {
@@ -1388,9 +1582,72 @@ app.post('/api/pause', async (req, res) => {
   res.json({ paused: ctx.paused });
 });
 
+// ─── Steering / Follow-Up Endpoint ──────────────────────────────────────
+// Allows sending follow-up messages while agent is processing
+app.post('/api/steer', async (req, res) => {
+  const { text, context: contextId, mode } = req.body;
+
+  if (!text || !contextId) {
+    return res.status(400).json({ error: 'text and context required' });
+  }
+
+  const ctx = contexts.get(contextId);
+  if (!ctx) {
+    return res.status(404).json({ error: 'Context not found' });
+  }
+
+  try {
+    switch (mode) {
+      case 'followUp':
+        // Queue the message - agent will process it after current task
+        ctx.session.prompt(`[FOLLOW-UP]: ${text}`, { expandPromptTemplates: false, streamingBehavior: 'followUp' }).catch(err => {
+          console.error('[RudraX] Follow-up error:', err.message);
+        });
+        break;
+      case 'steer':
+        // Interrupt and redirect
+        ctx.session.prompt(`[STEER]: ${text}`, { expandPromptTemplates: false, streamingBehavior: 'steer' }).catch(err => {
+          console.error('[RudraX] Steer error:', err.message);
+        });
+        break;
+      case 'stop':
+        // Stop the current task
+        ctx.running = false;
+        ctx.lastActivity = Date.now();
+        broadcastState(ctx);
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid mode. Use: followUp, steer, or stop' });
+    }
+
+    // Broadcast agent activity for steering
+    broadcastAgentActivity({
+      type: 'system',
+      agent: 'You',
+      content: `Steering (${mode}): ${text.slice(0, 80)}`,
+      action: mode,
+    });
+
+    res.json({ ok: true, mode });
+  } catch (err) {
+    console.error('[RudraX] Steer error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Terminal WebSocket ────────────────────────────────────────────────────
 
 const terminals = new Map(); // socketId → child_process
+
+// ═══ Socket.IO Auth Middleware ═══
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (!token) return next(new Error('Authentication required'));
+  const data = verifyToken(token);
+  if (!data) return next(new Error('Invalid or expired token'));
+  socket.user = data;
+  next();
+});
 
 io.on('connection', (socket) => {
   console.log('[RudraX] Client connected:', socket.id);
@@ -1549,19 +1806,38 @@ function startServer(port) {
     httpServer.listen(serverPort, () => {
       console.log('');
       console.log('  ╔══════════════════════════════════════════════╗');
-      console.log('  ║    🔱 RudraX — Rudraksh Edition 🔱           ║');
+      console.log('  ║    🔱 RudraX Army — 179 Agents 🔱         ║');
       console.log('  ║    Build · Break · Deploy · Orchestrate      ║');
       console.log('  ╠══════════════════════════════════════════════╣');
       console.log(`  ║  http://localhost:${serverPort}                      ║`);
-      console.log('  ║  🤖 191 Agents  🎭 9 Squads  🧠 Orchestrator  ║');
+      console.log('  ║  🤖 179 Agents  🎭 9 Squads  🧠 Orchestrator  ║');
       console.log('  ╚══════════════════════════════════════════════╝');
       console.log('');
       console.log('  💡 Tip: Install node-pty for full terminal PTY support');
-      console.log('     npm install node-pty\n');
+      console.log('     npm install node-pty');
+      console.log('');
+      console.log(`  🔱 RudraX v4.1.0 — Build · Break · Deploy · Orchestrate`);
+      console.log(`  By Lalit Pandit | ॐ नमः शिवाय\n`);
       resolve(serverPort);
     });
   });
 }
+
+// ── Stuck-State Recovery ───────────────────────────────────────────────────
+// If a context has been running for more than STUCK_TIMEOUT_MS without any activity,
+// auto-reset its running state so the UI un-sticks.
+const STUCK_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
+
+setInterval(() => {
+  for (const ctx of contexts.values()) {
+    if (ctx.running && (Date.now() - ctx.lastActivity) > STUCK_TIMEOUT_MS) {
+      console.warn(`[RudraX] Context ${ctx.id} stuck for ${STUCK_TIMEOUT_MS / 1000}s — auto-recovering`);
+      ctx.running = false;
+      ctx.lastActivity = Date.now();
+      broadcastState(ctx);
+    }
+  }
+}, 30_000); // Check every 30 seconds
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));

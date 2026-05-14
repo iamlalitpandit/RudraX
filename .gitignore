@@ -5,6 +5,12 @@ node_modules/
 dist/
 build/
 
+# Large binary tools (exceed GitHub file size limits)
+tools/integrated/claude-code/
+tools/integrated/code-server/
+tools/integrated/codex/
+tools/integrated/ripgrep/
+
 # Config and local data
 .rudrax/
 *.local
@@ -33,3 +39,7 @@ coverage/
 *.tgz
 .turbo/
 push.sh
+
+# Personal local configs
+tools/.code-server-config/
+

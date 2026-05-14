@@ -1,0 +1,62 @@
+# RudraX — Docker Compose Configuration
+# Kali Linux sandbox for security tools + Web UI
+
+services:
+  # ─── Kali Linux Sandbox ──────────────────────────────────────────────────
+  kali-sandbox:
+    build:
+      context: ./kali-sandbox
+      dockerfile: Dockerfile
+    container_name: rudrax-sandbox
+    hostname: kali-sandbox
+    ports:
+      - "2222:2222"    # SSH
+    volumes:
+      - sandbox-workspace:/home/rudrax/workspace
+      - ../:/opt/rudrax:ro          # RudraX source (read-only)
+    environment:
+      - SSH_PORT=2222
+      - RUDRAX_SANDBOX=true
+    networks:
+      - rudrax-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2222"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ─── RudraX Web UI ────────────────────────────────────────────────────────
+  webui:
+    build:
+      context: ../
+      dockerfile: docker/webui/Dockerfile
+    container_name: rudrax-webui
+    ports:
+      - "${WEBUI_PORT:-5555}:5555"
+    environment:
+      - RUDRAX_WEBUI_PORT=5555
+      - RUDRAX_SANDBOX_HOST=kali-sandbox
+      - RUDRAX_SANDBOX_PORT=2222
+      - RUDRAX_SANDBOX_USER=rudrax
+      - RUDRAX_SANDBOX_PASS=rudrax
+      - OLLAMA_HOST=http://${OLLAMA_HOST:-host.docker.internal}:11434
+    networks:
+      - rudrax-net
+    depends_on:
+      kali-sandbox:
+        condition: service_healthy
+    volumes:
+      - rudrax-config:/home/rudrax/.rudrax
+    restart: unless-stopped
+
+volumes:
+  sandbox-workspace:
+    driver: local
+  rudrax-config:
+    driver: local
+
+networks:
+  rudrax-net:
+    driver: bridge
