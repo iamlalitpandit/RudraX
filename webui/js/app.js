@@ -14,7 +14,7 @@ const CONFIG = {
   MAX_RETRIES: 5,
   STREAM_DEBOUNCE: 32,   // ~30fps for smooth streaming
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  APP_VERSION: 'v4.1.0',
+  APP_VERSION: 'v4.5.0',
 };
 
 // ═══ Command Registry ═════════════════════════════════════════════════════════
@@ -23,9 +23,25 @@ const COMMANDS = [
   { name: '/orchestrate', desc: 'Plan and execute multi-agent tasks', icon: '🧠', usage: '/orchestrate <auto|manual> <task>' },
   { name: '/dispatch', desc: 'Dispatch a specific agent', icon: '🚀', usage: '/dispatch <agent-name> <task>' },
   { name: '/agency', desc: 'Manage agency agents', icon: '🎭', usage: '/agency <list|activate|deactivate|squad|status|categories|search>' },
+  { name: '/help-agency', desc: 'Show all feature commands', icon: '📖', usage: '/help-agency' },
   { name: '/memory', desc: 'Shared memory for multi-agent coordination', icon: '🗂️', usage: '/memory <status|log|tasks|decisions|blockers|handoffs|overview|files|structure|reset|list>' },
+  { name: '/vector', desc: 'Vector knowledge base with semantic search', icon: '🧠', usage: '/vector <search|status|stats|reindex|reset|list>' },
+  { name: '/bus', desc: 'Agent communication bus pub/sub messaging', icon: '📡', usage: '/bus <status|send|publish|subscribe|messages|pending|topics>' },
+  { name: '/workflow', desc: 'DAG workflow automation engine', icon: '⚙️', usage: '/workflow <list|run|status|show|create>' },
+  { name: '/gate', desc: 'Approval gates for human-in-the-loop safety', icon: '🛡️', usage: '/gate <status|approve|deny|enable|disable|level|list|history|pending>' },
+  { name: '/reflect', desc: 'Self-reflection engine for quality analysis', icon: '🔍', usage: '/reflect <plan|output|error|analyze|stats|history>' },
+  { name: '/observe', desc: 'Observability dashboard with traces & metrics', icon: '📊', usage: '/observe <dashboard|traces|metrics|agents|tools>' },
+  { name: '/web', desc: 'Web search and page fetching', icon: '🌐', usage: '/web <search|fetch|cache-status|clear-cache>' },
+  { name: '/kg', desc: 'Knowledge graph entity relationship system', icon: '🕸️', usage: '/kg <status|add-node|add-rel|query|neighbors|export>' },
+  { name: '/schedule', desc: 'Recurring task scheduler', icon: '⏰', usage: '/schedule <list|add|remove|enable|disable|start|stop>' },
+  { name: '/evaluate', desc: 'Agent benchmarking and evaluation', icon: '🏆', usage: '/evaluate <run|suites|history|stats>' },
+  { name: '/cost', desc: 'LLM cost tracking and budget management', icon: '💰', usage: '/cost <dashboard|history|budget|reset>' },
+  { name: '/sandbox', desc: 'Secure isolated code execution', icon: '📦', usage: '/sandbox <run|status|languages>' },
+  { name: '/guardrails', desc: 'Output safety validation and PII redaction', icon: '🛡️', usage: '/guardrails <check|status>' },
+  { name: '/tool-registry', desc: 'Dynamic custom tool creation', icon: '🔧', usage: '/tool-registry <list|create|show|delete>' },
+  { name: '/multimodal', desc: 'Image and file processing', icon: '🖼️', usage: '/multimodal <analyze|info|encode>' },
   { name: '/skill', desc: 'Load a skill/agent personality', icon: '⚙️', usage: '/skill:<name>' },
-  { name: '/help', desc: 'Show available commands', icon: '❓', usage: '/help' },
+  { name: '/help', desc: 'Show basic commands', icon: '❓', usage: '/help' },
   { name: '/reload', desc: 'Reload extensions and skills', icon: '🔄', usage: '/reload' },
   { name: '/clear', desc: 'Clear chat history', icon: '🧹', usage: '/clear' },
 ];
@@ -122,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   adjustTextareaHeight($('#chat-input'));
   updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
   updateStatusBar('idle');
+  setTimeout(loadCapabilities, 1000); // Load capabilities after auth
 });
 
 // ═══ Auth — Login / Logout / Password Change ══════════════════════════════
@@ -2449,3 +2466,637 @@ console.log('%c🔱 RudraX Army v4.1.0 %c— Build · Break · Deploy by Lalit P
   'color: #9e978f;');
 console.log('%c179 Agents %c| %cॐ नमः शिवाय',
   'color: #d4a843;', 'color: #9e978f;', 'color: #d4a843;');
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 COMMAND PALETTE — Ctrl+K / Cmd+K
+// ═════════════════════════════════════════════════════════════════════════
+
+let cmdPaletteSelectedIndex = 0;
+let cmdPaletteResults = [];
+
+function openCommandPalette() {
+  const overlay = $('#command-palette');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  const input = $('#cmd-palette-input');
+  if (input) {
+    input.value = '';
+    input.focus();
+    cmdPaletteResults = [];
+    cmdPaletteSelectedIndex = 0;
+    renderCommandPaletteResults();
+  }
+}
+
+function closeCommandPalette() {
+  const overlay = $('#command-palette');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function renderCommandPaletteResults() {
+  const container = $('#cmd-palette-results');
+  if (!container) return;
+  if (cmdPaletteResults.length === 0) {
+    container.innerHTML = '<div class="cmd-palette-result" style="color:var(--text-muted);padding:var(--sp-lg);text-align:center">Type to search commands, agents, and actions...</div>';
+    return;
+  }
+  container.innerHTML = cmdPaletteResults.map((r, i) => `
+    <div class="cmd-palette-result ${i === cmdPaletteSelectedIndex ? 'selected' : ''}"
+         onclick="executeCommandPaletteItem(${i})"
+         onmouseenter="cmdPaletteSelectedIndex=${i};renderCommandPaletteResults()">
+      <span class="cmd-palette-result-icon">${r.icon || '🔍'}</span>
+      <div class="cmd-palette-result-info">
+        <div class="cmd-palette-result-name">${escapeHtml(r.name)}</div>
+        <div class="cmd-palette-result-desc">${escapeHtml(r.desc || '')}</div>
+      </div>
+      <span class="cmd-palette-result-category">${escapeHtml(r.category || 'action')}</span>
+    </div>
+  `).join('');
+  // Scroll selected item into view
+  const selected = container.querySelector('.selected');
+  if (selected) selected.scrollIntoView({ block: 'nearest' });
+}
+
+function filterCommandPalette(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    cmdPaletteResults = [
+      { icon: '🧠', name: '/orchestrate <task>', desc: 'Plan and execute multi-agent tasks', category: 'command', action: 'orchestrate' },
+      { icon: '🚀', name: '/dispatch <agent> <task>', desc: 'Dispatch a specific agent', category: 'command', action: 'dispatch' },
+      { icon: '💬', name: 'New Chat', desc: 'Start a new conversation', category: 'action', action: 'newChat' },
+      { icon: '🔔', name: 'Notifications', desc: 'Open notification center', category: 'action', action: 'notifications' },
+      { icon: '⌨️', name: 'Keyboard Shortcuts', desc: 'Show keyboard shortcuts help', category: 'help', action: 'shortcuts' },
+      { icon: '⚙️', name: 'Settings', desc: 'Open settings panel', category: 'action', action: 'settings' },
+      { icon: '💾', name: 'Export Session', desc: 'Download current conversation', category: 'action', action: 'export' },
+      { icon: '🛡️', name: 'Security Dashboard', desc: 'View live security threats', category: 'view', action: 'security' },
+      { icon: '🧹', name: 'Clear Chat', desc: 'Clear current conversation', category: 'action', action: 'clear' },
+      { icon: '🎭', name: 'Squads', desc: 'View and activate squads', category: 'view', action: 'squads' },
+    ];
+    renderCommandPaletteResults();
+    return;
+  }
+
+  const allItems = [
+    ...COMMANDS.map(c => ({ ...c, category: 'command', action: 'command' })),
+    { icon: '💬', name: 'New Chat', desc: 'Start a new conversation', category: 'action', action: 'newChat' },
+    { icon: '🔔', name: 'Notifications', desc: 'Open notification center', category: 'action', action: 'notifications' },
+    { icon: '⌨️', name: 'Keyboard Shortcuts', desc: 'Show keyboard shortcuts help', category: 'help', action: 'shortcuts' },
+    { icon: '⚙️', name: 'Settings', desc: 'Open settings panel', category: 'action', action: 'settings' },
+    { icon: '💾', name: 'Export Session', desc: 'Download current conversation', category: 'action', action: 'export' },
+    { icon: '🛡️', name: 'Security Dashboard', desc: 'View live security threats', category: 'view', action: 'security' },
+    { icon: '🧹', name: 'Clear Chat', desc: 'Clear current conversation', category: 'action', action: 'clear' },
+    { icon: '🎭', name: 'Squads', desc: 'View and activate squads', category: 'view', action: 'squads' },
+    ...(state.agents || []).slice(0, 20).map(a => ({
+      icon: a.emoji || '🤖', name: a.name, desc: (a.description || '').slice(0, 60),
+      category: a.category || 'agent', action: 'agent', agentId: a.skillName || a.id
+    })),
+    ...Object.entries(state.squads || {}).map(([k, v]) => ({
+      icon: v.emoji || '🎭', name: v.name, desc: v.description || '',
+      category: 'squad', action: 'squad', squadKey: k
+    })),
+  ];
+
+  cmdPaletteResults = allItems.filter(item =>
+    item.name.toLowerCase().includes(q) ||
+    (item.desc && item.desc.toLowerCase().includes(q)) ||
+    (item.category && item.category.toLowerCase().includes(q))
+  ).slice(0, 30);
+
+  cmdPaletteSelectedIndex = 0;
+  renderCommandPaletteResults();
+}
+
+function executeCommandPaletteItem(index) {
+  const item = cmdPaletteResults[index];
+  if (!item) return;
+  closeCommandPalette();
+
+  switch (item.action) {
+    case 'newChat': newContext(); break;
+    case 'notifications': openNotificationCenter(); break;
+    case 'shortcuts': openShortcutsOverlay(); break;
+    case 'settings': openSettings(); break;
+    case 'export': exportSession(); break;
+    case 'security': switchSidebarTab('security'); break;
+    case 'clear': clearMessages(); break;
+    case 'squads': switchSidebarTab('squads'); break;
+    case 'command':
+      focusCommandBar(item.name + ' ');
+      break;
+    case 'agent':
+      if (item.agentId) activateAgent(item.agentId);
+      break;
+    case 'squad':
+      if (item.squadKey) activateSquad(item.squadKey);
+      break;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 NOTIFICATION CENTER
+// ═════════════════════════════════════════════════════════════════════════
+
+let notifications = [];
+let notifUnreadCount = 0;
+
+function addNotification(title, desc, icon) {
+  notifications.unshift({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    title, desc, icon: icon || '💬', time: new Date(), unread: true
+  });
+  notifUnreadCount++;
+  updateNotifBadge();
+  renderNotifications();
+}
+
+function updateNotifBadge() {
+  const bell = $('#notif-bell');
+  if (!bell) return;
+  let badge = bell.querySelector('.notif-badge');
+  if (notifUnreadCount > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      bell.appendChild(badge);
+    }
+    badge.textContent = notifUnreadCount > 99 ? '99+' : notifUnreadCount;
+  } else {
+    if (badge) badge.remove();
+  }
+}
+
+function openNotificationCenter() {
+  const panel = $('#notification-center');
+  if (panel) panel.classList.toggle('hidden');
+}
+
+function closeNotificationCenter() {
+  const panel = $('#notification-center');
+  if (panel) panel.classList.add('hidden');
+}
+
+function renderNotifications() {
+  const body = $('#notif-body');
+  if (!body) return;
+  if (notifications.length === 0) {
+    body.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+    return;
+  }
+  body.innerHTML = notifications.slice(0, 50).map(n => `
+    <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="markNotifRead('${n.id}')">
+      <span class="notif-item-icon">${n.icon}</span>
+      <div class="notif-item-content">
+        <div class="notif-item-title">${escapeHtml(n.title)}</div>
+        <div class="notif-item-desc">${escapeHtml(n.desc || '')}</div>
+        <div class="notif-item-time">${formatNotifTime(n.time)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function markNotifRead(id) {
+  const n = notifications.find(x => x.id === id);
+  if (n && n.unread) {
+    n.unread = false;
+    notifUnreadCount = Math.max(0, notifUnreadCount - 1);
+    updateNotifBadge();
+    renderNotifications();
+  }
+}
+
+function clearAllNotifications() {
+  notifications = [];
+  notifUnreadCount = 0;
+  updateNotifBadge();
+  renderNotifications();
+}
+
+function formatNotifTime(date) {
+  const now = Date.now();
+  const diff = now - date.getTime();
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return date.toLocaleDateString();
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 KEYBOARD SHORTCUTS HELP OVERLAY
+// ═════════════════════════════════════════════════════════════════════════
+
+function openShortcutsOverlay() {
+  const overlay = $('#shortcuts-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+}
+
+function closeShortcutsOverlay() {
+  const overlay = $('#shortcuts-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 EXPORT SESSION
+// ═════════════════════════════════════════════════════════════════════════
+
+function exportSession() {
+  if (state.logs.length === 0) {
+    showToast('⚠️ No messages to export', 'warning');
+    return;
+  }
+
+  const lines = state.logs.map(log => {
+    const ts = new Date(log.timestamp).toLocaleString();
+    switch (log.type) {
+      case 'user': return `## 👤 User (${ts})\n\n${log.content}\n`;
+      case 'response': return `## 🤖 RudraX (${ts})\n\n${log.content}\n`;
+      case 'tool': return `### 🔧 ${log.heading || 'Tool'} (${ts})\n\n\`\`\`\n${log.content}\n\`\`\`\n`;
+      case 'tool_result': return `### ✅ ${log.heading || 'Result'} (${ts})\n\n\`\`\`\n${log.content}\n\`\`\`\n`;
+      default: return `### ${log.heading || log.type || 'Entry'} (${ts})\n\n${log.content}\n`;
+    }
+  }).join('\n---\n\n');
+
+  const markdown = `# RudraX Army — Conversation Export\n\n**Exported:** ${new Date().toISOString()}\n**Messages:** ${state.logs.length}\n\n${lines}`;
+
+  const blob = new Blob([markdown], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rudrax-session-${Date.now()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  showToast('💾 Session exported successfully!', 'success');
+  addNotification('Session Exported', `${state.logs.length} messages saved`, '💾');
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 SECURITY DASHBOARD — Live cybersecurity data
+// ═════════════════════════════════════════════════════════════════════════
+
+let securityPollTimer = null;
+let securityData = { threats: [], alerts: [], metrics: {}, trafficHistory: [] };
+
+function initSecurityDashboard() {
+  fetchSecurityData();
+  if (securityPollTimer) clearInterval(securityPollTimer);
+  securityPollTimer = setInterval(fetchSecurityData, 4000);
+}
+
+async function fetchSecurityData() {
+  try {
+    const res = await fetch(`${CONFIG.API_BASE}/api/security/snapshot`, { headers: getAuthHeaders() });
+    if (!res.ok) return;
+    securityData = await res.json();
+    renderSecurityDashboard();
+  } catch (e) {
+    // Security backend may not be running — silent fail
+  }
+}
+
+function refreshSecurityData() {
+  fetchSecurityData();
+  showToast('🛡️ Security data refreshed', 'info');
+}
+
+function renderSecurityDashboard() {
+  const m = securityData.metrics || {};
+  document.getElementById('sec-total-threats').textContent = m.totalThreats || 0;
+  document.getElementById('sec-blocked-ips').textContent = m.blockedIPs || 0;
+  document.getElementById('sec-active-conns').textContent = (m.activeConnections || 0).toLocaleString();
+  document.getElementById('sec-packets').textContent = (m.packetsInspected || 0).toLocaleString();
+
+  // Threat level badge
+  const badge = document.getElementById('sec-threat-level');
+  if (badge) {
+    const level = m.threatLevel || 'low';
+    badge.className = `sec-threat-badge ${level}`;
+    badge.textContent = level.toUpperCase();
+  }
+
+  // Threats list
+  const threatsList = document.getElementById('sec-threats-list');
+  if (threatsList) {
+    const threats = (securityData.threats || []).filter(t => t.status === 'active').slice(0, 10);
+    if (threats.length === 0) {
+      threatsList.innerHTML = '<div class="sec-empty">No active threats. All clear! 🎉</div>';
+    } else {
+      threatsList.innerHTML = threats.map(t => `
+        <div class="sec-threat-item">
+          <span class="sec-threat-icon">${t.icon || '☠️'}</span>
+          <div class="sec-threat-info">
+            <div class="sec-threat-type">${escapeHtml(t.type || 'Unknown')}</div>
+            <div class="sec-threat-detail">${escapeHtml(t.sourceIP || '')} → ${escapeHtml(t.target || '')}</div>
+          </div>
+          <span class="sec-threat-sev ${t.severity || 'low'}">${(t.severity || 'low').toUpperCase()}</span>
+          ${t.mitigated ? '<span class="sec-threat-mitigated">✓</span>' : ''}
+        </div>
+      `).join('');
+    }
+  }
+
+  // Alerts list
+  const alertsList = document.getElementById('sec-alerts-list');
+  if (alertsList) {
+    const alerts = (securityData.alerts || []).slice(0, 8);
+    if (alerts.length === 0) {
+      alertsList.innerHTML = '<div class="sec-empty">No recent alerts</div>';
+    } else {
+      alertsList.innerHTML = alerts.map(a => `
+        <div class="sec-alert-item ${a.acknowledged ? '' : 'unread'}">
+          <span class="sec-threat-icon">⚠️</span>
+          <div class="sec-threat-info">
+            <div class="sec-threat-type">${escapeHtml(a.type || 'Alert')}</div>
+            <div class="sec-threat-detail">${escapeHtml(a.message || '')}</div>
+          </div>
+          <span class="sec-threat-sev ${a.severity || 'low'}">${(a.severity || 'low').toUpperCase()}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Traffic chart
+  renderTrafficChart();
+}
+
+function renderTrafficChart() {
+  const canvas = document.getElementById('sec-traffic-canvas');
+  if (!canvas || !securityData.trafficHistory || securityData.trafficHistory.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const data = securityData.trafficHistory.slice(-40);
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(212,168,67,0.05)';
+  ctx.fillRect(0, 0, w, h);
+
+  const maxVal = Math.max(...data.map(d => d.total || d.inbound || 0), 1);
+  const stepX = w / data.length;
+  const padding = 4;
+
+  // Draw inbound line
+  ctx.beginPath();
+  ctx.strokeStyle = '#d4a843';
+  ctx.lineWidth = 1.5;
+  data.forEach((d, i) => {
+    const x = i * stepX + padding;
+    const y = h - padding - ((d.inbound || 0) / maxVal) * (h - padding * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Draw outbound line
+  ctx.beginPath();
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 2]);
+  data.forEach((d, i) => {
+    const x = i * stepX + padding;
+    const y = h - padding - ((d.outbound || 0) / maxVal) * (h - padding * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 RESIZABLE PANELS
+// ═════════════════════════════════════════════════════════════════════════
+
+function initResizablePanels() {
+  // Left sidebar resize
+  const leftPanel = $('#left-panel');
+  if (leftPanel && !leftPanel.querySelector('.resize-handle')) {
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle horizontal';
+    leftPanel.appendChild(handle);
+    makeResizable(leftPanel, handle, 'width', -1);
+  }
+
+  // Orchestrator panel resize
+  const orchPanel = $('#orchestrator-panel');
+  if (orchPanel && !orchPanel.querySelector('.resize-handle')) {
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle horizontal';
+    orchPanel.appendChild(handle);
+    makeResizable(orchPanel, handle, 'width', 1);
+  }
+}
+
+function makeResizable(panel, handle, prop, dir) {
+  let startX, startSize;
+
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startX = e.clientX;
+    startSize = parseInt(getComputedStyle(panel)[prop]);
+    handle.classList.add('resizing');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (ev) => {
+      const delta = (ev.clientX - startX) * dir;
+      const newSize = Math.max(120, Math.min(500, startSize + delta));
+      panel.style[prop] = newSize + 'px';
+    };
+
+    const onUp = () => {
+      handle.classList.remove('resizing');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 AUTO THEME (System Preference)
+// ═════════════════════════════════════════════════════════════════════════
+
+function initAutoTheme() {
+  const savedTheme = localStorage.getItem('rudrax-theme') || 'dark';
+  if (savedTheme === 'auto') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (localStorage.getItem('rudrax-theme') === 'auto') {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  } else {
+    applyTheme(savedTheme);
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.className = theme === 'dark' ? 'dark-mode' : 'light-mode';
+  state.theme = theme;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// 🆕 OVERRIDE initKeyboardShortcuts with new shortcuts
+// ═════════════════════════════════════════════════════════════════════════
+
+// Patch into the existing initKeyboardShortcuts by overriding
+// We keep the original handler and add our shortcuts
+(function patchKeyboardShortcuts() {
+  const origInit = window.initKeyboardShortcuts;
+  const origHandler = document.addEventListener;
+
+  // We'll add our shortcuts after DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add extra keyboard shortcuts
+    const extraShortcuts = (e) => {
+      // Ctrl+K — Command Palette
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      }
+      // ? — Show keyboard shortcuts (when not in input)
+      if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        openShortcutsOverlay();
+      }
+      // Ctrl+, — Settings
+      if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+        e.preventDefault();
+        openSettings();
+      }
+      // Ctrl+L — Clear chat
+      if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+        e.preventDefault();
+        if (state.logs.length > 0) clearMessages();
+      }
+      // Ctrl+Shift+O — Toggle Orchestrator
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'o' || e.key === 'O')) {
+        e.preventDefault();
+        toggleOrchMinimize();
+      }
+      // Ctrl+Shift+A — Toggle Agent Activity
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        toggleActivityExpand();
+      }
+      // Ctrl+Shift+E — Export Session
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        exportSession();
+      }
+      // Ctrl+Shift+S — Toggle Security Dashboard
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        switchSidebarTab('security');
+      }
+      // Escape — Close overlays
+      if (e.key === 'Escape') {
+        if (!$('#command-palette')?.classList.contains('hidden')) {
+          closeCommandPalette();
+        }
+        if (!$('#shortcuts-overlay')?.classList.contains('hidden')) {
+          closeShortcutsOverlay();
+        }
+        if (!$('#notification-center')?.classList.contains('hidden')) {
+          closeNotificationCenter();
+        }
+      }
+    };
+    document.addEventListener('keydown', extraShortcuts);
+
+    // Init command palette search handler
+    const cmdInput = $('#cmd-palette-input');
+    if (cmdInput) {
+      cmdInput.addEventListener('input', (e) => filterCommandPalette(e.target.value));
+      cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          cmdPaletteSelectedIndex = Math.min(cmdPaletteSelectedIndex + 1, cmdPaletteResults.length - 1);
+          renderCommandPaletteResults();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          cmdPaletteSelectedIndex = Math.max(cmdPaletteSelectedIndex - 1, 0);
+          renderCommandPaletteResults();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (cmdPaletteResults.length > 0) {
+            executeCommandPaletteItem(cmdPaletteSelectedIndex);
+          }
+        }
+      });
+    }
+
+    // Init command palette overlay click-to-close
+    const cpOverlay = $('#command-palette');
+    if (cpOverlay) {
+      cpOverlay.addEventListener('click', (e) => {
+        if (e.target === cpOverlay) closeCommandPalette();
+      });
+    }
+
+    // Init shortcuts overlay click-to-close
+    const scOverlay = $('#shortcuts-overlay');
+    if (scOverlay) {
+      scOverlay.addEventListener('click', (e) => {
+        if (e.target === scOverlay) closeShortcutsOverlay();
+      });
+    }
+
+    // Init resizable panels
+    initResizablePanels();
+
+    // Init auto theme
+    initAutoTheme();
+
+    // Init security dashboard if tab exists
+    if (document.getElementById('tab-security')) {
+      initSecurityDashboard();
+    }
+
+    // Welcome notification
+    setTimeout(() => {
+      addNotification('🛡️ Security Dashboard', 'Live threat monitoring active', '🛡️');
+      addNotification('⌨️ Press ?', 'for keyboard shortcuts', '⌨️');
+      setTimeout(() => {
+        addNotification('🔱 RudraX v4.5.0', '15 advanced agentic capabilities loaded', '🧠');
+      }, 4000);
+    }, 2000);
+  });
+})();
+
+// ═══ Capabilities Panel — Load feature status ═══
+async function loadCapabilities() {
+  try {
+    const res = await fetch(`${CONFIG.API_BASE}/api/capabilities`, { headers: getAuthHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    const container = document.getElementById('capabilities-list');
+    if (!container) return;
+    container.innerHTML = data.features.map(f =>
+      `<div class="capability-item">
+        <span class="capability-icon">${f.id.split('-')[0] === 'vector' ? '🧠' : f.id.includes('communication') ? '📡' : f.id.includes('approval') ? '🛡️' : f.id.includes('reflection') ? '🔍' : f.id.includes('observability') ? '📊' : f.id.includes('web') ? '🌐' : f.id.includes('workflow') ? '⚙️' : f.id.includes('knowledge') ? '🕸️' : f.id.includes('tool') ? '🔧' : f.id.includes('cost') ? '💰' : f.id.includes('scheduler') ? '⏰' : f.id.includes('evaluator') ? '🏆' : f.id.includes('multi') ? '🖼️' : f.id.includes('guardrails') ? '🛡️' : '📦'}</span>
+        <div class="capability-info">
+          <div class="capability-name">${f.name}</div>
+          <div class="capability-desc">${f.description}</div>
+        </div>
+      </div>`
+    ).join('');
+  } catch (err) {
+    console.error('Failed to load capabilities:', err);
+  }
+}
+
+// ═══ Feature Reference Modal ═══
+function showFeatureReference() {
+  const modal = document.getElementById('feature-modal');
+  if (modal) modal.style.display = 'block';
+}
+
+function closeFeatureReference() {
+  const modal = document.getElementById('feature-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// END NEW FEATURES — RudraX Army v4.5.0 🔱
+// ═════════════════════════════════════════════════════════════════════════

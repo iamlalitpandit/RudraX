@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RudraX Army v4.1.0 — Build · Break · Deploy by Lalit Pandit</title>
-  <meta name="description" content="RudraX Army v4.1.0 — 179 AI Agents. Build, Break, Deploy by Lalit Pandit.">
+  <title>RudraX Army v4.5.0 — Build · Break · Deploy by Lalit Pandit</title>
+  <meta name="description" content="RudraX Army v4.5.0 — 192 AI Agents, 15 Advanced Capabilities. Build, Break, Deploy by Lalit Pandit.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="stylesheet" href="/css/index.css">
@@ -24,7 +24,7 @@
         <div class="login-logo">🔱</div>
         <div class="login-title">RudraX Army</div>
         <div class="login-subtitle">Build · Break · Deploy by Lalit Pandit</div>
-        <div class="login-version">v4.1.0 &middot; 179 Agents</div>
+        <div class="login-version">v4.5.0 &middot; 192 Agents &middot; 15 Capabilities</div>
       </div>
       <form class="login-form" id="login-form" autocomplete="off">
         <div class="login-field">
@@ -68,6 +68,7 @@
         <button class="sidebar-tab" data-tab="agents" onclick="switchSidebarTab('agents')">🤖</button>
         <button class="sidebar-tab" data-tab="squads" onclick="switchSidebarTab('squads')">🎭</button>
         <button class="sidebar-tab" data-tab="memory" onclick="switchSidebarTab('memory')">🗂️</button>
+        <button class="sidebar-tab" data-tab="security" onclick="switchSidebarTab('security')">🛡️</button>
       </div>
 
       <!-- ═══ Chats Tab ═══ -->
@@ -177,6 +178,59 @@
             </div>
             <div id="mem-section-files" class="mem-section-body">
               <div id="mem-files"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <!-- ═══ Security Dashboard Tab ═══ -->
+      <div id="tab-security" class="sidebar-tab-content" style="display:none">
+        <div id="security-dashboard" class="security-dashboard">
+          <div class="sec-header">
+            <div class="sec-header-title">🛡️ Security Overview</div>
+            <div class="sec-header-actions">
+              <span id="sec-threat-level" class="sec-threat-badge low">LOW</span>
+              <button class="btn-icon-sm" onclick="refreshSecurityData()" title="Refresh">🔄</button>
+            </div>
+          </div>
+          <div class="sec-metrics-grid">
+            <div class="sec-metric-card">
+              <div class="sec-metric-icon">☠️</div>
+              <div class="sec-metric-value" id="sec-total-threats">0</div>
+              <div class="sec-metric-label">Active Threats</div>
+            </div>
+            <div class="sec-metric-card">
+              <div class="sec-metric-icon">🚫</div>
+              <div class="sec-metric-value" id="sec-blocked-ips">0</div>
+              <div class="sec-metric-label">Blocked IPs</div>
+            </div>
+            <div class="sec-metric-card">
+              <div class="sec-metric-icon">📡</div>
+              <div class="sec-metric-value" id="sec-active-conns">0</div>
+              <div class="sec-metric-label">Active Connections</div>
+            </div>
+            <div class="sec-metric-card">
+              <div class="sec-metric-icon">📦</div>
+              <div class="sec-metric-value" id="sec-packets">0</div>
+              <div class="sec-metric-label">Packets Inspected</div>
+            </div>
+          </div>
+          <div class="sec-section">
+            <div class="sec-section-title">🔴 Active Threats</div>
+            <div id="sec-threats-list" class="sec-threats-list">
+              <div class="sec-empty">No active threats. All clear! 🎉</div>
+            </div>
+          </div>
+          <div class="sec-section">
+            <div class="sec-section-title">⚠️ Recent Alerts</div>
+            <div id="sec-alerts-list" class="sec-alerts-list">
+              <div class="sec-empty">No recent alerts</div>
+            </div>
+          </div>
+          <div class="sec-section">
+            <div class="sec-section-title">📊 Traffic Overview</div>
+            <div id="sec-traffic-chart" class="sec-traffic-chart">
+              <canvas id="sec-traffic-canvas" width="280" height="100"></canvas>
             </div>
           </div>
         </div>
@@ -415,6 +469,61 @@
   <!-- Sidebar Overlay (mobile) -->
   <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
+  <!-- ═══ Command Palette Overlay ═══ -->
+  <div id="command-palette" class="modal-overlay hidden">
+    <div class="cmd-palette">
+      <div class="cmd-palette-search">
+        <span style="font-size:18px;margin-right:8px">🔍</span>
+        <input type="text" id="cmd-palette-input" placeholder="Search commands, agents, actions..." autocomplete="off">
+        <span id="cmd-palette-shortcut" style="font-size:10px;color:var(--text-muted);background:var(--void-700);padding:2px 6px;border-radius:4px">ESC to close</span>
+      </div>
+      <div id="cmd-palette-results" class="cmd-palette-results"></div>
+      <div class="cmd-palette-footer">
+        <span>↵ Select</span> <span>↑↓ Navigate</span> <span>ESC Close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Notification Center Panel ═══ -->
+  <div id="notification-center" class="hidden">
+    <div class="notif-header">
+      <span>🔔 Notifications</span>
+      <button class="btn-icon-sm" onclick="closeNotificationCenter()">✕</button>
+    </div>
+    <div class="notif-body" id="notif-body">
+      <div class="notif-empty">No notifications yet</div>
+    </div>
+    <div class="notif-footer">
+      <button class="terminal-btn" onclick="clearAllNotifications()">🧹 Clear All</button>
+    </div>
+  </div>
+
+  <!-- ═══ Keyboard Shortcuts Help Overlay ═══ -->
+  <div id="shortcuts-overlay" class="modal-overlay hidden">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <span>⌨️ Keyboard Shortcuts</span>
+        <button class="btn-icon-sm" onclick="closeShortcutsOverlay()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcuts-grid">
+          <div class="shortcut-row"><kbd>Ctrl+K</kbd><span>Command Palette</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+B</kbd><span>Toggle Sidebar</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+N</kbd><span>New Chat</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+,</kbd><span>Settings</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+`</kbd><span>Toggle Terminal</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+Shift+O</kbd><span>Toggle Orchestrator</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+Shift+A</kbd><span>Toggle Agent Activity</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+L</kbd><span>Clear Chat</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+Shift+E</kbd><span>Export Session</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+Shift+S</kbd><span>Toggle Security Dashboard</span></div>
+          <div class="shortcut-row"><kbd>?</kbd><span>Show this help</span></div>
+          <div class="shortcut-row"><kbd>Escape</kbd><span>Close overlay / Cancel</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div id="settings-modal" class="modal-overlay hidden">
     <div class="modal">
@@ -427,6 +536,7 @@
         <select id="theme-select" onchange="setTheme(this.value)">
           <option value="dark">Dark 🌙</option>
           <option value="light">Light ☀️</option>
+          <option value="auto">Auto (System) 🌓</option>
         </select>
 
         <label>Font Size</label>
@@ -441,6 +551,8 @@
           <option value="auto">Auto — Deputy Chief of Staff plans &amp; dispatches</option>
           <option value="manual">Manual — You pick agents</option>
         </select>
+
+        <button class="login-btn" onclick="exportSession()" style="margin-top:var(--sp-md)">💾 Export Session</button>
 
         <div style="margin-top:var(--sp-xl);padding:var(--sp-md);background:var(--void-800);border-radius:var(--border-radius-sm);border:1px solid var(--border-gold)">
           <div style="font-weight:700;color:var(--gold-primary);margin-bottom:var(--sp-sm)">🔱 RudraX Army v4.1.0</div>

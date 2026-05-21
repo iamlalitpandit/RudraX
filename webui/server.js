@@ -765,11 +765,170 @@ function getContextSnapshot(ctx) {
 // ─── HTTP API Routes ────────────────────────────────────────────────────────
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.0.0', name: 'RudraX', features: ['chat', 'agency', 'orchestrator', 'terminal'] });
+  res.json({ status: 'ok', version: '4.5.0', name: 'RudraX Army', features: ['chat', 'agency', 'orchestrator', 'terminal', 'security', 'vector-kb', 'comm-bus', 'approval-gates', 'reflection', 'observability', 'web-search', 'workflows', 'knowledge-graph', 'tool-registry', 'cost-tracking', 'scheduler', 'evaluator', 'multi-modal', 'guardrails', 'code-sandbox'] });
 });
 
 app.get('/api/settings', (req, res) => {
   res.json({ theme: 'dark', fontSize: 14, model: 'default' });
+});
+
+// ═══ Security — Live simulation of cyber threats (inline mock) ═══════════
+
+const SECURITY = {
+  threats: [], alerts: [], trafficHistory: [], authAttempts: [], events: [],
+  metrics: {
+    totalThreats: 0, blockedIPs: 0, activeConnections: 0, avgResponseTime: 0,
+    cpuUsage: 0, memoryUsage: 0, diskUsage: 0, networkThroughput: 0,
+    packetsInspected: 0, threatLevel: 'low', uptime: 0
+  },
+  startTime: Date.now(),
+};
+
+function secRand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function secPick(arr) { return arr[secRand(0, arr.length - 1)]; }
+function secChance(pct) { return Math.random() * 100 < pct; }
+
+const THREAT_DEFS = [
+  { type: 'DDoS', severity: 'critical', icon: '☠️', color: '#ff0040' },
+  { type: 'Brute Force', severity: 'high', icon: '🔨', color: '#ff6b00' },
+  { type: 'Malware', severity: 'critical', icon: '🦠', color: '#ff0040' },
+  { type: 'Phishing', severity: 'high', icon: '🎣', color: '#ff6b00' },
+  { type: 'Port Scan', severity: 'medium', icon: '🔍', color: '#ffaa00' },
+  { type: 'SQL Injection', severity: 'critical', icon: '💉', color: '#ff0040' },
+  { type: 'XSS', severity: 'high', icon: '💀', color: '#ff6b00' },
+  { type: 'Ransomware', severity: 'critical', icon: '🔒', color: '#ff0040' },
+  { type: 'DNS Tunneling', severity: 'medium', icon: '🕳️', color: '#ffaa00' },
+  { type: 'Zero-Day', severity: 'critical', icon: '⚠️', color: '#ff0040' },
+  { type: 'Credential Stuffing', severity: 'high', icon: '👤', color: '#ff6b00' },
+];
+const SRC_IPS = ['185.220.101', '91.121.87', '45.33.32', '104.248.50', '192.168.1', '10.0.0', '172.16.0', '203.0.113', '198.51.100', '192.0.2'];
+const TARGETS = ['api.corp.internal', 'db-primary.local', 'web-gateway.corp', 'mail-server.corp', 'vpn-gateway.corp', 'auth-service.corp', 'file-server.corp', 'dns-primary.corp'];
+const COUNTRIES = ['RU', 'CN', 'KP', 'IR', 'NG', 'BR', 'VN', 'UA'];
+
+function secGenThreat() {
+  const def = secPick(THREAT_DEFS);
+  return {
+    id: crypto.randomUUID().slice(0, 8),
+    timestamp: new Date().toISOString(), ...def,
+    sourceIP: `${secPick(SRC_IPS)}.${secRand(1, 254)}`,
+    target: secPick(TARGETS),
+    country: secPick(COUNTRIES),
+    port: secRand(1, 65535),
+    protocol: secPick(['TCP', 'UDP', 'HTTP', 'HTTPS', 'DNS', 'ICMP']),
+    status: 'active', confidence: secRand(75, 99), mitigated: false
+  };
+}
+
+function secGenTraffic() {
+  return {
+    timestamp: Date.now(), inbound: secRand(800, 9500),
+    outbound: secRand(400, 6000), total: 0,
+    packets: secRand(1000, 50000), connections: secRand(50, 800)
+  };
+}
+
+function secTick() {
+  const m = SECURITY.metrics;
+  m.totalThreats = SECURITY.threats.length;
+  m.activeConnections = secRand(1200, 8500);
+  m.avgResponseTime = Math.round((secRand(5, 95) + Math.random()) * 10) / 10;
+  m.cpuUsage = Math.round((secRand(12, 88) + Math.random()) * 10) / 10;
+  m.memoryUsage = Math.round((secRand(30, 82) + Math.random()) * 10) / 10;
+  m.diskUsage = Math.round((secRand(40, 92) + Math.random()) * 10) / 10;
+  m.networkThroughput = secRand(200, 4000);
+  m.packetsInspected += secRand(1000, 25000);
+  m.uptime = Math.floor((Date.now() - SECURITY.startTime) / 1000);
+
+  const critCount = SECURITY.threats.filter(t => t.severity === 'critical').length;
+  const highCount = SECURITY.threats.filter(t => t.severity === 'high').length;
+  if (critCount > 3) m.threatLevel = 'critical';
+  else if (critCount > 0 || highCount > 5) m.threatLevel = 'high';
+  else if (highCount > 0 || SECURITY.threats.length > 10) m.threatLevel = 'medium';
+  else m.threatLevel = 'low';
+
+  SECURITY.threats.forEach(t => {
+    if (!t.mitigated && t.severity === 'critical' && secChance(35)) {
+      t.mitigated = true; t.status = 'mitigated'; m.blockedIPs++;
+    }
+  });
+
+  // Traffic
+  const tick = secGenTraffic();
+  tick.total = tick.inbound + tick.outbound;
+  SECURITY.trafficHistory.push(tick);
+  if (SECURITY.trafficHistory.length > 60) SECURITY.trafficHistory.shift();
+
+  // New threats
+  if (secChance(40)) {
+    SECURITY.threats.push(secGenThreat());
+    if (SECURITY.threats.length > 30) SECURITY.threats.shift();
+  }
+
+  // Alerts
+  const active = SECURITY.threats.filter(t => t.status === 'active');
+  if (active.length > 0 && secChance(30)) {
+    const t = secPick(active);
+    SECURITY.alerts.push({
+      id: crypto.randomUUID().slice(0, 8), timestamp: new Date().toISOString(),
+      threatId: t.id, type: t.type, severity: t.severity,
+      message: `${t.icon} ${t.type} — ${t.sourceIP} → ${t.target}`,
+      acknowledged: false
+    });
+    if (SECURITY.alerts.length > 30) SECURITY.alerts.shift();
+    // Also broadcast via socket
+    io.emit('agent_activity', {
+      ts: Date.now(), type: 'security', agent: '🛡️ Security',
+      content: `${t.icon} ${t.type} from ${t.sourceIP}`, action: 'threat_detected'
+    });
+  }
+}
+
+// Seed initial data
+for (let i = 0; i < 30; i++) SECURITY.trafficHistory.push(secGenTraffic());
+for (let i = 0; i < 8; i++) SECURITY.threats.push(secGenThreat());
+SECURITY.metrics.packetsInspected = secRand(50000, 200000);
+secTick();
+setInterval(secTick, 2500);
+
+app.get('/api/security/snapshot', (req, res) => {
+  secTick(); // Ensure fresh data
+  const m = { ...SECURITY.metrics };
+  res.json({
+    metrics: m,
+    threats: [...SECURITY.threats].slice(-20),
+    alerts: [...SECURITY.alerts].slice(-15),
+    trafficHistory: [...SECURITY.trafficHistory],
+    timestamp: Date.now()
+  });
+});
+
+app.get('/api/security/status', (req, res) => {
+  res.json({
+    online: true,
+    threats: SECURITY.threats.length,
+    threatLevel: SECURITY.metrics.threatLevel,
+    uptime: SECURITY.metrics.uptime
+  });
+});
+
+// ═══ Session Export ═══════════════════════════════════════════════════════
+
+app.get('/api/export/:contextId', (req, res) => {
+  const ctx = contexts.get(req.params.contextId);
+  if (!ctx) return res.status(404).json({ error: 'Context not found' });
+
+  const lines = ctx.logs.map(log => {
+    const ts = new Date(log.timestamp).toISOString();
+    switch (log.type) {
+      case 'user': return `## 👤 User (${ts})\n\n${log.content || ''}\n`;
+      case 'response': return `## 🤖 RudraX (${ts})\n\n${log.content || ''}\n`;
+      case 'tool': return `### 🔧 ${log.heading || 'Tool'} (${ts})\n\n\`\`\`\n${log.content || ''}\n\`\`\`\n`;
+      default: return `### ${log.heading || log.type || 'Entry'} (${ts})\n\n${log.content || ''}\n`;
+    }
+  }).join('\n---\n\n');
+
+  const markdown = `# RudraX Army — Session Export\n\n**Context:** ${ctx.name}\n**Exported:** ${new Date().toISOString()}\n**Messages:** ${ctx.logs.length}\n\n${lines}`;
+  res.type('text/markdown').send(markdown);
 });
 
 // ─── Context Routes ─────────────────────────────────────────────────────────
@@ -1762,6 +1921,95 @@ io.on('connection', (socket) => {
   });
 });
 
+// ─── New API Endpoints for v4.5.0 Advanced Features ──────
+
+// ═══ Agent evaluation endpoints ═══
+app.get('/api/evaluations', (req, res) => {
+  res.json({
+    suites: ['code-gen', 'reasoning', 'security', 'design'],
+    history: []  // Would be loaded from eval store
+  });
+});
+
+// ═══ Knowledge graph endpoints ═══
+app.get('/api/knowledge-graph/:contextId', (req, res) => {
+  res.json({ nodes: [], edges: [] });
+});
+
+// ═══ Vector store status ═══
+app.get('/api/vector-store/:contextId', (req, res) => {
+  res.json({ entries: 0, dimensions: 256, status: 'ready' });
+});
+
+// ═══ Communication bus status ═══
+app.get('/api/bus/:contextId', (req, res) => {
+  res.json({ topics: ['general', 'alerts', 'status', 'handoffs'], messages: 0 });
+});
+
+// ═══ Cost analytics ═══
+app.get('/api/costs/:contextId', (req, res) => {
+  res.json({ totalCost: 0, totalTokens: 0, dailyCost: 0 });
+});
+
+// ═══ Guardrails check via API ═══
+app.post('/api/guardrails/check', (req, res) => {
+  const { content } = req.body;
+  if (!content) return res.status(400).json({ error: 'Content required' });
+  // Simple PII check
+  const emailPattern = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}/g;
+  const apiKeyPattern = /sk-[A-Za-z0-9]{20,}/g;
+  const findings = [];
+  if (emailPattern.test(content)) findings.push('Email addresses detected');
+  if (apiKeyPattern.test(content)) findings.push('API keys detected');
+  res.json({ passed: findings.length === 0, findings });
+});
+
+// ═══ Workflow definitions ═══
+app.get('/api/workflows', (req, res) => {
+  res.json({
+    workflows: [
+      { id: 'code-review', name: 'Code Review Pipeline', steps: 4, tags: ['code', 'review'] },
+      { id: 'security-audit', name: 'Security Audit', steps: 4, tags: ['security', 'audit'] },
+      { id: 'bug-fix', name: 'Bug Fix Pipeline', steps: 4, tags: ['bug', 'fix'] },
+      { id: 'deploy-check', name: 'Pre-Deploy Checklist', steps: 5, tags: ['deploy', 'ci'] },
+    ]
+  });
+});
+
+// ═══ Task scheduler endpoints ═══
+app.get('/api/schedules', (req, res) => {
+  res.json({ tasks: [] });
+});
+
+// ═══ Custom tools registry ═══
+app.get('/api/custom-tools', (req, res) => {
+  res.json({ tools: [] });
+});
+
+// ═══ System capabilities ═══
+app.get('/api/capabilities', (req, res) => {
+  res.json({
+    version: '4.5.0',
+    features: [
+      { id: 'vector-knowledge', name: '🧠 Vector Knowledge Base', description: 'Semantic search & RAG across all project memory' },
+      { id: 'communication-bus', name: '📡 Communication Bus', description: 'Pub/sub messaging between agents' },
+      { id: 'approval-gates', name: '🛡️ Approval Gates', description: 'Human-in-the-loop safety system' },
+      { id: 'reflection-engine', name: '🔍 Self-Reflection Engine', description: 'Self-critique and quality analysis' },
+      { id: 'observability', name: '📊 Observability', description: 'Full tracing and monitoring' },
+      { id: 'web-search', name: '🌐 Web Search & Browsing', description: 'Live web intelligence' },
+      { id: 'workflow-engine', name: '⚙️ DAG Workflow Engine', description: 'Multi-step automation' },
+      { id: 'knowledge-graph', name: '🕸️ Knowledge Graph', description: 'Entity-relationship knowledge base' },
+      { id: 'tool-registry', name: '🔧 Dynamic Tool Registry', description: 'Agent-created custom tools' },
+      { id: 'cost-tracker', name: '💰 Cost Tracker', description: 'LLM usage & spend analytics' },
+      { id: 'task-scheduler', name: '⏰ Task Scheduler', description: 'Recurring automated tasks' },
+      { id: 'agent-evaluator', name: '🏆 Agent Evaluator', description: 'Benchmarking and scoring' },
+      { id: 'multi-modal', name: '🖼️ Multi-modal Engine', description: 'Image and file processing' },
+      { id: 'guardrails', name: '🛡️ Guardrails', description: 'Content filtering and validation' },
+      { id: 'code-sandbox', name: '📦 Code Sandbox', description: 'Secure isolated code execution' },
+    ]
+  });
+});
+
 // ─── Start / Export ─────────────────────────────────────────────────────────
 
 function gracefulShutdown(signal) {
@@ -1806,17 +2054,20 @@ function startServer(port) {
     httpServer.listen(serverPort, () => {
       console.log('');
       console.log('  ╔══════════════════════════════════════════════╗');
-      console.log('  ║    🔱 RudraX Army — 179 Agents 🔱         ║');
+      console.log('  ║    🔱 RudraX Army v4.5.0 — 192 Agents 🔱  ║');
       console.log('  ║    Build · Break · Deploy · Orchestrate      ║');
       console.log('  ╠══════════════════════════════════════════════╣');
       console.log(`  ║  http://localhost:${serverPort}                      ║`);
-      console.log('  ║  🤖 179 Agents  🎭 9 Squads  🧠 Orchestrator  ║');
+      console.log('  ║  🤖 192 Agents  🎭 9 Squads  🧠 15 Capabilities  ║');
       console.log('  ╚══════════════════════════════════════════════╝');
       console.log('');
-      console.log('  💡 Tip: Install node-pty for full terminal PTY support');
-      console.log('     npm install node-pty');
+      console.log('  💡 Integrated Capabilities:');
+      console.log('     🧠 Vector KB · 📡 Comm Bus · 🛡️ Gates · 🔍 Reflection');
+      console.log('     📊 Observability · 🌐 Web Search · ⚙️ Workflows');
+      console.log('     🕸️ Knowledge Graph · 🔧 Tool Registry · 💰 Cost Tracker');
+      console.log('     ⏰ Scheduler · 🏆 Evaluator · 📦 Sandbox · 🖼️ Multi-Modal');
       console.log('');
-      console.log(`  🔱 RudraX v4.1.0 — Build · Break · Deploy · Orchestrate`);
+      console.log(`  🔱 RudraX v4.5.0 — Build · Break · Deploy · Orchestrate`);
       console.log(`  By Lalit Pandit | ॐ नमः शिवाय\n`);
       resolve(serverPort);
     });

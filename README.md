@@ -1,16 +1,17 @@
-# 🔱 RudraX Army v4.1.0
+# 🔱 RudraX Army v4.5.0
 
 <p align="center">
   <strong>Build · Break · Deploy · Orchestrate</strong><br>
-  <em>A Hierarchical Multi-Agent Command System with 179 AI Specialists</em>
+  <em>A Hierarchical Multi-Agent Command System with 192 AI Specialists & 15 Advanced Capabilities</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-4.1.0-gold" alt="Version">
+  <img src="https://img.shields.io/badge/version-4.5.0-gold" alt="Version">
   <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-green" alt="Node.js">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
-  <img src="https://img.shields.io/badge/agents-179-orange" alt="Agents">
+  <img src="https://img.shields.io/badge/agents-192-orange" alt="Agents">
   <img src="https://img.shields.io/badge/squads-9-purple" alt="Squads">
+  <img src="https://img.shields.io/badge/capabilities-15-teal" alt="Capabilities">
   <img src="https://img.shields.io/badge/categories-45-red" alt="Categories">
 </p>
 
@@ -18,9 +19,116 @@
 
 ## 🎯 What is RudraX Army?
 
-**RudraX Army** is not just another AI coding agent — it's a **hierarchical command-and-control multi-agent system**. Instead of a single AI trying to do everything, you get a **Chief of Staff** that strategically delegates tasks through a **Deputy Chief of Staff** to **192 specialized agents** across **45 operational divisions**.
+**RudraX Army** is not just another AI coding agent — it's a **hierarchical command-and-control multi-agent system** with **15 state-of-the-art agentic capabilities**. Instead of a single AI trying to do everything, you get a **Chief of Staff** that strategically delegates tasks through a **Deputy Chief of Staff** to **192 specialized agents** across **45 operational divisions**, backed by a full suite of advanced autonomous AI features.
 
-Think of it as your personal AI army — you give the command, and the entire chain of command executes with precision.
+---
+
+## ✨ State-of-the-Art Agentic Capabilities (v4.5.0)
+
+### 🧠 1. Vector Knowledge Base & Semantic Search
+- **Embedding-based RAG**: Every conversation, code change, and decision is embedded into a 256-dim vector space
+- **Semantic retrieval**: Find relevant context by meaning, not just keywords
+- **Auto-indexing**: All agent outputs are automatically stored and indexed
+- **Persistent**: Survives restarts — stored in `~/.rudrax/agent/vectors/`
+- **Commands**: `/vector search`, `/vector status`, `/vector stats`
+
+### 📡 2. Agent Communication Bus
+- **Pub/sub messaging**: Agents publish to topics, subscribe to relevant ones
+- **Direct messaging**: Agents can send private DMs to each other
+- **Priority system**: Messages have low/normal/high/critical priority
+- **Auto-subscribe**: All agents auto-subscribe to general, alerts, and handoffs
+- **Commands**: `/bus send`, `/bus publish`, `/bus subscribe`, `/bus read`
+
+### 🛡️ 3. Human-in-the-Loop Approval Gates
+- **3-tier system**: L1 (info), L2 (warning with timeout), L3 (blocking)
+- **12 gate categories**: FILE_DELETE, BASH_DESTRUCTIVE, DEPLOY, API_KEY_ACCESS, etc.
+- **Auto-approve timeout**: L2 warnings auto-approve after configurable delay
+- **Whitelist support**: Always-allow patterns for trusted operations
+- **Commands**: `/gate status`, `/gate approve`, `/gate deny`, `/gate list`
+
+### 🔍 4. Self-Reflection Engine
+- **Pre-plan reflection**: Analyze execution plans before running them
+- **Post-output reflection**: Evaluate response quality before delivery
+- **Error analysis**: Root cause detection with prevention strategies
+- **4-dimension scoring**: Confidence, Completeness, Correctness, Clarity
+- **Commands**: `/reflect plan`, `/reflect output`, `/reflect error`
+
+### 📊 5. Observability & Distributed Tracing
+- **Full telemetry**: Every tool call, LLM request, and agent action is traced
+- **Span-based tracing**: Waterfall visualization of operations
+- **Agent utilization**: Track which agents are called most
+- **Tool metrics**: Per-tool call counts, errors, and durations
+- **Commands**: `/observe dashboard`, `/observe traces`, `/observe agents`
+
+### 🌐 6. Web Search & Browsing
+- **DuckDuckGo search**: No API key required
+- **Page fetching**: Extract text content from any URL
+- **Link extraction**: Follow links for deeper research
+- **Caching**: 5-minute cache with TTL
+- **Commands**: `/web search <query>`, `/web fetch <url>`
+
+### ⚙️ 7. DAG Workflow Engine
+- **Directed Acyclic Graphs**: Multi-step workflows with dependency tracking
+- **Parallel lanes**: Independent steps run concurrently
+- **Built-in workflows**: code-review, security-audit, bug-fix, deploy-check
+- **Error handling**: Per-step fail/skip/retry/fallback policies
+- **Commands**: `/workflow list`, `/workflow run`, `/workflow status`
+
+### 🕸️ 8. Knowledge Graph
+- **Entity-relationship store**: Track concepts, files, agents, and their connections
+- **Relationship types**: depends_on, implements, references, creates, modifies
+- **Neighbor queries**: Find connected entities
+- **Graph export**: Visualize the knowledge graph
+- **Commands**: `/kg add-node`, `/kg add-rel`, `/kg query`, `/kg neighbors`
+
+### 🔧 9. Dynamic Tool Registry
+- **Agent-created tools**: Agents can create new tools at runtime
+- **4 tool types**: bash, javascript, composite, API wrapper
+- **Persistent**: Tools survive restarts
+- **Usage tracking**: See which tools are used most
+- **Commands**: `/tool-registry create`, `/tool-registry list`, `/tool-registry show`
+
+### 💰 10. Cost Tracker
+- **Per-model pricing**: Accurate cost estimates for all major LLM providers
+- **Daily/monthly budgets**: Set limits and get alerts
+- **Token tracking**: Input and output token counts
+- **Agent-level breakdown**: See which agents spend the most
+- **Commands**: `/cost dashboard`, `/cost budget`, `/cost history`
+
+### ⏰ 11. Task Scheduler
+- **Recurring tasks**: Schedule agents, workflows, or bash commands
+- **Flexible intervals**: Run every N minutes/hours/days
+- **Max runs**: Auto-disable after N executions
+- **Enable/disable**: Toggle tasks on the fly
+- **Commands**: `/schedule add`, `/schedule list`, `/schedule enable`
+
+### 🏆 12. Agent Evaluator
+- **Standard suites**: code-gen, reasoning benchmarks
+- **4-dimension scoring**: Accuracy, completeness, speed, clarity
+- **Category breakdown**: See performance by category
+- **Historical tracking**: Track agent improvement over time
+- **Commands**: `/evaluate run`, `/evaluate suites`, `/evaluate stats`
+
+### 🖼️ 13. Multi-Modal Engine
+- **Image analysis**: Detect format, dimensions, size
+- **Base64 encoding**: Convert files for API transmission
+- **Format detection**: PNG, JPEG, GIF, BMP, WebP, PDF
+- **Commands**: `/multimodal analyze`, `/multimodal encode`
+
+### 🛡️ 14. Safety Guardrails
+- **PII detection**: Emails, API keys, SSN, credit cards, private keys
+- **Code safety**: eval, exec, rm -rf, dangerous SQL patterns
+- **Consistency check**: Self-contradiction detection
+- **Hallucination check**: Flag unsupported claims
+- **Auto-redaction**: Redact PII before output
+- **Commands**: `/guardrails check`, `/guardrails redact`
+
+### 📦 15. Code Sandbox
+- **6 languages**: JavaScript, TypeScript, Python, Bash, Go, Rust
+- **Timeout protection**: Kill runaway processes after 30s
+- **Filesystem isolation**: Temp directories cleaned up
+- **Output capture**: stdout, stderr, exit code
+- **Commands**: `/sandbox run`, `/sandbox status`
 
 ---
 
@@ -67,6 +175,81 @@ Think of it as your personal AI army — you give the command, and the entire ch
 - **Parallel Execution** — Independent tasks run simultaneously for maximum throughput
 - **Failure Recovery** — Auto-detection of crashes, stalls, timeouts with 3-attempt retry logic
 - **Squad-Based Execution** — 9 pre-configured multi-agent teams for complex missions
+
+### 🧠 Vector Knowledge Base & RAG
+- **Semantic Memory**: Every interaction is embedded into a 256-dim vector space for meaning-based retrieval
+- **Auto-Indexing**: Knowledge is automatically stored and made searchable across sessions
+- **Cross-Agent Context**: Any agent can find relevant context from any other agent's work
+
+### 📡 Agent Communication Bus
+- **Pub/Sub Messaging**: Agents communicate via topics — publish findings, subscribe to relevant updates
+- **Direct Messaging**: One-to-one agent communication for handoffs and coordination
+- **Priority-based Delivery**: Critical messages are delivered first
+
+### 🛡️ Approval Gates (Human-in-the-Loop)
+- **3-Tier Safety**: L1 info, L2 warning with auto-timeout, L3 blocking (requires human approval)
+- **12 Gate Categories**: File deletion, deployments, credential access, network ops, and more
+- **Audit Trail**: All approvals/denials logged for compliance
+
+### 🔍 Self-Reflection Engine
+- **Pre-Execution Planning Review**: Plans are analyzed for gaps and risks before execution
+- **Post-Execution Quality Check**: Outputs are scored on confidence, completeness, correctness, clarity
+- **Error Analysis**: Root cause identification with prevention strategies
+
+### 📊 Full Observability
+- **Distributed Tracing**: Every operation is traced from initiation to completion
+- **Live Metrics Dashboard**: Active traces, span durations, error rates, agent utilization
+- **Waterfall Visualization**: See the exact execution timeline of any operation
+
+### 🌐 Web Search & Browsing
+- **Live Web Search**: DuckDuckGo integration (no API key needed)
+- **Page Fetching**: Extract and read web page content
+- **Caching**: 5-minute TTL for repeated queries
+
+### ⚙️ DAG Workflow Engine
+- **Multi-Step Automation**: Define complex workflows with conditional branching and parallel steps
+- **4 Built-in Workflows**: code-review, security-audit, bug-fix, deploy-check
+- **Error Policies**: Per-step fail/skip/retry/fallback behavior
+
+### 🕸️ Knowledge Graph
+- **Entity-Relationship Store**: Track how concepts, files, agents, and decisions connect
+- **Relationship Typing**: depends_on, implements, references, creates, modifies
+- **Graph Traversal**: Find paths and neighbors between entities
+
+### 🔧 Dynamic Tool Registry
+- **Agent-Created Tools**: Agents can create new bash/JavaScript/composite tools at runtime
+- **Persistent Registry**: Tools survive restarts and are available to all agents
+- **Usage Analytics**: Track which tools are most valuable
+
+### 💰 Cost Tracking & Budget Management
+- **Per-Provider Pricing**: Accurate cost estimates for OpenAI, Anthropic, Google, Ollama
+- **Budget Limits**: Set daily/monthly spending caps with alerts
+- **Agent-Level Attribution**: See which agents drive the most cost
+
+### ⏰ Task Scheduler
+- **Recurring Automation**: Schedule agents, workflows, or commands to run on intervals
+- **Flexible Timing**: Minutes to days between executions
+- **Run Limits**: Auto-disable after N runs
+
+### 🏆 Agent Evaluation Suite
+- **Standard Benchmarks**: Code generation quality, reasoning accuracy
+- **4-Dimension Scoring**: Accuracy, completeness, speed, clarity
+- **Historical Trends**: Track agent improvement over time
+
+### 🖼️ Multi-Modal Processing
+- **Image Analysis**: Format detection, dimension extraction, size calculation
+- **File Encoding**: Base64 conversion for API transmission
+
+### 🛡️ Safety Guardrails
+- **PII Detection & Redaction**: Emails, API keys, SSN, credit cards, private keys
+- **Code Safety Scanning**: Dangerous patterns (eval, rm -rf, SQL injection)
+- **Consistency Checking**: Self-contradiction detection
+- **Hallucination Checking**: Unsupported claim flagging
+
+### 📦 Code Sandbox (Secure Execution)
+- **6 Languages**: JavaScript, TypeScript, Python, Bash, Go, Rust
+- **Isolated Environment**: Temp directories cleaned up after execution
+- **Timeout Protection**: Runaway processes are killed
 
 ### 💻 Dual Interfaces
 - **TUI (Terminal UI)** — Lightning-fast terminal interface with syntax highlighting, diff previews, code editing
@@ -165,7 +348,7 @@ docker-compose -f docker/docker-compose.yml up
 
 ---
 
-## 👥 The Full Army — 179 Agents
+## 👥 The Full Army — 192 Agents
 
 ### 📊 Agent Distribution
 
@@ -223,6 +406,12 @@ docker-compose -f docker/docker-compose.yml up
 | **Markdown** | marked.js |
 | **Terminal** | xterm.js (WebUI) |
 | **Providers** | OpenAI, Anthropic, Google Gemini, AWS Bedrock, Ollama |
+| **Vector Engine** | Custom 256-dim embedding (in-process, no external deps) |
+| **Knowledge Graph** | Custom JSON graph store with traversal |
+| **Workflow Engine** | Custom DAG scheduler with parallel lanes |
+| **Messaging** | Custom pub/sub bus with priority queuing |
+| **Web Search** | DuckDuckGo HTML scrape (no API key) |
+| **Sandbox** | Child process with timeout, isolation, cleanup |
 | **Deployment** | Docker, PM2, systemd |
 
 ---
@@ -252,7 +441,25 @@ RudraX/
 │   ├── cli/               # CLI argument parsing
 │   └── modes/             # TUI interaction modes
 ├── tools/                  # Agent tools & extensions
-│   ├── agency/            # 191 agent skill files
+│   ├── agency/            # 191 agent skill files + advanced capabilities
+│   │   ├── agency-manager.ts        # Agent activation & management
+│   │   ├── agency-orchestrator.ts   # Multi-agent orchestration
+│   │   ├── shared-memory.ts         # Cross-agent memory
+│   │   ├── vector-knowledge.ts      # 🧠 Semantic search & RAG
+│   │   ├── communication-bus.ts     # 📡 Pub/sub agent messaging
+│   │   ├── approval-gates.ts        # 🛡️ Human-in-the-loop safety
+│   │   ├── reflection-engine.ts     # 🔍 Self-critique & quality
+│   │   ├── observability.ts         # 📊 Tracing & monitoring
+│   │   ├── web-search.ts            # 🌐 Live web intelligence
+│   │   ├── workflow-engine.ts       # ⚙️ DAG workflows
+│   │   ├── knowledge-graph.ts       # 🕸️ Entity relationships
+│   │   ├── tool-registry.ts         # 🔧 Dynamic tool creation
+│   │   ├── cost-tracker.ts          # 💰 LLM spend analytics
+│   │   ├── task-scheduler.ts        # ⏰ Recurring tasks
+│   │   ├── agent-evaluator.ts       # 🏆 Benchmarking
+│   │   ├── multi-modal.ts           # 🖼️ Image processing
+│   │   ├── guardrails.ts            # 🛡️ Content filtering
+│   │   └── code-sandbox.ts          # 📦 Secure execution
 │   └── integrated/        # Integrated tool suite
 ├── webui/                  # Web Interface
 │   ├── server.js          # Express + Socket.IO server
@@ -311,6 +518,35 @@ RudraX Army supports multiple AI providers out of the box:
 
 Configure via environment variables or the built-in settings system.
 
+
+---
+
+## 📋 Quick Command Reference
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `/agency list` | List all specialization agents | `/agency list` |
+| `/agency activate <name>` | Activate an agent personality | `/agency activate eng-frontend` |
+| `/agency squad <name>` | Activate multi-agent squad | `/agency squad startup` |
+| `/vector search <query>` | Semantic search across memory | `/vector search auth impl` |
+| `/bus send <agent> <msg>` | Direct message another agent | `/bus send backend review API` |
+| `/bus publish <topic> <msg>` | Broadcast to a topic | `/bus publish status done` |
+| `/gate status` | Check approval gates | `/gate status` |
+| `/gate approve <id>` | Approve a blocked operation | `/gate approve gate_abc` |
+| `/reflect plan <content>` | Self-reflect on a plan | `/reflect plan my plan` |
+| `/observe dashboard` | Show observability dashboard | `/observe dashboard` |
+| `/web search <query>` | Search the web | `/web search React docs` |
+| `/workflow run <name>` | Execute a workflow | `/workflow run code-review` |
+| `/kg add-node <type> <name>` | Add knowledge graph entity | `/kg add-node concept Auth` |
+| `/schedule add <type> <name> <min>` | Schedule recurring task | `/schedule add agent review 60` |
+| `/evaluate run <suite>` | Run evaluation suite | `/evaluate run code-gen` |
+| `/cost dashboard` | Show LLM cost analytics | `/cost dashboard` |
+| `/sandbox run <lang> <code>` | Execute code in sandbox | `/sandbox run js log` |
+| `/guardrails check <content>` | Validate output safety | `/guardrails check my api key` |
+| `/tool-registry create <type> <name> <code>` | Create a custom tool | `/tool-registry create bash deploy` |
+| `/multimodal analyze <file>` | Analyze an image/file | `/multimodal analyze screenshot.png` |
+| `/help-agency` | Show full command reference | `/help-agency` |
+
 ---
 
 ## 👤 Developer
@@ -347,5 +583,5 @@ Built on **Mario Zechner's** `pi-coding-agent` framework (AGPL-3.0)
 
 <p align="center">
   🔱 <strong>RudraX Army — Build · Break · Deploy · Conquer</strong> 🔱<br>
-  <sub>v4.1.0 | 179 Agents | 45 Divisions | 9 Squads</sub>
+  <sub>v4.5.0 | 192 Agents | 45 Divisions | 9 Squads</sub>
 </p>

@@ -1,7 +1,7 @@
 {
   "name": "rudrax",
-  "version": "4.1.0",
-  "description": "RudraX Army v4.1.0 — Build · Break · Deploy · Orchestrate: Hierarchical Multi-Agent Command System by Lalit Pandit",
+  "version": "4.5.0",
+  "description": "RudraX Army v4.5.0 — Build · Break · Deploy · Orchestrate: Hierarchical Multi-Agent Command System with 192 AI Specialists & 15 Advanced Agentic Capabilities by Lalit Pandit",
   "type": "module",
   "main": "lib/main.js",
   "piConfig": {

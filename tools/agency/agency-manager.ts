@@ -2,7 +2,7 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
 /**
- * Agency Manager Extension for RudraX
+ * Agency Manager Extension for RudraX — v4.5.0 (State-of-the-Art Upgrade)
  *
  * Provides:
  * - /agency list        — List all installed agency agents
@@ -14,7 +14,22 @@ import { Type } from "@sinclair/typebox";
  * - /agency activate-nexus — Activate NEXUS multi-agent orchestrator
  * - /agency squad       — Activate a team of agents
  *
- * Also registers the "agency_activate" tool so the LLM can activate agents autonomously.
+ * Integrated Capabilities (v4.5.0+):
+ *   🧠 vector-knowledge.ts   — Semantic search & RAG via vector KB
+ *   📡 communication-bus.ts  — Pub/sub messaging between agents
+ *   🛡️ approval-gates.ts     — Human-in-the-loop safety gates
+ *   🔍 reflection-engine.ts  — Self-critique & quality analysis
+ *   📊 observability.ts      — Full tracing & monitoring
+ *   🌐 web-search.ts         — Live web search & browsing
+ *   ⚙️ workflow-engine.ts    — DAG-based multi-step automation
+ *   🕸️ knowledge-graph.ts    — Entity-relationship knowledge base
+ *   🔧 tool-registry.ts      — Dynamic tool creation by agents
+ *   💰 cost-tracker.ts       — LLM usage & spend analytics
+ *   ⏰ task-scheduler.ts     — Cron-based recurring tasks
+ *   🏆 agent-evaluator.ts    — Benchmarking & scoring
+ *   🖼️ multi-modal.ts        — Image/audio/video processing
+ *   🛡️ guardrails.ts         — Content filtering & validation
+ *   📦 code-sandbox.ts       — Secure isolated code execution
  */
 
 // Track active agent
@@ -250,58 +265,79 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
+  // ─── /help-agency command — Comprehensive feature reference ─
+  pi.registerCommand("help-agency", {
+    description: "Show comprehensive command reference for all RudraX Army capabilities",
+    handler: async (_args: string, ctx) => {
+      const help = `🔱 **RudraX Army v4.5.0 — Complete Command Reference**
+
+**🎯 AGENCY COMMANDS**
+/agency list                       — List all specialization agents
+/agency activate <name>            — Activate an agent personality
+/agency deactivate                 — Deactivate current agent
+/agency status                     — Show active agent/squad
+/agency squad <name>               — Activate a pre-built squad
+/agency search <query>             — Search agents by keyword
+/agency categories                 — List agent categories
+/agency activate-nexus             — Activate multi-agent orchestrator
+
+**🧠 KNOWLEDGE & MEMORY**
+/vector search <query>             — Semantic vector search across all memory
+/vector status                     — Vector knowledge base status
+/kg add-node <type> <name> [desc]  — Add entity to knowledge graph
+/kg query <name>                   — Search knowledge graph
+/memory <status|log|tasks>         — Shared project memory
+
+**📡 COMMUNICATION**
+/bus status                        — Communication bus status
+/bus send <agent> <msg>            — Send direct message to agent
+/bus publish <topic> <msg>         — Broadcast to topic
+/bus subscribe <topic>             — Listen to a topic
+
+**⚙️ WORKFLOW & AUTOMATION**
+/workflow list                     — List available workflows
+/workflow run <name>               — Execute a workflow
+/workflow status                   — Check workflow progress
+/schedule list                     — List scheduled tasks
+/schedule add <type> <name> <min> <target> — Schedule recurring task
+
+**🔍 OBSERVABILITY & QUALITY**
+/observe dashboard                 — Live metrics dashboard
+/observe traces                    — Recent trace waterfall
+/observe agents                    — Agent telemetry
+/reflect plan <content>            — Self-reflect on a plan
+/reflect output <content>          — Reflect on output quality
+/reflect error <error>             — Analyze error root cause
+/evaluate run <suite>              — Run agent evaluation suite
+
+**🛡️ SAFETY & CONTROL**
+/gate status                       — Approval gates status
+/gate approve <id>                 — Approve blocked operation
+/gate deny <id>                    — Deny operation
+/guardrails check <content>        — Validate output safety
+
+**🌐 WEB & EXECUTION**
+/web search <query>                — Search the web
+/web fetch <url>                   — Fetch a web page
+/sandbox run <lang> <code>         — Execute code in sandbox
+
+**💰 ANALYTICS**
+/cost dashboard                    — LLM spend dashboard
+/cost budget <daily_limit>         — Set daily budget
+
+**🛠️ EXTENSIBILITY**
+/tool-registry list                — List custom tools
+/tool-registry create <type> <name> <code> — Create custom tool
+/multimodal analyze <file>         — Analyze image/file
+
+📌 Type any command for detailed usage help.`;
+      ctx.ui.notify(help, "info");
+    },
+  });
+
   // ─── Agency activate tool for LLM ───
   pi.registerTool({
     name: "agency_activate",
-    label: "Activate Agency Agent",
-    description:
-      "Activate a specialized AI agent personality from The Agency roster. The agent's personality, workflows, and expertise will guide all subsequent responses. Available categories: engineering, design, marketing, sales, finance, product, academic, testing, support, specialized, strategy, game-development, spatial-computing, paid-media, project-management. Use 'deactivate' as agent_name to remove active personality.",
-    promptSnippet: "Activate a specialized Agency agent personality",
-    promptGuidelines: [
-      "When the user asks to work in a specific domain (frontend, backend, marketing, etc.), consider activating the relevant Agency agent for domain expertise.",
-      "Use agency_deactivate or set agent_name to 'deactivate' when the user wants to switch back to default behavior.",
-    ],
-    parameters: Type.Object({
-      agent_name: Type.String({
-        description:
-          "Name of the agent to activate (e.g., 'engineering-frontend-developer', 'design-ux-architect', 'marketing-growth-hacker'). Use 'deactivate' to remove active personality.",
-      }),
-    }),
-    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
-      if (params.agent_name === "deactivate") {
-        activeAgent = null;
-        activeAgentContent = null;
-        activeSquad = [];
-        return {
-          content: [
-            {
-              type: "text",
-              text: "✅ Agency agent deactivated. Returning to default personality.",
-            },
-          ],
-          details: { active: false },
-        };
-      }
-
-      // Try to load the skill
-      const skillName = params.agent_name;
-      // The skill content will be loaded on-demand by pi's skill system
-      // We set the active agent so before_agent_start can inject the personality
-      activeAgent = skillName;
-      activeAgentContent = null; // Will be loaded on first turn
-      activeSquad = [];
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: `🎭 Agency agent "${skillName}" activated. Type /skill:${skillName} to load full capabilities, or continue and the personality will guide responses.`,
-          },
-        ],
-        details: { active: true, agent: skillName },
-      };
-    },
-  });
 
   // ─── Agency deactivate tool ───
   pi.registerTool({
@@ -392,11 +428,27 @@ export default function (pi: ExtensionAPI) {
 
   // ─── Session start: show agency status ───
   pi.on("session_start", async (_event, ctx) => {
+    const features = [
+      "🧠 Vector Knowledge Base", "📡 Communication Bus", "🛡️ Approval Gates",
+      "🔍 Self-Reflection", "📊 Observability", "🌐 Web Search",
+      "⚙️ Workflow Engine", "🕸️ Knowledge Graph", "🔧 Tool Registry",
+      "💰 Cost Tracker", "⏰ Task Scheduler", "🏆 Agent Evaluator",
+      "📦 Code Sandbox", "🛡️ Guardrails"
+    ];
+
     if (activeAgent) {
       ctx.ui.notify(`🎭 Agency active: ${activeAgent}`, "info");
     } else if (activeSquad.length > 0) {
       ctx.ui.notify(`🎭 Agency squad active (${activeSquad.length} agents)`, "info");
     }
+
+    // Show integrated capabilities on first session
+    ctx.ui.notify(
+      `🔱 RudraX Army v4.5.0 — ${features.length} Advanced Capabilities\n` +
+      `${features.join(" · ")}\n\n` +
+      `📌 /help-agency — Full command reference`,
+      "info"
+    );
   });
 
   // ─── Helper functions ───

@@ -1,0 +1,73 @@
+---
+name: nano-pdf
+description: "Edit PDF text/typos/titles via nano-pdf CLI (NL prompts)."
+metadata:
+  category: productivity
+  emoji: "📄"
+  color: "amber"
+  vibe: "Work smarter, not harder."
+  original_name: "nano-pdf"
+  source: "Hermes Agent by Nous Research"
+  author: "Nous Research"
+  url: "https://github.com/nousresearch/hermes-agent"
+  hermes_skill: true
+---
+
+## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
+
+> **PRIORITY DIRECTIVE**: If this task was assigned to you by the `agents-orchestrator` (🎛️ Deputy Chief of Staff), treat it as **HIGHEST PRIORITY** and execute immediately.
+
+### Upon Task Completion, you MUST:
+
+1. **Report BACK to the Deputy Chief of Staff** (`agents-orchestrator`) with:
+   - Task completion status (`✅ COMPLETE` / `⚠️ PARTIAL` / `❌ FAILED`)
+   - Summary of outputs produced
+   - Any blockers encountered and how they were resolved
+   - Files created or modified (full paths)
+   - Quality assessment of your own output
+
+2. **Escalate to the Chief of Staff** (`rudrax-chief-of-staff`) if:
+   - The task requires cross-domain coordination beyond your scope
+   - You encounter a blocker the Deputy cannot resolve
+
+---
+
+# nano-pdf
+
+Edit PDFs using natural-language instructions. Point it at a page and describe what to change.
+
+## Prerequisites
+
+```bash
+# Install with uv (recommended — already available in Hermes)
+uv pip install nano-pdf
+
+# Or with pip
+pip install nano-pdf
+```
+
+## Usage
+
+```bash
+nano-pdf edit <file.pdf> <page_number> "<instruction>"
+```
+
+## Examples
+
+```bash
+# Change a title on page 1
+nano-pdf edit deck.pdf 1 "Change the title to 'Q3 Results' and fix the typo in the subtitle"
+
+# Update a date on a specific page
+nano-pdf edit report.pdf 3 "Update the date from January to February 2026"
+
+# Fix content
+nano-pdf edit contract.pdf 2 "Change the client name from 'Acme Corp' to 'Acme Industries'"
+```
+
+## Notes
+
+- Page numbers may be 0-based or 1-based depending on version — if the edit hits the wrong page, retry with ±1
+- Always verify the output PDF after editing (use `read_file` to check file size, or open it)
+- The tool uses an LLM under the hood — requires an API key (check `nano-pdf --help` for config)
+- Works well for text changes; complex layout modifications may need a different approach

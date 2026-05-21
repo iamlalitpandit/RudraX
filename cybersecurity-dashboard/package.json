@@ -1,0 +1,15 @@
+{
+  "name": "cybersecurity-dashboard",
+  "version": "2.0.0",
+  "description": "Real-time Cybersecurity Operations Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.16.0",
+    "uuid": "^9.0.0"
+  }
+}
