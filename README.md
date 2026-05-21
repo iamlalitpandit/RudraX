@@ -1,4 +1,6 @@
-# 🔱 RudraX Army v4.5.0
+<p align="center">
+  <strong><code>🔱 RUDRAX ARMY v4.5.0</code></strong><br>
+</p>
 
 <p align="center">
   <strong>Build · Break · Deploy · Orchestrate</strong><br>
@@ -492,6 +494,79 @@ RudraX/
 
 ---
 
+## 📦 Releases & Changelog
+
+### v4.5.0 (Latest) — 🧠 Memory System + Hermes Integration
+
+> **Release Date:** May 2026  
+> **Commit:** [`0c81d0d`](https://github.com/iamlalitpandit/RudraX/commit/0c81d0d)
+
+**✨ Major Upgrades:**
+
+| Category | What's New |
+|----------|-----------|
+| 🧠 **Evolving Memory** | Self-learning system with pattern detection, auto-skill creation, frozen snapshots |
+| 🔎 **Vector Knowledge Base** | 256-dim semantic search & RAG engine with persistent storage |
+| 🤖 **Hermes Integration** | 170 Hermes agent skills ported (total 349 agency agents) |
+| 🛡️ **Cybersecurity Dashboard** | Live threat simulation, real-time monitoring, attack analytics |
+| 🎨 **WebUI Overhaul** | 20+ new features, Rudraksh theme, socket streaming |
+| 🔧 **15 SOTA Capabilities** | Full suite: Approval Gates, Reflection, Observability, Web Search, etc. |
+
+**📦 Full Changelog:**
+
+```
+Added:
+  - tools/agency/evolving-memory.ts        — Self-learning AI memory
+  - tools/agency/vector-knowledge.ts       — Semantic search & RAG
+  - tools/agency/shared-memory.ts          — Cross-agent comms
+  - tools/agency/communication-bus.ts      — Pub/sub messaging
+  - tools/agency/approval-gates.ts         — HITL safety gates
+  - tools/agency/reflection-engine.ts      — Self-critique engine
+  - tools/agency/observability.ts          — Distributed tracing
+  - tools/agency/web-search.ts             — Live web intelligence
+  - tools/agency/workflow-engine.ts        — DAG workflow scheduler
+  - tools/agency/knowledge-graph.ts        — Entity relationship store
+  - tools/agency/tool-registry.ts          — Dynamic tool creation
+  - tools/agency/cost-tracker.ts           — LLM spend analytics
+  - tools/agency/task-scheduler.ts         — Recurring automation
+  - tools/agency/agent-evaluator.ts        — Benchmarking suite
+  - tools/agency/multi-modal.ts            — Image/file processing
+  - tools/agency/guardrails.ts             — PII/Safety filtering
+  - tools/agency/code-sandbox.ts           — Secure code execution
+  - tools/agency/skills/                   — 170 Hermes skills
+  - cybersecurity-dashboard/               — Live threat monitor
+  - HERMES_INTEGRATION.md                  — Integration guide
+  - EVOLVING_MEMORY_README.md              — Memory documentation
+
+Updated:
+  - README.md → v4.5.0 with full docs
+  - package.json → v4.5.0 | @imlalitpandit/* packages
+  - webui/server.js → 20 new API features
+  - webui/index.html → Security dashboard, new panels
+  - webui/js/app.js → Real-time threat feed, agent activity
+  - webui/css/index.css → Rudraksh theme enhancements
+```
+
+### v4.0.0 — Multi-Agent System Launch
+
+> Initial release of the RudraX Army hierarchical command system with 179 agents, 9 squads, and basic orchestration.
+
+### v3.0.0 — pi-agent-sdk Migration
+
+> Migrated to @imlalitpandit/pi-* packages with WebUI, TUI, and core agent framework.
+
+### v2.0.0 — Agent Framework
+
+> First public release with basic agent system and terminal interface.
+
+### v1.0.0 — Initial Prototype
+
+> Foundation release with core chat and tool execution.
+
+> 🔮 **Next Up: v5.0** — Self-evolving agents with autonomous skill generation
+
+---
+
 ## 🔐 Security
 
 - **Authentication**: JWT-based with HS256 (Node.js native `crypto`)
@@ -557,10 +632,11 @@ Configure via environment variables or the built-in settings system.
 </p>
 
 <p align="center">
+  <a href="https://github.com/iamlalitpandit"><img src="https://img.shields.io/badge/GitHub-iamlalitpandit-181717?logo=github" alt="GitHub"></a>
   <a href="https://t.me/imlalitpandit"><img src="https://img.shields.io/badge/Telegram-@imlalitpandit-26A5E4?logo=telegram" alt="Telegram"></a>
   <a href="https://instagram.com/imlalitpandit"><img src="https://img.shields.io/badge/Instagram-@imlalitpandit-E4405F?logo=instagram" alt="Instagram"></a>
-  <a href="mailto:admin@rudrax.cloud"><img src="https://img.shields.io/badge/Email-admin@rudrax.cloud-D14836?logo=gmail" alt="Email"></a>
-  <a href="https://www.lalitpandit.in"><img src="https://img.shields.io/badge/Web-www.lalitpandit.in-4285F4?logo=google-chrome" alt="Website"></a>
+  <a href="mailto:lalittheonly@gmail.com"><img src="https://img.shields.io/badge/Email-lalittheonly@gmail.com-D14836?logo=gmail" alt="Email"></a>
+  <a href="https://rudrax.cloud"><img src="https://img.shields.io/badge/Web-rudrax.cloud-4285F4?logo=google-chrome" alt="Website"></a>
 </p>
 
 ---
