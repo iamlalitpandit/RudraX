@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RudraX Army v4.5.0 — Build · Break · Deploy by Lalit Pandit</title>
-  <meta name="description" content="RudraX Army v4.5.0 — 192 AI Agents, 15 Advanced Capabilities. Build, Break, Deploy by Lalit Pandit.">
+  <meta name="description" content="RudraX Army v4.5.0 — 349 AI Agents, 15 Advanced Capabilities, 9 Squads. Build, Break, Deploy by Lalit Pandit.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/index.css">
   <script src="/socket.io/socket.io.min.js"></script>
   <!-- xterm.js — terminal emulator -->
@@ -24,7 +26,7 @@
         <div class="login-logo">🔱</div>
         <div class="login-title">RudraX Army</div>
         <div class="login-subtitle">Build · Break · Deploy by Lalit Pandit</div>
-        <div class="login-version">v4.5.0 &middot; 192 Agents &middot; 15 Capabilities</div>
+        <div class="login-version">v4.5.0 &middot; 349 Agents &middot; 15 Capabilities &middot; 9 Squads</div>
       </div>
       <form class="login-form" id="login-form" autocomplete="off">
         <div class="login-field">
@@ -248,7 +250,7 @@
       <div id="main-header">
         <div class="header-left">
           <button class="btn-icon icon-only" onclick="toggleSidebar()" title="Sidebar (Ctrl+B)">☰</button>
-          <span id="chat-title">RudraX-Chief of Staff</span>
+          <span id="chat-title">RudraX Chief of Staff</span>
           <div id="active-agent-badge" style="display:none">
             <span id="badge-emoji">🤖</span>
             <span id="badge-name" class="badge-text"></span>
@@ -260,9 +262,10 @@
             <span id="squad-badge-count" class="badge-text"></span>
             <span class="badge-close" onclick="deactivateSquad()">✕</span>
           </div>
-          <span id="version-badge" class="version-badge">v4.1.0</span>
+          <span id="version-badge" class="version-badge">v4.5.0</span>
         </div>
         <div class="header-right">
+          <button class="btn-icon icon-only" id="notif-bell" onclick="openNotificationCenter()" title="Notifications">🔔</button>
           <button class="btn-icon icon-only" onclick="toggleTerminal()" title="Terminal (Ctrl+`)">⌨️</button>
           <button class="btn-icon icon-only" onclick="openSettings()" title="Settings">⚙️</button>
         </div>
@@ -288,10 +291,10 @@
         <!-- Welcome Screen -->
         <div id="welcome-screen">
           <div class="welcome-icon">🔱</div>
-          <div class="welcome-title">RudraX-Chief of Staff</div>
-          <div class="welcome-subtitle">Strategic Commander · 191 Agents · 9 Squads</div>
-          <div class="welcome-subtitle">Autonomous Agentic AI · Build · Break · Deploy</div>
-          <div class="welcome-version">v4.1.0</div>
+          <div class="welcome-title">RudraX Chief of Staff</div>
+          <div class="welcome-subtitle">Strategic Commander · 349 Agents · 9 Squads · 45 Categories</div>
+          <div class="welcome-subtitle">Autonomous Agentic AI · Build · Break · Deploy · Orchestrate</div>
+          <div class="welcome-version">v4.5.0</div>
           <div class="welcome-shortcuts">
             <div class="welcome-shortcut" onclick="insertPrompt('/orchestrate ')">
               <span class="welcome-shortcut-icon">🧠</span>
@@ -408,12 +411,31 @@
         </div>
       </div>
       <div class="orch-body" id="orch-body-content">
+        <!-- Command hierarchy -->
+        <div class="orch-section hierarchy-section">
+          <div class="orch-section-title">Command Hierarchy</div>
+          <div id="hierarchy-rail" class="hierarchy-rail" aria-label="RudraX command hierarchy"></div>
+        </div>
+
+        <!-- Orchestration memory -->
+        <div class="orch-section memory-ledger-section">
+          <div class="orch-section-title">Orchestration Memory</div>
+          <div class="memory-ledger-card">
+            <div class="memory-ledger-title">🗂️ Learning Ledger</div>
+            <div id="orch-memory-summary" class="memory-ledger-summary">
+              <div><strong>Idle</strong> plan state</div>
+              <div>0 completed task records · 0 activity events</div>
+              <div>Current specialist: None</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Mode -->
         <div class="orch-section">
-          <div class="orch-section-title">Mode</div>
+          <div class="orch-section-title">Execution Mode</div>
           <div class="orch-mode-toggle">
-            <button class="orch-mode-btn active" id="orch-mode-auto" onclick="setOrchMode('auto')">⚡ Auto</button>
-            <button class="orch-mode-btn" id="orch-mode-manual" onclick="setOrchMode('manual')">👤 Manual</button>
+            <button class="orch-mode-btn active" id="orch-mode-auto" onclick="setOrchMode('auto')">⚡ Delegated</button>
+            <button class="orch-mode-btn" id="orch-mode-manual" onclick="setOrchMode('manual')">👤 Guided</button>
           </div>
         </div>
 
@@ -423,7 +445,7 @@
           <div class="orch-input-group">
             <textarea id="orch-task-input" class="orch-textarea" placeholder="Describe your task..."></textarea>
           </div>
-          <button class="orch-btn orch-btn-primary" onclick="startOrchestration(document.getElementById('orch-task-input').value)">🚀 Execute</button>
+          <button class="orch-btn orch-btn-primary" onclick="startOrchestration(document.getElementById('orch-task-input').value)">🚀 Delegate Mission</button>
         </div>
 
         <!-- Active Plan -->
@@ -555,11 +577,11 @@
         <button class="login-btn" onclick="exportSession()" style="margin-top:var(--sp-md)">💾 Export Session</button>
 
         <div style="margin-top:var(--sp-xl);padding:var(--sp-md);background:var(--void-800);border-radius:var(--border-radius-sm);border:1px solid var(--border-gold)">
-          <div style="font-weight:700;color:var(--gold-primary);margin-bottom:var(--sp-sm)">🔱 RudraX Army v4.1.0</div>
+          <div style="font-weight:700;color:var(--gold-primary);margin-bottom:var(--sp-sm)">🔱 RudraX Army v4.5.0</div>
           <div style="font-size:var(--fs-xs);color:var(--text-muted);line-height:1.5">
             <strong style="color:var(--text-primary)">Build · Break · Deploy · Orchestrate</strong><br>
             Autonomous Agentic AI by <strong style="color:var(--gold-primary)">Lalit Pandit</strong><br><br>
-            191+ Agents · 9 Squads · Orchestrator · Shared Memory<br>
+            349 Agents · 9 Squads · 45 Categories · Orchestrator · Shared Memory<br>
             <span style="color:var(--gold-primary)">ॐ नमः शिवाय</span>
           </div>
         </div>
@@ -588,6 +610,19 @@
         </div>
 
         <button class="login-btn" onclick="handleLogout()" style="width:100%;margin-top:var(--sp-md);background:linear-gradient(135deg,var(--error),#b91c1c)">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Capabilities List Modal ═══ -->
+  <div id="feature-modal" class="modal-overlay hidden" style="display:none">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <span>🧠 RudraX Capabilities</span>
+        <button class="btn-icon-sm" onclick="closeFeatureReference()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="capabilities-list"></div>
       </div>
     </div>
   </div>

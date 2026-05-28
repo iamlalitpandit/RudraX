@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   RudraX Web UI — Rudraksh Theme Design System v4.1.0
+   RudraX Web UI — Rudraksh Theme Design System v4.5.0
    🔱 Build · Break · Deploy · Orchestrate
    Inspired by Lord Shiva's Rudraksha — sacred, powerful, grounding
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -76,6 +76,7 @@
   --text-agent: var(--rudraksh-200);
   --text-gold: var(--gold-primary);
   --text-code: var(--saffron-light);
+  --error: #ef4444;
 
   --border-primary: var(--void-500);
   --border-secondary: var(--void-600);
@@ -87,9 +88,11 @@
 
   --sp-xxs: 2px; --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px;
   --sp-lg: 16px; --sp-xl: 24px; --sp-xxl: 32px;
+  --sp-2xl: 48px;
 
   --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --fs-xs: 11px; --fs-sm: 12px; --fs-base: 14px; --fs-md: 15px;
   --fs-lg: 16px; --fs-xl: 20px; --fs-xxl: 28px; --fs-hero: 42px;
 
@@ -98,6 +101,7 @@
   --border-radius: 12px;
   --border-radius-sm: 8px;
   --border-radius-xs: 4px;
+  --border-radius-lg: 20px;
   --transition: 0.2s ease;
   --transition-slow: 0.35s ease;
 
@@ -122,6 +126,31 @@
   --cat-product: #ffca28;
   --cat-finance: #66bb6a;
   --cat-academic: #78909c;
+  --cat-general: #78909c;
+  --cat-healthcare: #e91e63;
+  --cat-government: #607d8b;
+  --cat-legal: #8d6e63;
+  --cat-hospitality: #ff8a65;
+  --cat-retail: #ff7043;
+  --cat-hr: #26c6da;
+  --cat-realestate: #8d6e63;
+  --cat-recruitment: #26c6da;
+  --cat-supply-chain: #66bb6a;
+  --cat-bioinformatics: #00acc1;
+  --cat-drug-discovery: #7cb342;
+  --cat-fitness-nutrition: #66bb6a;
+  --cat-music: #ab47bc;
+  --cat-game: #e74c3c;
+  --cat-media: #ec407a;
+  --cat-osint: #5c6bc0;
+  --cat-ai-ml: #3498db;
+  --cat-data-science: #26a69a;
+  --cat-mlops: #42a5f5;
+  --cat-productivity: #ab47bc;
+  --cat-research: #78909c;
+  --cat-cloud: #29b6f6;
+  --cat-robotics: #ef5350;
+  --cat-iot: #26c6da;
 }
 
 /* .dark-mode is the default — styles are dark by design.
@@ -904,6 +933,37 @@ details[open] .tool-step-body { max-height: 500px; }
   padding: 0 var(--sp-sm);
 }
 
+.hierarchy-rail {
+  position: relative; display: flex; flex-direction: column; gap: var(--sp-xs);
+  padding: var(--sp-xs) 0 var(--sp-xs) var(--sp-sm);
+}
+.hierarchy-rail::before {
+  content: ''; position: absolute; left: 21px; top: 16px; bottom: 16px;
+  width: 1px; background: linear-gradient(180deg, var(--gold-primary), var(--saffron-deep), var(--border-secondary));
+  opacity: 0.55;
+}
+.hierarchy-step {
+  position: relative; display: grid; grid-template-columns: 20px 28px 1fr; gap: var(--sp-xs);
+  align-items: start; padding: var(--sp-xs); border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-sm); background: linear-gradient(135deg, rgba(212,168,67,0.08), var(--void-800));
+}
+.hierarchy-step-index {
+  width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--void-950); border: 1px solid var(--border-gold);
+  color: var(--gold-primary); font-size: 10px; font-weight: 800; z-index: 1;
+}
+.hierarchy-step-icon { font-size: 16px; line-height: 1.2; }
+.hierarchy-step-title { color: var(--text-primary); font-size: var(--fs-xs); font-weight: 800; }
+.hierarchy-step-desc { color: var(--text-muted); font-size: 10px; line-height: 1.35; margin-top: 2px; }
+.memory-ledger-card {
+  border: 1px solid var(--border-gold); border-radius: var(--border-radius-sm);
+  background: radial-gradient(circle at top left, var(--gold-glow), transparent 42%), var(--void-800);
+  padding: var(--sp-sm);
+}
+.memory-ledger-title { color: var(--gold-primary); font-weight: 800; font-size: var(--fs-xs); margin-bottom: var(--sp-xs); }
+.memory-ledger-summary { color: var(--text-secondary); font-size: 10px; line-height: 1.55; }
+.memory-ledger-summary strong { color: var(--text-primary); }
+
 .orch-mode-toggle {
   display: flex; gap: var(--sp-xs); margin-bottom: var(--sp-md);
 }
@@ -1329,7 +1389,7 @@ details[open] .tool-step-body { max-height: 500px; }
 }
 
 /* ═════════════════════════════════════════════════════════════════════════
-   RudraX Brand v4.1.0 — Om Namah Shivay 🔱
+   RudraX Brand v4.5.0 — Om Namah Shivay 🔱
    ═════════════════════════════════════════════════════════════════════════ */
 /* ═════════════════════════════════════════════════════════════════════════
    🆕 Command Palette — Ctrl+K
@@ -1583,6 +1643,54 @@ details[open] .tool-step-body { max-height: 500px; }
 #orchestrator-panel { position: relative; }
 #orchestrator-panel .resize-handle { left: -2px; }
 
+/* ─── Capabilities List ─────────────────────────────────────────────── */
+
+#capabilities-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-sm);
+}
+.capability-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm);
+  border-radius: var(--border-radius-sm);
+  background: var(--void-800);
+  border: 1px solid var(--border-secondary);
+  transition: all var(--transition);
+}
+.capability-item:hover {
+  border-color: var(--gold-primary);
+  box-shadow: var(--shadow-glow);
+}
+.capability-icon {
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--void-700);
+}
+.capability-info {
+  flex: 1;
+  min-width: 0;
+}
+.capability-name {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin-bottom: 2px;
+}
+.capability-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 /* ═════════════════════════════════════════════════════════════════════════
-   RudraX Brand v4.3.0 — Om Namah Shivay 🔱
+   RudraX Brand v4.5.0 — Om Namah Shivay 🔱
    ═════════════════════════════════════════════════════════════════════════ */

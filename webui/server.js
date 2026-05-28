@@ -1,5 +1,5 @@
 /**
- * RudraX Army Web UI Server — Command & Control Edition
+ * RudraX Army Web UI Server - Command & Control Edition
  *
  * Express + Socket.IO server that bridges the web UI to the RudraX AgentSession SDK.
  * Agency orchestration, agent discovery, squad management, terminal, shared memory.
@@ -23,6 +23,58 @@ import { SessionManager, getDefaultSessionDir } from '../lib/core/session-manage
 import { getAgentDir } from '../lib/config.js';
 import { isOllamaAvailable, isOllamaServerRunning, getOllamaModels, getOllamaModelConfig } from '../lib/core/ollama-openai-provider.js';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
+// ═══ Email Configuration ═══
+const EMAIL_CONFIG = {
+  enabled: process.env.RUDRAX_EMAIL_ENABLED !== 'false',
+  host: process.env.RUDRAX_SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.RUDRAX_SMTP_PORT || '587', 10),
+  secure: process.env.RUDRAX_SMTP_SECURE === 'true',
+  user: process.env.RUDRAX_SMTP_USER || '',
+  pass: process.env.RUDRAX_SMTP_PASS || '',
+  from: process.env.RUDRAX_EMAIL_FROM || 'noreply@rudrax.cloud',
+  adminTo: 'admin@neelverse.org',
+};
+
+let _transporter = null;
+function getMailTransporter() {
+  if (!EMAIL_CONFIG.enabled || !EMAIL_CONFIG.user || !EMAIL_CONFIG.pass) {
+    console.warn('[Email] SMTP not configured. Set RUDRAX_SMTP_USER and RUDRAX_SMTP_PASS env vars. Falling back to log-only.');
+    return null;
+  }
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      host: EMAIL_CONFIG.host,
+      port: EMAIL_CONFIG.port,
+      secure: EMAIL_CONFIG.secure,
+      auth: { user: EMAIL_CONFIG.user, pass: EMAIL_CONFIG.pass },
+    });
+  }
+  return _transporter;
+}
+
+async function sendEmailNotification({ subject, html, text }) {
+  const transporter = getMailTransporter();
+  if (!transporter) {
+    console.log(`[Email][LOG-ONLY] To: ${EMAIL_CONFIG.adminTo}, Subject: ${subject}`);
+    return { sent: false, reason: 'SMTP not configured' };
+  }
+  try {
+    await transporter.sendMail({
+      from: EMAIL_CONFIG.from,
+      to: EMAIL_CONFIG.adminTo,
+      subject: `[RudraX] ${subject}`,
+      html,
+      text,
+    });
+    console.log(`[Email] Sent: ${subject}`);
+    return { sent: true };
+  } catch (e) {
+    console.error(`[Email] Failed: ${subject} - ${e.message}`);
+    return { sent: false, reason: e.message };
+  }
+}
 import { readdir, readFile } from 'fs/promises';
 import * as fsSync from 'fs';
 import { spawn } from 'child_process';
@@ -129,10 +181,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(join(__dirname), { setHeaders: (res) => { res.set('Cache-Control', 'no-cache, no-store, must-revalidate'); } }));
 app.use('/socket.io', express.static(join(process.cwd(), 'node_modules', 'socket.io', 'client-dist')));
 
-// ═══ Auth Middleware — protect all /api/ routes ═══
+// ═══ Auth Middleware - protect all /api/ routes ═══
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api/')) return next();
-  if (req.path === '/api/login' || req.path === '/api/health') return next();
+  if (req.path === '/api/login' || req.path === '/api/health' || req.path === '/api/contact' || req.path === '/api/subscribe') return next();
+  // Public GET for blog listing and single posts
+  if (req.method === 'GET' && (req.path === '/api/blog' || (req.path.startsWith('/api/blog/') && !req.path.startsWith('/api/blog/admin/')))) return next();
   requireAuth(req, res, next);
 });
 
@@ -141,6 +195,9 @@ const authGuard = (req, res, next) => requireAuth(req, res, next);
 
 // ═══ Auth Endpoints ═══
 app.post('/api/login', (req, res) => {
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({ error: 'Invalid request body. Use Content-Type: application/json' });
+  }
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required' });
@@ -193,9 +250,9 @@ let orchestratorState = {
   commandRole: 'RudraX-Chief of Staff', // 🔱 Primary command role
   deputyRole: 'Deputy Chief of Staff',   // 🎛️ Planning/orchestration role
   hierarchy: {
-    level1: '🔱 RudraX-Chief of Staff — Strategic Commander',
-    level2: '🎛️ Deputy Chief of Staff — Operational Commander',
-    level3: '🤖 Specialist Agents & Squads — 179 agents / 45 divisions'
+    level1: '🔱 RudraX-Chief of Staff - Strategic Commander',
+    level2: '🎛️ Deputy Chief of Staff - Operational Commander',
+    level3: '🤖 Specialist Agents & Squads - 349 agents / 45+ divisions'
   }
 };
 
@@ -228,42 +285,42 @@ const SQUADS = {
     emoji: "🔐",
     color: "#e74c3c",
     description: "Security-focused team for audits and hardening",
-    agents: ["engineering-security-engineer", "engineering-threat-detection-engineer", "compliance-auditor", "engineering-code-reviewer", "engineering-devops-automator"],
+    agents: ["engineering-security-engineer", "compliance-auditor", "engineering-code-reviewer", "engineering-devops-automator", "blockchain-security-auditor"],
   },
   qalead: {
     name: "QA & Testing Squad",
     emoji: "✅",
     color: "#27ae60",
     description: "Quality assurance and testing specialists",
-    agents: ["engineering-code-reviewer", "testing-api-tester", "testing-performance-benchmarker", "testing-accessibility-auditor", "testing-reality-checker"],
+    agents: ["engineering-code-reviewer", "testing-api-tester", "testing-performance-benchmarker", "testing-evidence-collector", "testing-reality-checker"],
   },
   aiinfra: {
     name: "AI Infrastructure Squad",
     emoji: "🤖",
     color: "#3498db",
     description: "AI/ML engineering and infrastructure team",
-    agents: ["engineering-ai-engineer", "engineering-backend-architect", "engineering-devops-automator", "specialized-mcp-builder", "specialized-model-qa"],
+    agents: ["engineering-ai-engineer", "engineering-backend-architect", "engineering-devops-automator", "specialized-mcp-builder", "vllm"],
   },
   web3: {
     name: "Web3 & Blockchain Squad",
     emoji: "⛓️",
     color: "#f39c12",
     description: "Blockchain and smart contract development team",
-    agents: ["engineering-solidity-smart-contract-engineer", "blockchain-security-auditor", "agentic-identity-trust", "specialized-zk-steward", "engineering-backend-architect"],
+    agents: ["engineering-solidity-smart-contract-engineer", "blockchain-security-auditor", "solana", "evm", "engineering-backend-architect"],
   },
   growth: {
     name: "Growth Marketing Squad",
     emoji: "📈",
     color: "#2ecc71",
     description: "Marketing and growth specialists",
-    agents: ["marketing-growth-hacker", "marketing-content-creator", "marketing-seo-specialist", "marketing-social-media-strategist", "paid-media-paid-social-strategist", "product-feedback-synthesizer"],
+    agents: ["marketing-growth-hacker", "marketing-content-creator", "marketing-social-media-strategist", "paid-media-paid-social-strategist", "product-feedback-synthesizer"],
   },
   incident: {
     name: "Incident Response Squad",
     emoji: "🚨",
     color: "#e74c3c",
     description: "Production incident management team",
-    agents: ["engineering-incident-response-commander", "engineering-sre", "engineering-devops-automator", "engineering-security-engineer", "support-support-responder", "support-executive-summary-generator"],
+    agents: ["engineering-devops-automator", "engineering-security-engineer", "support-executive-summary-generator", "docker-management", "systematic-debugging"],
   },
 };
 
@@ -559,6 +616,12 @@ function handleSessionEvent(ctx, event) {
     ctx.running = true;
   } else if (event.type === 'agent_end') {
     ctx.running = false;
+  } else if (event.type === 'compaction_start') {
+    ctx.running = true;
+  } else if (event.type === 'compaction_end') {
+    ctx.running = false;
+  } else if (event.type === 'auto_retry_start') {
+    ctx.running = true;
   }
 
   if (entry._update) {
@@ -625,7 +688,7 @@ function handleSessionEvent(ctx, event) {
       });
       return;
     }
-    // First streaming chunk — add new entry
+    // First streaming chunk - add new entry
     entry.no = ctx.logs.length + 1;
     ctx.logs.push(entry);
     ctx.logVersion++;
@@ -700,7 +763,7 @@ function parseOrchestratorToolCall(toolName, content) {
       broadcastOrchestratorState();
     }
   } catch (e) {
-    // Non-critical — don't break the main flow
+    // Non-critical - don't break the main flow
   }
 }
 
@@ -772,7 +835,24 @@ app.get('/api/settings', (req, res) => {
   res.json({ theme: 'dark', fontSize: 14, model: 'default' });
 });
 
-// ═══ Security — Live simulation of cyber threats (inline mock) ═══════════
+app.put('/api/settings', (req, res) => {
+  try {
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+    const { theme, fontSize } = req.body;
+    const settings = { theme: 'dark', fontSize: 14, model: 'default' };
+    const validThemes = ['dark', 'light', 'auto'];
+    if (theme && validThemes.includes(theme)) settings.theme = theme;
+    const fs = parseInt(fontSize, 10);
+    if (!isNaN(fs) && fs >= 10 && fs <= 24) settings.fontSize = fs;
+    res.json(settings);
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid settings request' });
+  }
+});
+
+// ═══ Security - Live simulation of cyber threats (inline mock) ═══════════
 
 const SECURITY = {
   threats: [], alerts: [], trafficHistory: [], authAttempts: [], events: [],
@@ -871,7 +951,7 @@ function secTick() {
     SECURITY.alerts.push({
       id: crypto.randomUUID().slice(0, 8), timestamp: new Date().toISOString(),
       threatId: t.id, type: t.type, severity: t.severity,
-      message: `${t.icon} ${t.type} — ${t.sourceIP} → ${t.target}`,
+      message: `${t.icon} ${t.type} - ${t.sourceIP} → ${t.target}`,
       acknowledged: false
     });
     if (SECURITY.alerts.length > 30) SECURITY.alerts.shift();
@@ -927,7 +1007,7 @@ app.get('/api/export/:contextId', (req, res) => {
     }
   }).join('\n---\n\n');
 
-  const markdown = `# RudraX Army — Session Export\n\n**Context:** ${ctx.name}\n**Exported:** ${new Date().toISOString()}\n**Messages:** ${ctx.logs.length}\n\n${lines}`;
+  const markdown = `# RudraX Army - Session Export\n\n**Context:** ${ctx.name}\n**Exported:** ${new Date().toISOString()}\n**Messages:** ${ctx.logs.length}\n\n${lines}`;
   res.type('text/markdown').send(markdown);
 });
 
@@ -1041,6 +1121,31 @@ function getCatColor(category) {
     product: '#ff9800',
     finance: '#4caf50',
     academic: '#607d8b',
+    general: '#78909c',
+    healthcare: '#e91e63',
+    government: '#607d8b',
+    legal: '#8d6e63',
+    hospitality: '#ff8a65',
+    retail: '#ff7043',
+    hr: '#26c6da',
+    realestate: '#8d6e63',
+    recruitment: '#26c6da',
+    'supply-chain': '#66bb6a',
+    bioinformatics: '#00acc1',
+    'drug-discovery': '#7cb342',
+    'fitness-nutrition': '#66bb6a',
+    music: '#ab47bc',
+    game: '#e74c3c',
+    media: '#ec407a',
+    osint: '#5c6bc0',
+    'ai-ml': '#3498db',
+    'data-science': '#26a69a',
+    mlops: '#42a5f5',
+    productivity: '#ab47bc',
+    research: '#78909c',
+    cloud: '#29b6f6',
+    robotics: '#ef5350',
+    iot: '#26c6da',
   };
   return colors[category] || '#78909c';
 }
@@ -1204,7 +1309,18 @@ app.post('/api/dispatch', async (req, res) => {
 /** Activate an agent (send /skill:agent-name via session) */
 app.post('/api/agents/:name/activate', async (req, res) => {
   const agentName = req.params.name;
-  const { context: contextId } = req.body;
+  const { context: contextId } = req.body || {};
+
+  // Validate agent name against available skills
+  try {
+    const skills = await loadAgencySkills();
+    const validNames = skills.map(s => s.name);
+    if (!validNames.includes(agentName)) {
+      return res.status(404).json({ error: `Unknown agent: ${agentName}. Use /api/agents to list available agents.` });
+    }
+  } catch (e) {
+    // If skills can't be loaded, still allow activation (might be a runtime agent)
+  }
 
   orchestratorState.activeAgent = agentName;
   broadcastOrchestratorState();
@@ -1315,7 +1431,7 @@ status: active
 
 ## Project Overview
 
-${projectName} — Shared project memory for multi-agent coordination.
+${projectName} - Shared project memory for multi-agent coordination.
 
 ## Project Structure
 
@@ -1343,7 +1459,7 @@ ${projectName} — Shared project memory for multi-agent coordination.
 
 ## Blockers
 
-*(No blockers — smooth sailing!)*
+*(No blockers - smooth sailing!)*
 
 ## Handoffs
 
@@ -1478,7 +1594,7 @@ app.post('/api/memory/:contextId/write', (req, res) => {
     /\*\(No activity yet\)\*\n/,
     /\*\(No decisions recorded yet\)\*\n/,
     /\*\(No files tracked yet\)\*\n/,
-    /\*\(No blockers — smooth sailing!\)\*\n/,
+    /\*\(No blockers - smooth sailing!\)\*\n/,
     /\*\(No handoffs yet\)\*\n/,
     /\*\(No notes\)\*\n/,
   ];
@@ -1604,7 +1720,7 @@ app.delete('/api/memory/:contextId/blockers/:index', (req, res) => {
       if (idx >= 0 && idx < lines.length) {
         lines.splice(idx, 1);
       }
-      const newSection = lines.length > 0 ? lines.join('\n') + '\n' : '*(No blockers — smooth sailing!)*\n';
+      const newSection = lines.length > 0 ? lines.join('\n') + '\n' : '*(No blockers - smooth sailing!)*\n';
       const updated = raw.replace(
         /## Blockers\n\n[\s\S]*?(\n\n## )/,
         `## Blockers\n\n${newSection}$1`
@@ -1653,9 +1769,9 @@ app.post('/message_async', authGuard, async (req, res) => {
   // Store client message ID so eventToLogEntry can use it for the user message
   ctx.pendingUserMessageId = message_id;
 
-  // Check if agent is already processing — inform client to use steering
+  // Check if agent is already processing - inform client to use steering
   if (ctx.running) {
-    ctx.pendingUserMessageId = null; // Clear — client will show steer panel instead
+    ctx.pendingUserMessageId = null; // Clear - client will show steer panel instead
     return res.status(409).json({
       error: 'Agent is already processing. Use steering options (followUp/steer/stop) to interact.',
       code: 'ALREADY_PROCESSING',
@@ -1953,14 +2069,16 @@ app.get('/api/costs/:contextId', (req, res) => {
 
 // ═══ Guardrails check via API ═══
 app.post('/api/guardrails/check', (req, res) => {
-  const { content } = req.body;
+  const { content } = req.body || {};
   if (!content) return res.status(400).json({ error: 'Content required' });
   // Simple PII check
   const emailPattern = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}/g;
   const apiKeyPattern = /sk-[A-Za-z0-9]{20,}/g;
+  const ssnPattern = /\b\d{3}-\d{2}-\d{4}\b/g;
   const findings = [];
   if (emailPattern.test(content)) findings.push('Email addresses detected');
   if (apiKeyPattern.test(content)) findings.push('API keys detected');
+  if (ssnPattern.test(content)) findings.push('Social Security Numbers detected');
   res.json({ passed: findings.length === 0, findings });
 });
 
@@ -2010,7 +2128,240 @@ app.get('/api/capabilities', (req, res) => {
   });
 });
 
-// ─── Start / Export ─────────────────────────────────────────────────────────
+// ═══ Contact Form & Newsletter Endpoints ═══
+app.post('/api/contact', express.json(), (req, res) => {
+  try {
+    const { name, email, company, service, message } = req.body || {};
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    const entry = {
+      id: Date.now().toString(36),
+      name, email, company: company || '',
+      service: service || '',
+      message: message || '',
+      timestamp: new Date().toISOString(),
+      ip: req.ip || req.socket.remoteAddress,
+    };
+    const logDir = join(dirname(fileURLToPath(import.meta.url)), 'data');
+    import('fs').then(fs => {
+      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+      const logFile = join(logDir, 'contacts.json');
+      let records = [];
+      try { records = JSON.parse(fs.readFileSync(logFile, 'utf8')); } catch {}
+      records.push(entry);
+      fs.writeFileSync(logFile, JSON.stringify(records, null, 2));
+    });
+    console.log(`[Contact] ${name} <${email}> - ${company || 'N/A'} / ${service || 'General'}`);
+    sendEmailNotification({
+      subject: `New Contact: ${name} from ${company || email}`,
+      html: '<h2>New Contact Form Submission</h2><p><b>Name:</b> ' + escapeHtml(name) + '</p><p><b>Email:</b> ' + escapeHtml(email) + '</p><p><b>Company:</b> ' + escapeHtml(company || 'N/A') + '</p><p><b>Service:</b> ' + escapeHtml(service || 'General') + '</p><p><b>Message:</b></p><blockquote style="padding:12px;background:#f5f5f5;border-left:4px solid #b45309;">' + escapeHtml(message || 'N/A') + '</blockquote><p><small>Received: ' + entry.timestamp + '</small></p>',
+      text: `New Contact: ${name} (${email}) - ${company || 'N/A'}\nService: ${service || 'General'}\nMessage: ${message || 'N/A'}`,
+    });
+    res.json({ success: true, message: 'Thank you! We will contact you within 24 hours.' });
+  } catch (e) {
+    console.error('[Contact] Error:', e.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/subscribe', express.json(), (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'A valid email address is required' });
+    }
+    const entry = {
+      email,
+      subscribedAt: new Date().toISOString(),
+      ip: req.ip || req.socket.remoteAddress,
+    };
+    const logDir = join(dirname(fileURLToPath(import.meta.url)), 'data');
+    import('fs').then(fs => {
+      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+      const logFile = join(logDir, 'subscribers.json');
+      let records = [];
+      try { records = JSON.parse(fs.readFileSync(logFile, 'utf8')); } catch {}
+      // Avoid duplicates
+      const exists = records.some(r => r.email === email);
+      if (!exists) records.push(entry);
+      fs.writeFileSync(logFile, JSON.stringify(records, null, 2));
+    });
+    console.log(`[Subscribe] New subscriber: ${email}`);
+    sendEmailNotification({
+      subject: `New Subscriber: ${email}`,
+      html: '<h2>New Newsletter Subscriber</h2><p><b>Email:</b> ' + escapeHtml(email) + '</p><p><small>Subscribed: ' + entry.subscribedAt + '</small></p>',
+      text: `New subscriber: ${email}`,
+    });
+    res.json({ success: true, message: 'Subscribed successfully! Check your inbox for confirmation.' });
+  } catch (e) {
+    console.error('[Subscribe] Error:', e.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ═══ Blog CMS Endpoints ═══
+const BLOG_FILE = join(dirname(fileURLToPath(import.meta.url)), 'data', 'blog-posts.json');
+
+function loadBlogPosts() {
+  try {
+    if (fsSync.existsSync(BLOG_FILE)) {
+      return JSON.parse(fsSync.readFileSync(BLOG_FILE, 'utf-8'));
+    }
+  } catch (e) {}
+  return [];
+}
+function saveBlogPosts(posts) {
+  const dir = dirname(BLOG_FILE);
+  if (!fsSync.existsSync(dir)) fsSync.mkdirSync(dir, { recursive: true });
+  fsSync.writeFileSync(BLOG_FILE, JSON.stringify(posts, null, 2));
+}
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'post';
+}
+
+// Seed default posts
+function seedBlogPosts() {
+  let posts = loadBlogPosts();
+  if (posts.length > 0) return;
+  posts = [
+    {
+      id: 'post-1', slug: 'how-autonomous-ai-agents-are-transforming-customer-support',
+      title: 'How Autonomous AI Agents Are Transforming Customer Support',
+      excerpt: 'Discover how businesses use autonomous AI agents to handle 80% of support tickets autonomously.',
+      content: '<p>Customer support is undergoing a radical transformation. Autonomous AI agents can now handle the majority of customer inquiries without human intervention.</p><h2>The Numbers</h2><p>80% reduction in first-response time. 60% lower support costs. 35% improvement in CSAT scores. 24/7 availability.</p><h2>How It Works</h2><p>Modern AI agents understand context, access knowledge bases, execute actions, and escalate to humans only when needed.</p>',
+      author: 'Lalit Pandit', date: '2026-05-18', readTime: '8 min read',
+      category: 'AI Agents', tags: ['AI Agents', 'Customer Support', 'Automation'], icon: 'Bot', published: true,
+      createdAt: '2026-05-18T00:00:00.000Z', updatedAt: '2026-05-18T00:00:00.000Z',
+    },
+    {
+      id: 'post-2', slug: 'geo-vs-seo-why-your-business-needs-both-in-2026',
+      title: 'GEO vs SEO: Why Your Business Needs Both in 2026',
+      excerpt: 'Generative Engine Optimization (GEO) is the new frontier for appearing in AI answer engines.',
+      content: '<p>2026 marks a pivotal year in search. While traditional SEO remains essential for Google rankings, GEO has emerged for AI-powered engines like ChatGPT and Perplexity.</p><h2>What is GEO?</h2><p>GEO optimizes content for AI models that generate answers, focusing on entity-rich data and citation-ready content.</p><h2>The Dual Strategy</h2><p>Winning in 2026 requires both: SEO for click-through traffic, and GEO for AI-generated answer inclusion.</p>',
+      author: 'Neel Pandit', date: '2026-05-12', readTime: '6 min read',
+      category: 'SEO / GEO', tags: ['GEO', 'SEO', 'AI Citations', 'Digital Marketing'], icon: 'Search', published: true,
+      createdAt: '2026-05-12T00:00:00.000Z', updatedAt: '2026-05-12T00:00:00.000Z',
+    },
+    {
+      id: 'post-3', slug: 'roi-of-ai-automation-a-practical-framework',
+      title: 'ROI of AI Automation: A Practical Framework for Decision Makers',
+      excerpt: 'A step-by-step framework to calculate the real ROI of AI automation projects.',
+      content: '<p>AI automation investments require rigorous ROI analysis. Here is our proven framework.</p><h2>The Framework</h2><p><b>Direct Savings:</b> Labor cost + error reduction + speed<br/><b>Revenue Impact:</b> Time-to-market + capacity scaling<br/><b>Hidden Costs:</b> Integration + maintenance + training</p><h2>Results</h2><p>Our clients typically see 3-5x ROI within the first year.</p>',
+      author: 'Lalit Pandit', date: '2026-05-05', readTime: '10 min read',
+      category: 'Automation', tags: ['ROI', 'Automation', 'Business Strategy'], icon: 'BarChart3', published: true,
+      createdAt: '2026-05-05T00:00:00.000Z', updatedAt: '2026-05-05T00:00:00.000Z',
+    },
+  ];
+  saveBlogPosts(posts);
+}
+seedBlogPosts();
+
+// GET /api/blog - list published posts (without content for listing)
+app.get('/api/blog', (req, res) => {
+  const posts = loadBlogPosts();
+  const published = posts.filter(p => p.published).map(({ content, ...rest }) => rest);
+  res.json({ posts: published });
+});
+
+// GET /api/blog/:slug - single post with full content
+app.get('/api/blog/:slug', (req, res) => {
+  const posts = loadBlogPosts();
+  const post = posts.find(p => p.slug === req.params.slug && p.published);
+  if (!post) return res.status(404).json({ error: 'Post not found' });
+  const { content, ...meta } = post;
+  res.json({ post, content });
+});
+
+// GET /api/blog/admin/all - all posts (auth required)
+app.get('/api/blog/admin/all', authGuard, (req, res) => {
+  res.json({ posts: loadBlogPosts() });
+});
+
+// POST /api/blog - create post (auth required)
+app.post('/api/blog', authGuard, express.json(), (req, res) => {
+  try {
+    const { title, excerpt, content, author, category, tags, icon, published } = req.body;
+    if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
+    const posts = loadBlogPosts();
+    const post = {
+      id: 'post-' + Date.now().toString(36),
+      slug: slugify(title),
+      title, excerpt: excerpt || '', content,
+      author: author || 'RudraX Team',
+      date: new Date().toISOString().split('T')[0],
+      readTime: Math.max(1, Math.ceil((content.length || 0) / 1500)) + ' min read',
+      category: category || 'General',
+      tags: tags || [], icon: icon || 'FileText',
+      published: published !== false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    posts.unshift(post);
+    saveBlogPosts(posts);
+    res.json({ success: true, post });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /api/blog/:id - update post (auth required)
+app.put('/api/blog/:id', authGuard, express.json(), (req, res) => {
+  try {
+    const posts = loadBlogPosts();
+    const idx = posts.findIndex(p => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Post not found' });
+    const { title, excerpt, content, author, category, tags, icon, published } = req.body;
+    if (title) { posts[idx].title = title; posts[idx].slug = slugify(title); }
+    if (content !== undefined) { posts[idx].content = content; posts[idx].readTime = Math.max(1, Math.ceil(content.length / 1500)) + ' min read'; }
+    if (excerpt !== undefined) posts[idx].excerpt = excerpt;
+    if (author) posts[idx].author = author;
+    if (category) posts[idx].category = category;
+    if (tags) posts[idx].tags = tags;
+    if (icon) posts[idx].icon = icon;
+    if (published !== undefined) posts[idx].published = published;
+    posts[idx].updatedAt = new Date().toISOString();
+    if (!posts[idx].date) posts[idx].date = new Date().toISOString().split('T')[0];
+    saveBlogPosts(posts);
+    res.json({ success: true, post: posts[idx] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /api/blog/:id (auth required)
+app.delete('/api/blog/:id', authGuard, (req, res) => {
+  try {
+    let posts = loadBlogPosts();
+    const idx = posts.findIndex(p => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Post not found' });
+    posts.splice(idx, 1);
+    saveBlogPosts(posts);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ═══ Admin Pages ═══
+app.get('/admin', (req, res) => {
+  res.redirect('/admin/blog');
+});
+app.get('/admin/blog', (req, res) => {
+  res.sendFile(join(dirname(fileURLToPath(import.meta.url)), 'admin', 'blog.html'));
+});
+app.get('/admin/subscribers', authGuard, (req, res) => {
+  try {
+    const f = join(dirname(fileURLToPath(import.meta.url)), 'data', 'subscribers.json');
+    const subs = fsSync.existsSync(f) ? JSON.parse(fsSync.readFileSync(f, 'utf-8')) : [];
+    res.json({ subscribers: subs });
+  } catch (e) { res.json({ subscribers: [] }); }
+});
+app.get('/admin/contacts', authGuard, (req, res) => {
+  try {
+    const f = join(dirname(fileURLToPath(import.meta.url)), 'data', 'contacts.json');
+    const cts = fsSync.existsSync(f) ? JSON.parse(fsSync.readFileSync(f, 'utf-8')) : [];
+    res.json({ contacts: cts });
+  } catch (e) { res.json({ contacts: [] }); }
+});
 
 function gracefulShutdown(signal) {
   console.log(`\n[RudraX WebUI] Shutting down (${signal})...`);
@@ -2054,11 +2405,11 @@ function startServer(port) {
     httpServer.listen(serverPort, () => {
       console.log('');
       console.log('  ╔══════════════════════════════════════════════╗');
-      console.log('  ║    🔱 RudraX Army v4.5.0 — 192 Agents 🔱  ║');
+      console.log('  ║    🔱 RudraX Army v4.5.0 - 349 Agents 🔱  ║');
       console.log('  ║    Build · Break · Deploy · Orchestrate      ║');
       console.log('  ╠══════════════════════════════════════════════╣');
       console.log(`  ║  http://localhost:${serverPort}                      ║`);
-      console.log('  ║  🤖 192 Agents  🎭 9 Squads  🧠 15 Capabilities  ║');
+      console.log('  ║  🤖 349 Agents  🎭 9 Squads  🧠 15 Capabilities  ║');
       console.log('  ╚══════════════════════════════════════════════╝');
       console.log('');
       console.log('  💡 Integrated Capabilities:');
@@ -2067,7 +2418,7 @@ function startServer(port) {
       console.log('     🕸️ Knowledge Graph · 🔧 Tool Registry · 💰 Cost Tracker');
       console.log('     ⏰ Scheduler · 🏆 Evaluator · 📦 Sandbox · 🖼️ Multi-Modal');
       console.log('');
-      console.log(`  🔱 RudraX v4.5.0 — Build · Break · Deploy · Orchestrate`);
+      console.log(`  🔱 RudraX v4.5.0 - Build · Break · Deploy · Orchestrate`);
       console.log(`  By Lalit Pandit | ॐ नमः शिवाय\n`);
       resolve(serverPort);
     });
@@ -2082,7 +2433,7 @@ const STUCK_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 setInterval(() => {
   for (const ctx of contexts.values()) {
     if (ctx.running && (Date.now() - ctx.lastActivity) > STUCK_TIMEOUT_MS) {
-      console.warn(`[RudraX] Context ${ctx.id} stuck for ${STUCK_TIMEOUT_MS / 1000}s — auto-recovering`);
+      console.warn(`[RudraX] Context ${ctx.id} stuck for ${STUCK_TIMEOUT_MS / 1000}s - auto-recovering`);
       ctx.running = false;
       ctx.lastActivity = Date.now();
       broadcastState(ctx);

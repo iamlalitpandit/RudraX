@@ -991,6 +991,8 @@ ${completedResults ? `Completed Results:\n${completedResults}` : ""}
 - When you complete a task, summarize the key result concisely.
 - Use agency_task_complete to report completion.
 - Use agency_task_status to check what's next.
+- **PERMANENT RULE — Agent Plan:** Every incoming user task MUST be auto-analyzed by agency_analyze (Agent Plan) FIRST, before any delegation or execution. This is mandatory, not optional.
+- **PERMANENT RULE — Agent QA:** After every task or group of tasks completes, dispatch a QA/testing agent via agency_dispatch to validate quality and requirement coverage.
 - For multi-domain tasks, use agency_analyze to break them down further.
 
 Available Tools: agency_analyze, agency_dispatch, agency_task_complete, agency_task_status, agency_report, agency_parallel_dispatch
@@ -1006,6 +1008,8 @@ Available Tools: agency_analyze, agency_dispatch, agency_task_complete, agency_t
 - For complex multi-domain tasks, use agency_analyze to create a plan with parallel execution lanes.
 - For single specialized tasks, use agency_dispatch to activate the right agent.
 - You are the 🔱 Chief of Staff — receive user prompts, forward to the 🎛️ Deputy Chief of Staff, monitor execution, and deliver consolidated results.
+- **PERMANENT RULE — Agent Plan:** Every incoming user task MUST be auto-analyzed by agency_analyze (Agent Plan) FIRST, before any delegation or execution. This is mandatory.
+- **PERMANENT RULE — Agent QA:** After every task or set of tasks completes, dispatch a QA/testing agent via agency_dispatch to validate quality.
 
 Available Tools: agency_analyze, agency_dispatch, agency_task_complete, agency_task_status, agency_report, agency_parallel_dispatch
 </rudrax-chief-of-staff-awareness>`;

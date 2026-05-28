@@ -609,6 +609,24 @@ export default function (pi: ExtensionAPI) {
   // Track the current context for memory operations
   let currentContextId: string = "";
 
+  /**
+   * Resolve a stable context id, with workspace-based CWD fallback when the
+   * harness does not expose session/contextId to API tool calls.
+   */
+  function resolveCtxId(ctx: any): string {
+    const explicit = ctx?.session?.id || ctx?.contextId || ctx?.sessionId ||
+      process.env.RUDRAX_CONTEXT_ID || process.env.HERMES_CONTEXT_ID || "";
+    if (explicit) return String(explicit);
+    const cwd = process.cwd?.() || os.homedir();
+    const project = path.basename(cwd) || "default";
+    const fallback = `cwd_${project.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+    const memPath = memoryPath(fallback);
+    if (!fs.existsSync(memPath)) {
+      initMemory(fallback, `Project ${project}`);
+    }
+    return fallback;
+  }
+
   // ─── /memory command ──────────────────────────────────────────
   pi.registerCommand("memory", {
     description: "Shared Memory: cross-agent coordination hub. Usage: /memory [status|log|tasks|decisions|blockers|handoffs|overview|reset] or /memory <write> <content>",
@@ -623,9 +641,9 @@ export default function (pi: ExtensionAPI) {
       const sub = parts[0];
 
       if (!currentContextId) {
-        // Try to detect from session
-        currentContextId = ctx.session?.id || ctx.contextId || "";
-        if (!currentContextId) {
+        currentContextId = resolveCtxId(ctx);
+      }
+      if (!currentContextId) {
           ctx.ui.notify("⚠️ No active context. Start a chat first to use shared memory.", "warn");
           return;
         }
@@ -805,12 +823,7 @@ export default function (pi: ExtensionAPI) {
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       if (!currentContextId) {
-        currentContextId = ctx.session?.id || ctx.contextId || "";
-      }
-      if (!currentContextId) {
-        return {
-          content: [{ type: "text", text: "⚠️ No active context. Start a chat first." }],
-        };
+        currentContextId = resolveCtxId(ctx);
       }
 
       const mem = readMemory(currentContextId);
@@ -988,12 +1001,7 @@ export default function (pi: ExtensionAPI) {
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       if (!currentContextId) {
-        currentContextId = ctx.session?.id || ctx.contextId || "";
-      }
-      if (!currentContextId) {
-        return {
-          content: [{ type: "text", text: "⚠️ No active context. Start a chat first." }],
-        };
+        currentContextId = resolveCtxId(ctx);
       }
 
       const agentName = ctx.agent?.name || "orchestrator";
@@ -1114,10 +1122,7 @@ export default function (pi: ExtensionAPI) {
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       if (!currentContextId) {
-        currentContextId = ctx.session?.id || ctx.contextId || "";
-      }
-      if (!currentContextId) {
-        return { content: [{ type: "text", text: "⚠️ No active context." }] };
+        currentContextId = resolveCtxId(ctx);
       }
 
       const mem = readMemory(currentContextId);

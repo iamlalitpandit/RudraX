@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog CMS - RudraX Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#121214;color:#e4e4e7;min-height:100vh}
+.admin-header{background:#1a1a1d;border-bottom:1px solid #333;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.admin-header h1{font-size:20px;color:#f5b342}
+.admin-header .nav{display:flex;gap:12px;align-items:center}
+.admin-header .nav a{color:#a1a1aa;text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;transition:all .2s}
+.admin-header .nav a:hover,.admin-header .nav a.active{background:#b4530920;color:#f5b342}
+.admin-header .logout{font-size:12px;color:#a1a1aa;cursor:pointer;padding:4px 10px;border-radius:4px;border:1px solid #333;background:transparent;transition:all .2s}
+.admin-header .logout:hover{color:#ef4444;border-color:#ef4444}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-primary{background:#b45309;color:#fff}
+.btn-primary:hover{background:#d97706}
+.btn-secondary{background:#27272a;color:#e4e4e7;border:1px solid #333}
+.btn-secondary:hover{background:#333}
+.btn-danger{background:#7f1d1d;color:#fca5a5}
+.btn-danger:hover{background:#991b1b}
+.btn-sm{padding:4px 10px;font-size:12px}
+.posts-grid{display:grid;gap:12px}
+.post-card{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .2s}
+.post-card:hover{border-color:#b4530940}
+.post-card .info{flex:1;min-width:0}
+.post-card .title{font-size:15px;font-weight:600;color:#e4e4e7;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.post-card .meta{font-size:12px;color:#71717a;display:flex;gap:12px;flex-wrap:wrap}
+.post-card .meta .cat{color:#f5b342}
+.post-card .meta .draft{color:#f87171;font-weight:600}
+.post-card .actions-card{display:flex;gap:6px;flex-shrink:0}
+.empty-state{text-align:center;padding:60px 20px;color:#71717a}
+.empty-state h3{font-size:18px;color:#a1a1aa;margin-bottom:8px}
+.form-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#000000cc;display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.form-overlay.open{display:flex}
+.form-panel{background:#18181b;border:1px solid #333;border-radius:12px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:28px}
+.form-panel h2{font-size:18px;color:#f5b342;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.form-panel .close{background:none;border:none;color:#71717a;font-size:24px;cursor:pointer;padding:0 4px}
+.form-panel .close:hover{color:#e4e4e7}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:#a1a1aa;margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #333;background:#121214;color:#e4e4e7;font-size:13px;outline:none;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#b45309}
+.form-group textarea{min-height:80px;resize:vertical;font-family:inherit}
+.form-group textarea.content-area{min-height:250px;font-family:monospace;font-size:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid #27272a}
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;background:#18181b;border-radius:8px;padding:4px;width:fit-content}
+.tab-bar button{padding:8px 16px;border:none;border-radius:6px;background:transparent;color:#a1a1aa;font-size:13px;cursor:pointer;transition:all .2s}
+.tab-bar button.active{background:#b45309;color:#fff}
+.tab-bar button:hover:not(.active){background:#27272a}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:20px;text-align:center}
+.stat-card .num{font-size:32px;font-weight:700;color:#f5b342}
+.stat-card .label{font-size:13px;color:#71717a;margin-top:4px}
+.contact-item{background:#18181b;border:1px solid #27272a;border-radius:8px;padding:12px 16px;margin-bottom:8px}
+.contact-item h4{font-size:14px;color:#e4e4e7;margin-bottom:2px}
+.contact-item p{font-size:12px;color:#71717a}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;background:#b4530915;color:#f5b342;font-size:11px;margin-right:4px;margin-bottom:2px}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:8px;color:#fff;font-size:13px;z-index:2000;opacity:0;transform:translateY(20px);transition:all .3s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:#166534}
+.toast.error{background:#7f1d1d}
+@media(max-width:640px){.form-paneL{padding:20px;margin:10px}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="admin-header">
+  <h1>⚡ RudraX Blog CMS</h1>
+  <div class="nav">
+    <a href="#" class="active" data-tab="posts">Posts</a>
+    <a href="#" data-tab="subscribers">Subscribers</a>
+    <a href="#" data-tab="contacts">Contacts</a>
+    <a href="#" data-tab="users">Users</a>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+<div class="container" id="app">
+  <div id="login-view">
+    <div style="max-width:380px;margin:80px auto;text-align:center">
+      <h2 style="color:#f5b342;margin-bottom:8px">Admin Login</h2>
+      <p style="color:#71717a;font-size:13px;margin-bottom:24px">Enter your WebUI credentials</p>
+      <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:24px">
+        <div class="form-group">
+          <label>Username</label>
+          <input id="login-user" type="text" placeholder="admin" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="login-pass" type="password" placeholder="password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="login()">Login</button>
+        <p id="login-error" style="color:#ef4444;font-size:12px;margin-top:8px;display:none"></p>
+      </div>
+    </div>
+  </div>
+  <div id="dashboard-view" style="display:none">
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="active" data-tab="posts" onclick="switchTab('posts')">📝 Posts</button>
+      <button data-tab="subscribers" onclick="switchTab('subscribers')">📧 Subscribers</button>
+      <button data-tab="contacts" onclick="switchTab('contacts')">📬 Contacts</button>
+      <button data-tab="users" onclick="switchTab('users')">🔑 Users</button>
+    </div>
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid"></div>
+    <!-- Posts Tab -->
+    <div class="tab-content active" id="tab-posts">
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openEditor()">+ New Post</button>
+        <button class="btn btn-secondary" onclick="loadPosts()">🔄 Refresh</button>
+      </div>
+      <div class="posts-grid" id="posts-list"></div>
+    </div>
+    <!-- Subscribers Tab -->
+    <div class="tab-content" id="tab-subscribers">
+      <div class="posts-grid" id="subs-list"></div>
+    </div>
+    <!-- Contacts Tab -->
+    <div class="tab-content" id="tab-contacts">
+      <div class="posts-grid" id="contacts-list"></div>
+    </div>
+    <!-- Users Tab -->
+    <div class="tab-content" id="tab-users">
+      <div class="stats-grid" id="users-stats"></div>
+      <div style="max-width:500px;margin:0 auto">
+        <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:24px;margin-bottom:16px">
+          <h3 style="color:#f5b342;font-size:15px;margin-bottom:16px">🔑 Change Password</h3>
+          <div class="form-group">
+            <label>Current Password</label>
+            <input id="user-current-pass" type="password" placeholder="Enter current password">
+          </div>
+          <div class="form-group">
+            <label>New Password</label>
+            <input id="user-new-pass" type="password" placeholder="Enter new password (min 4 chars)">
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input id="user-confirm-pass" type="password" placeholder="Confirm new password">
+          </div>
+          <button class="btn btn-primary" onclick="changePassword()" id="change-pass-btn">Update Password</button>
+          <p id="pass-msg" style="font-size:12px;margin-top:8px"></p>
+        </div>
+        <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:24px">
+          <h3 style="color:#f5b342;font-size:15px;margin-bottom:16px">👤 Account Info</h3>
+          <div style="font-size:13px;color:#a1a1aa;line-height:1.8">
+            <div><strong style="color:#e4e4e7">Username:</strong> <span id="user-username">admin</span></div>
+            <div><strong style="color:#e4e4e7">Role:</strong> Administrator</div>
+            <div><strong style="color:#e4e4e7">Token:</strong> <span style="font-size:11px;color:#71717a" id="user-token-preview">••••••••</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Post Editor Overlay -->
+<div class="form-overlay" id="editor-overlay">
+  <div class="form-panel">
+    <h2><span id="editor-title">New Post</span><button class="close" onclick="closeEditor()">&times;</button></h2>
+    <form id="post-form" onsubmit="savePost(event)">
+      <input type="hidden" id="post-id">
+      <div class="form-group">
+        <label>Post Title *</label>
+        <input id="post-title" required placeholder="Enter post title">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Author</label>
+          <input id="post-author" placeholder="Lalit Pandit">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="post-category">
+            <option value="AI Agents">AI Agents</option>
+            <option value="SEO / GEO">SEO / GEO</option>
+            <option value="Automation">Automation</option>
+            <option value="Web Development">Web Development</option>
+            <option value="App Development">App Development</option>
+            <option value="Cloud Hosting">Cloud Hosting</option>
+            <option value="Business">Business</option>
+            <option value="General" selected>General</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Excerpt (short summary for listings)</label>
+        <textarea id="post-excerpt" rows="2" placeholder="Brief description of the post..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Content (HTML) *</label>
+        <textarea id="post-content" class="content-area" required placeholder="Write your post content in HTML..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tags (comma-separated)</label>
+          <input id="post-tags" placeholder="AI, Automation, Business">
+        </div>
+        <div class="form-group">
+          <label>Icon (lucide icon name)</label>
+          <input id="post-icon" placeholder="Bot, Search, BarChart3" value="FileText">
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;gap:8px;align-items:center">
+        <input type="checkbox" id="post-published" checked style="width:auto">
+        <label for="post-published" style="margin:0">Published (visible on blog)</label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="editor-save-btn">Save Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const BASE = '/api';
+let token = localStorage.getItem('rudrax_token') || '';
+
+function getHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+  };
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(BASE + path, { ...opts, headers: { ...getHeaders(), ...opts.headers } });
+  if (res.status === 401) { showLogin(); throw new Error('Unauthorized'); }
+  return res.json();
+}
+
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showLogin() {
+  document.getElementById('login-view').style.display = '';
+  document.getElementById('dashboard-view').style.display = 'none';
+}
+
+async function login() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  const err = document.getElementById('login-error');
+  if (!user || !pass) { err.textContent = 'Enter credentials'; err.style.display = ''; return; }
+  try {
+    const data = await api('/login', { method: 'POST', body: JSON.stringify({ username: user, password: pass }), headers: { 'Content-Type': 'application/json' } });
+    if (data.token) {
+      token = data.token;
+      localStorage.setItem('rudrax_token', token);
+      err.style.display = 'none';
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('dashboard-view').style.display = '';
+      initDashboard();
+    } else {
+      err.textContent = 'Login failed';
+      err.style.display = '';
+    }
+  } catch(e) {
+    err.textContent = 'Connection error';
+    err.style.display = '';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('rudrax_token');
+  token = '';
+  showLogin();
+}
+
+// Dashboard
+async function initDashboard() {
+  document.getElementById('user-username').textContent = JSON.parse(atob(token.split('.')[1])).sub || 'admin';
+  await Promise.all([loadPosts(), loadSubscribers(), loadContacts()]);
+}
+
+async function loadStats() {
+  try {
+    const [posts, subs, contacts] = await Promise.all([
+      api('/blog/admin/all'), api('/admin/subscribers'), api('/admin/contacts')
+    ]);
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="stat-card"><div class="num">${posts.posts.length}</div><div class="label">Total Posts</div></div>
+      <div class="stat-card"><div class="num">${subs.subscribers.length}</div><div class="label">Subscribers</div></div>
+      <div class="stat-card"><div class="num">${contacts.contacts.length}</div><div class="label">Contacts</div></div>
+      <div class="stat-card"><div class="num">${posts.posts.filter(p=>p.published).length}</div><div class="label">Published</div></div>
+    `;
+  } catch(e) { console.error('Stats error', e); }
+}
+
+async function loadPosts() {
+  try {
+    const data = await api('/blog/admin/all');
+    const posts = data.posts || [];
+    let html = '';
+    posts.forEach(p => {
+      html += '<div class="post-card">' +
+        '<div class="info">' +
+        '<div class="title">' + escapeHtml(p.title) + '</div>' +
+        '<div class="meta">' +
+        '<span class="cat">' + escapeHtml(p.category || 'General') + '</span>' +
+        '<span>' + (p.date || '') + '</span>' +
+        '<span>' + (p.readTime || '') + '</span>' +
+        (p.published ? '' : '<span class="draft">DRAFT</span>') +
+        (p.tags ? p.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') : '') +
+        '</div></div>' +
+        '<div class="actions-card">' +
+        '<button class="btn btn-secondary btn-sm" onclick="openEditor(\'' + p.id + '\')">✏️</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deletePost(\'' + p.id + '\',\'' + escapeHtml(p.title) + '\')">🗑️</button>' +
+        '</div></div>';
+    });
+    document.getElementById('posts-list').innerHTML = html || '<div class="empty-state"><h3>No posts yet</h3><p>Create your first blog post!</p></div>';
+    loadStats();
+  } catch(e) { toast('Failed to load posts', 'error'); }
+}
+
+async function loadSubscribers() {
+  try {
+    const data = await api('/admin/subscribers');
+    const subs = data.subscribers || [];
+    let html = subs.map(s => '<div class="contact-item"><h4>' + escapeHtml(s.email) + '</h4><p>Subscribed: ' + new Date(s.subscribedAt).toLocaleString() + '</p></div>').join('');
+    document.getElementById('subs-list').innerHTML = html || '<div class="empty-state"><h3>No subscribers yet</h3></div>';
+    loadStats();
+  } catch(e) { document.getElementById('subs-list').innerHTML = '<div class="empty-state"><h3>Error loading subscribers</h3></div>'; }
+}
+
+async function loadContacts() {
+  try {
+    const data = await api('/admin/contacts');
+    const contacts = data.contacts || [];
+    let html = contacts.map(c => '<div class="contact-item"><h4>' + escapeHtml(c.name) + ' (' + escapeHtml(c.email) + ')' + '</h4><p>' + escapeHtml(c.company || '') + ' - ' + escapeHtml(c.service || 'General') + '</p><p style="margin-top:4px">' + escapeHtml((c.message || '').substring(0,200)) + '</p><p style="font-size:11px;color:#52525b;margin-top:4px">' + new Date(c.timestamp).toLocaleString() + '</p></div>').join('');
+    document.getElementById('contacts-list').innerHTML = html || '<div class="empty-state"><h3>No contacts yet</h3></div>';
+    loadStats();
+  } catch(e) { document.getElementById('contacts-list').innerHTML = '<div class="empty-state"><h3>Error loading contacts</h3></div>'; }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-bar button, .tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelector('.tab-bar button[data-tab="' + tab + '"]').classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+  document.querySelector('.nav a[data-tab="' + tab + '"]')?.classList.add('active');
+}
+
+// Editor
+async function openEditor(postId) {
+  document.getElementById('editor-title').textContent = postId ? 'Edit Post' : 'New Post';
+  document.getElementById('editor-save-btn').textContent = postId ? 'Update Post' : 'Create Post';
+  document.getElementById('post-id').value = postId || '';
+  if (postId) {
+    try {
+      const data = await api('/blog/admin/all');
+      const post = (data.posts || []).find(p => p.id === postId);
+      if (!post) { toast('Post not found', 'error'); return; }
+      document.getElementById('post-title').value = post.title || '';
+      document.getElementById('post-author').value = post.author || '';
+      document.getElementById('post-category').value = post.category || 'General';
+      document.getElementById('post-excerpt').value = post.excerpt || '';
+      document.getElementById('post-content').value = post.content || '';
+      document.getElementById('post-tags').value = (post.tags || []).join(', ');
+      document.getElementById('post-icon').value = post.icon || 'FileText';
+      document.getElementById('post-published').checked = post.published !== false;
+    } catch(e) { toast('Failed to load post', 'error'); return; }
+  } else {
+    document.getElementById('post-form').reset();
+    document.getElementById('post-published').checked = true;
+  }
+  document.getElementById('editor-overlay').classList.add('open');
+}
+
+function closeEditor() {
+  document.getElementById('editor-overlay').classList.remove('open');
+}
+
+async function savePost(e) {
+  e.preventDefault();
+  const id = document.getElementById('post-id').value;
+  const data = {
+    title: document.getElementById('post-title').value.trim(),
+    author: document.getElementById('post-author').value.trim(),
+    category: document.getElementById('post-category').value,
+    excerpt: document.getElementById('post-excerpt').value.trim(),
+    content: document.getElementById('post-content').value,
+    tags: document.getElementById('post-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    icon: document.getElementById('post-icon').value.trim() || 'FileText',
+    published: document.getElementById('post-published').checked,
+  };
+  try {
+    if (id) {
+      await api('/blog/' + id, { method: 'PUT', body: JSON.stringify(data) });
+      toast('Post updated!');
+    } else {
+      await api('/blog', { method: 'POST', body: JSON.stringify(data) });
+      toast('Post created!');
+    }
+    closeEditor();
+    loadPosts();
+  } catch(e) { toast('Failed to save post', 'error'); }
+}
+
+async function deletePost(id, title) {
+  if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+  try {
+    await api('/blog/' + id, { method: 'DELETE' });
+    toast('Post deleted');
+    loadPosts();
+  } catch(e) { toast('Failed to delete', 'error'); }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// User Management
+async function changePassword() {
+  const current = document.getElementById('user-current-pass').value.trim();
+  const newPass = document.getElementById('user-new-pass').value.trim();
+  const confirm = document.getElementById('user-confirm-pass').value.trim();
+  const msg = document.getElementById('pass-msg');
+  const btn = document.getElementById('change-pass-btn');
+
+  if (!current) { msg.style.color = '#ef4444'; msg.textContent = 'Enter current password'; return; }
+  if (!newPass || newPass.length < 4) { msg.style.color = '#ef4444'; msg.textContent = 'New password must be at least 4 characters'; return; }
+  if (newPass !== confirm) { msg.style.color = '#ef4444'; msg.textContent = 'Passwords do not match'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Updating...';
+  msg.textContent = '';
+
+  try {
+    const data = await api('/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+    });
+    if (data.ok) {
+      msg.style.color = '#22c55e';
+      msg.textContent = '✅ Password changed! Use your new password on next login.';
+      document.getElementById('user-current-pass').value = '';
+      document.getElementById('user-new-pass').value = '';
+      document.getElementById('user-confirm-pass').value = '';
+      // Log out after password change for security
+      setTimeout(() => { logout(); }, 3000);
+    } else {
+      msg.style.color = '#ef4444';
+      msg.textContent = data.error || 'Failed to change password';
+    }
+  } catch(e) {
+    msg.style.color = '#ef4444';
+    msg.textContent = 'Connection error. Server might be offline.';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Update Password';
+}
+
+// Auto-login if token exists
+if (token) {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = '';
+  initDashboard();
+}
+
+// Keyboard shortcut: Escape to close editor
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditor(); });
+</script>
+</body>
+</html>

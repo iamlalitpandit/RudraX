@@ -1,5 +1,5 @@
 /**
- * RudraX Web UI — Agency Edition v4.1.0 🔱
+ * RudraX Web UI — Agency Edition v4.5.0 🔱
  * Rudraksh Theme · Incremental Rendering · Socket.IO Streaming
  * Build · Break · Deploy · Orchestrate
  * By Lalit Pandit
@@ -15,6 +15,9 @@ const CONFIG = {
   STREAM_DEBOUNCE: 32,   // ~30fps for smooth streaming
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
   APP_VERSION: 'v4.5.0',
+  AGENT_COUNT: 349,
+  SQUAD_COUNT: 9,
+  CATEGORY_COUNT: 45,
 };
 
 // ═══ Command Registry ═════════════════════════════════════════════════════════
@@ -120,6 +123,83 @@ const state = {
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+// ═══ Display Normalization & Command Hierarchy Labels ═══════════════════════
+
+const HIERARCHY_STAGES = [
+  { icon: '🔱', title: 'Chief of Staff', desc: 'Receives intent, protects scope, delegates execution' },
+  { icon: '🎛️', title: 'Deputy Chief of Staff', desc: 'Decomposes tasks, deploys lanes, monitors handoffs' },
+  { icon: '👷', title: 'Specialist Agents', desc: 'Execute domain work through focused profiles' },
+  { icon: '✅', title: 'Quality Gates', desc: 'Review, test, approve, or route back for fixes' },
+  { icon: '📋', title: 'Consolidated Report', desc: 'Returns one clear result with artifacts and memory' },
+];
+
+function toTitleCase(value = '') {
+  return value
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function profileDisplayName(agentOrName = '') {
+  const skillName = typeof agentOrName === 'string'
+    ? agentOrName
+    : (agentOrName.skillName || agentOrName.id || agentOrName.name || 'agent');
+
+  const cleaned = skillName
+    .replace(/^(engineering|marketing|design|testing|product|project-management|finance|legal|support|paid-media|specialized|academic|healthcare|game|unity|unreal|godot|roblox|seo)[-_]/, '')
+    .replace(/[-_](agent|specialist|developer|engineer|architect|manager|designer|analyst|strategist|auditor|reviewer|operator|creator|builder|researcher|tester|maintainer|automator)$/i, ' $1');
+
+  return toTitleCase(cleaned)
+    .replace(/\bAi\b/g, 'AI')
+    .replace(/\bMl\b/g, 'ML')
+    .replace(/\bApi\b/g, 'API')
+    .replace(/\bUi\b/g, 'UI')
+    .replace(/\bUx\b/g, 'UX')
+    .replace(/\bSeo\b/g, 'SEO')
+    .replace(/\bDevops\b/g, 'DevOps')
+    .replace(/\bMcp\b/g, 'MCP')
+    .replace(/\bPpc\b/g, 'PPC')
+    .replace(/\bLlm\b/g, 'LLM')
+    .replace(/\bRag\b/g, 'RAG')
+    .replace(/\bBci\b/g, 'BCI')
+    .replace(/\bXr\b/g, 'XR')
+    .replace(/\bWeb3\b/g, 'Web3');
+}
+
+function formatCategoryLabel(category = 'general') {
+  return toTitleCase(category).replace(/\bAi\b/g, 'AI').replace(/\bMl\b/g, 'ML');
+}
+
+function renderCommandHierarchy() {
+  const rail = $('#hierarchy-rail');
+  if (!rail) return;
+  rail.innerHTML = HIERARCHY_STAGES.map((stage, index) => `
+    <div class="hierarchy-step">
+      <div class="hierarchy-step-index">${index + 1}</div>
+      <div class="hierarchy-step-icon">${stage.icon}</div>
+      <div class="hierarchy-step-body">
+        <div class="hierarchy-step-title">${stage.title}</div>
+        <div class="hierarchy-step-desc">${stage.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function refreshOrchestrationMemorySummary() {
+  const summary = $('#orch-memory-summary');
+  if (!summary) return;
+  const plan = state.orchestrator.activePlan;
+  const historyCount = state.orchestrator.taskHistory?.length || 0;
+  const activityCount = state.activityLog.length;
+  const activeAgent = state.orchestrator.activeAgent ? profileDisplayName(state.orchestrator.activeAgent) : 'None';
+  summary.innerHTML = `
+    <div><strong>${plan ? 'Active' : 'Idle'}</strong> plan state</div>
+    <div>${historyCount} completed task records · ${activityCount} activity events</div>
+    <div>Current specialist: ${escapeHtml(activeAgent)}</div>
+  `;
+}
+
 // ═══ Initialization ═══════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -135,8 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAgents();
   loadSquads();
   initDragDrop();
+  renderCommandHierarchy();
+  refreshOrchestrationMemorySummary();
   adjustTextareaHeight($('#chat-input'));
-  updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+  updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
   updateStatusBar('idle');
   setTimeout(loadCapabilities, 1000); // Load capabilities after auth
 });
@@ -243,8 +325,10 @@ async function handleLogin(event) {
     loadAgents();
     loadSquads();
     initDragDrop();
+    renderCommandHierarchy();
+    refreshOrchestrationMemorySummary();
     adjustTextareaHeight($('#chat-input'));
-    updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+    updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     updateStatusBar('idle');
 
     // Show app AFTER init
@@ -486,7 +570,7 @@ function applySnapshot(snapshot) {
     updateTopStatusBar('working', state.currentTask || 'Processing your request...');
   } else if (!state.running && wasRunning) {
     updateStatusBar('completed');
-    updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+    updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     // Reset after a moment
     setTimeout(() => {
       if (!state.running) updateStatusBar('idle');
@@ -694,7 +778,7 @@ async function newContext() {
     hideWelcome();
     clearMessages();
     updateChatTitle(data.name || 'New Chat');
-    updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+    updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     updateStatusBar('idle');
     renderContextsList();
     if (state.socket?.connected) {
@@ -720,7 +804,7 @@ async function selectContext(contextId) {
   clearMessages();
   updateChatTitle(getContextName(contextId));
   updateStatusBar('idle');
-  updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+  updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
   localStorage.setItem('rudrax-last-context', contextId);
   if (state.socket?.connected) {
     state.socket.emit('state_request', { context: state.context });
@@ -740,7 +824,7 @@ async function deleteContext(contextId, event) {
       state._renderedIds.clear();
       showWelcome();
       updateStatusBar('idle');
-      updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+      updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     }
     renderContextsList();
   } catch (err) {
@@ -797,7 +881,7 @@ function renderAgentCategories() {
       <span class="agent-cat-chip ${state.agentCategoryFilter === cat ? 'active' : ''}"
             onclick="filterAgentCategory('${cat}')"
             style="${state.agentCategoryFilter === cat ? `border-color:${info.color};color:${info.color}` : ''}">
-        ${cat} (${info.count})
+        ${formatCategoryLabel(cat)} (${info.count})
       </span>
     `).join('')}
   `;
@@ -823,7 +907,7 @@ function renderAgentsList() {
   }
   if (state.agentFilter) {
     agents = agents.filter(a =>
-      a.name.toLowerCase().includes(state.agentFilter) ||
+      profileDisplayName(a).toLowerCase().includes(state.agentFilter) ||
       a.description.toLowerCase().includes(state.agentFilter) ||
       a.skillName.toLowerCase().includes(state.agentFilter)
     );
@@ -837,9 +921,9 @@ function renderAgentsList() {
          onclick="activateAgent('${agent.skillName}')" title="${escapeHtml(agent.vibe || agent.description)}">
       <div class="agent-item-emoji">${agent.emoji}</div>
       <div class="agent-item-info">
-        <div class="agent-item-name">${escapeHtml(agent.name)}</div>
+        <div class="agent-item-name">${escapeHtml(profileDisplayName(agent))}</div>
         <div class="agent-item-desc">${escapeHtml(agent.description.substring(0, 80))}</div>
-        <span class="agent-item-category" style="color:${getCatColor(agent.category)}">${agent.category}</span>
+        <span class="agent-item-category" style="color:${getCatColor(agent.category)}">${formatCategoryLabel(agent.category)}</span>
       </div>
     </div>
   `).join('');
@@ -855,7 +939,20 @@ function getCatColor(category) {
     'spatial-computing': 'var(--cat-spatial-computing)',
     'project-management': 'var(--cat-project-management)',
     product: 'var(--cat-product)', finance: 'var(--cat-finance)',
-    academic: 'var(--cat-academic)',
+    academic: 'var(--cat-academic)', general: 'var(--cat-general)',
+    healthcare: 'var(--cat-healthcare)', government: 'var(--cat-government)',
+    legal: 'var(--cat-legal)', hospitality: 'var(--cat-hospitality)',
+    retail: 'var(--cat-retail)', hr: 'var(--cat-hr)',
+    realestate: 'var(--cat-realestate)', recruitment: 'var(--cat-recruitment)',
+    'supply-chain': 'var(--cat-supply-chain)', bioinformatics: 'var(--cat-bioinformatics)',
+    'drug-discovery': 'var(--cat-drug-discovery)',
+    'fitness-nutrition': 'var(--cat-fitness-nutrition)',
+    music: 'var(--cat-music)', game: 'var(--cat-game)',
+    media: 'var(--cat-media)', osint: 'var(--cat-osint)',
+    'ai-ml': 'var(--cat-ai-ml)', 'data-science': 'var(--cat-data-science)',
+    mlops: 'var(--cat-mlops)', productivity: 'var(--cat-productivity)',
+    research: 'var(--cat-research)', cloud: 'var(--cat-cloud)',
+    robotics: 'var(--cat-robotics)', iot: 'var(--cat-iot)',
   };
   return colors[category] || '#78909c';
 }
@@ -880,7 +977,7 @@ function renderSquadsList() {
       </div>
       <div class="squad-card-desc">${escapeHtml(squad.description)}</div>
       <div class="squad-card-agents">
-        ${squad.agents.slice(0, 5).map(a => `<span class="squad-agent-chip">${a.split('-').pop()}</span>`).join('')}
+        ${squad.agents.slice(0, 5).map(a => `<span class="squad-agent-chip">${escapeHtml(profileDisplayName(a))}</span>`).join('')}
         ${squad.agents.length > 5 ? `<span class="squad-agent-chip">+${squad.agents.length - 5}</span>` : ''}
       </div>
     </div>
@@ -901,8 +998,8 @@ async function activateAgent(skillName) {
       state.activeAgent = skillName;
       updateActiveAgentBadge(skillName);
       renderAgentsList();
-      showToast(`✅ Agent ${skillName} activated`, 'success');
-      addAgentActivity({ ts: Date.now(), type: 'system', agent: skillName, content: 'Agent activated', action: 'activate' });
+      showToast(`✅ ${profileDisplayName(skillName)} activated`, 'success');
+      addAgentActivity({ ts: Date.now(), type: 'system', agent: skillName, content: 'Specialist profile activated', action: 'activate' });
     }
   } catch (err) {
     showToast('Failed to activate agent', 'error');
@@ -960,7 +1057,7 @@ function updateActiveAgentBadge(agentName) {
     const emoji = $('#badge-emoji');
     const name = $('#badge-name');
     if (emoji) emoji.textContent = agent?.emoji || '🤖';
-    if (name) name.textContent = agent?.name || agentName;
+    if (name) name.textContent = profileDisplayName(agent || agentName);
     badge.style.display = 'flex';
   } else {
     badge.style.display = 'none';
@@ -1106,13 +1203,14 @@ function renderOrchestratorPanel() {
     if (card) {
       card.innerHTML = `
         <span class="orch-agent-emoji">${agent?.emoji || '🤖'}</span>
-        <span class="orch-agent-name">${agent?.name || state.orchestrator.activeAgent}</span>
+        <span class="orch-agent-name">${escapeHtml(profileDisplayName(agent || state.orchestrator.activeAgent))}</span>
       `;
     }
   } else if (agentSection) {
     agentSection.style.display = 'none';
   }
   renderOrchTaskLog();
+  refreshOrchestrationMemorySummary();
 }
 
 function renderOrchLanes(lanes) {
@@ -1133,7 +1231,7 @@ function renderOrchLanes(lanes) {
           <div class="orch-task-card">
             <span class="orch-task-status ${task.status || 'pending'}"></span>
             <span class="orch-task-name">${escapeHtml(task.description || task.task || 'Task')}</span>
-            ${task.agent ? `<span class="orch-task-agent">${task.agent.split('-').pop()}</span>` : ''}
+            ${task.agent ? `<span class="orch-task-agent">${escapeHtml(profileDisplayName(task.agent))}</span>` : ''}
           </div>
         `).join('')}
       </div>
@@ -1202,7 +1300,7 @@ async function stopOrchestration() {
     if (state.orchestrator.activePlan) state.orchestrator.activePlan.status = 'stopped';
     renderOrchestratorPanel();
     updateStatusBar('idle');
-    updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+    updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     showToast('⏹ Orchestration stopped', 'info');
   } catch (err) { /* Ignore */ }
 }
@@ -1215,7 +1313,7 @@ async function resetOrchestrator() {
     state.orchestrator.taskHistory = [];
     state.currentTask = '';
     updateStatusBar('idle');
-    updateTopStatusBar('idle', '🔱 RudraX-Chief of Staff — Awaiting command');
+    updateTopStatusBar('idle', '🔱 RudraX Chief of Staff — Awaiting command');
     renderOrchestratorPanel();
     showToast('↺ Orchestrator reset', 'info');
   } catch (err) { /* Ignore */ }
@@ -1264,7 +1362,7 @@ function addAgentActivity(event) {
   if (!body) return;
 
   const ts = event.ts ? formatISTTime(event.ts) : '';
-  const agent = escapeHtml(event.agent || 'system');
+  const agent = escapeHtml(profileDisplayName(event.agent || 'system'));
   const content = escapeHtml((event.content || '').slice(0, 200));
   const action = escapeHtml(event.action || event.type || '');
 
@@ -1715,8 +1813,8 @@ function renderLogMessage(log) {
 
     case 'response':
       const senderLabel = log.agentName
-        ? (log.squadName ? `${log.agentName} (${log.squadName})` : log.agentName)
-        : 'RudraX-Chief of Staff';
+        ? (log.squadName ? `${profileDisplayName(log.agentName)} (${log.squadName})` : profileDisplayName(log.agentName))
+        : 'RudraX Chief of Staff';
       return `
         <div class="message response${isStreaming}" id="msg-${log.id}">
           <div class="message-avatar">${log.agentName ? '🤖' : '🔥'}</div>
@@ -2035,18 +2133,29 @@ function formatISTTime(timestamp) {
 function initTheme() {
   const saved = localStorage.getItem('rudrax-theme');
   if (saved) state.theme = saved;
-  applyTheme();
+  if (state.theme === 'auto') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      const cur = localStorage.getItem('rudrax-theme');
+      if (cur === 'auto') applyTheme(e.matches ? 'dark' : 'light');
+    });
+  } else {
+    applyTheme(state.theme);
+  }
 }
 
 function setTheme(theme) {
   state.theme = theme;
   localStorage.setItem('rudrax-theme', theme);
-  applyTheme();
+  initTheme();
 }
 
-function applyTheme() {
+function applyTheme(theme) {
+  if (theme) state.theme = theme;
   document.body.classList.toggle('light-mode', state.theme === 'light');
   document.body.classList.toggle('dark-mode', state.theme !== 'light');
+  document.documentElement.className = state.theme === 'dark' ? 'dark-mode' : 'light-mode';
 }
 
 // ═══ Font Size ═════════════════════════════════════════════════════════════
@@ -2064,10 +2173,44 @@ function initKeyboardShortcuts() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); newContext(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleSidebar(); }
     if ((e.ctrlKey || e.metaKey) && e.key === '`') { e.preventDefault(); toggleTerminal(); }
-    if (e.key === 'Escape') { closeSettings(); hideCommandSuggestions(); closeSteerPanel(); }
-    // Ctrl+U for file upload
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openCommandPalette(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === ',') { e.preventDefault(); openSettings(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l') { e.preventDefault(); if (state.logs.length > 0) clearMessages(); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'u') { e.preventDefault(); triggerFileUpload(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'o' || e.key === 'O')) { e.preventDefault(); toggleOrchMinimize(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) { e.preventDefault(); toggleActivityExpand(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'e' || e.key === 'E')) { e.preventDefault(); exportSession(); }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); switchSidebarTab('security'); }
+    if (e.key === 'Escape') { closeSettings(); hideCommandSuggestions(); closeSteerPanel(); closeCommandPalette(); closeShortcutsOverlay(); closeNotificationCenter(); }
+    if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); openShortcutsOverlay(); }
   });
+
+  // Init command palette, shortcuts overlay, and resizable panels
+  const cmdInput = $('#cmd-palette-input');
+  if (cmdInput) {
+    cmdInput.addEventListener('input', (e) => filterCommandPalette(e.target.value));
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); cmdPaletteSelectedIndex = Math.min(cmdPaletteSelectedIndex + 1, cmdPaletteResults.length - 1); renderCommandPaletteResults(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); cmdPaletteSelectedIndex = Math.max(cmdPaletteSelectedIndex - 1, 0); renderCommandPaletteResults(); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (cmdPaletteResults.length > 0) executeCommandPaletteItem(cmdPaletteSelectedIndex); }
+    });
+  }
+  // Init command palette overlay click-to-close
+  const cpOverlay = $('#command-palette');
+  if (cpOverlay) cpOverlay.addEventListener('click', (e) => { if (e.target === cpOverlay) closeCommandPalette(); });
+  // Init shortcuts overlay click-to-close
+  const scOverlay = $('#shortcuts-overlay');
+  if (scOverlay) scOverlay.addEventListener('click', (e) => { if (e.target === scOverlay) closeShortcutsOverlay(); });
+  // Init resizable panels
+  initResizablePanels();
+  // Init security dashboard if tab exists
+  if (document.getElementById('tab-security')) initSecurityDashboard();
+  // Welcome notifications
+  setTimeout(() => {
+      addNotification('🛡️ Security Dashboard', 'Live threat monitoring active', '🛡️');
+      addNotification('⌨️ Press ?', 'for keyboard shortcuts', '⌨️');
+      setTimeout(() => addNotification('🔱 RudraX v4.5.0', '15 advanced agentic capabilities loaded', '🧠'), 4000);
+    }, 2000);
 }
 
 // ═══ Input Handling ════════════════════════════════════════════════════════
@@ -2461,11 +2604,11 @@ async function openMemoryRaw() {
 // ═══ Fallback: Polling starts once app is shown ═══════════════════════════
 
 // Log startup
-console.log('%c🔱 RudraX Army v4.1.0 %c— Build · Break · Deploy by Lalit Pandit',
+console.log('%c🔱 RudraX Army v4.5.0 %c— Build · Break · Deploy by Lalit Pandit',
   'color: #d4a843; font-size: 16px; font-weight: bold;',
   'color: #9e978f;');
-console.log('%c179 Agents %c| %cॐ नमः शिवाय',
-  'color: #d4a843;', 'color: #9e978f;', 'color: #d4a843;');
+console.log('%c349 Agents %c| %c45 Categories %c| %c9 Squads %c| %cॐ नमः शिवाय',
+  'color: #d4a843;', 'color: #9e978f;', 'color: #e67e22;', 'color: #9e978f;', 'color: #27ae60;', 'color: #9e978f;', 'color: #d4a843;');
 // ═════════════════════════════════════════════════════════════════════════
 // 🆕 COMMAND PALETTE — Ctrl+K / Cmd+K
 // ═════════════════════════════════════════════════════════════════════════
@@ -2912,157 +3055,10 @@ function makeResizable(panel, handle, prop, dir) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════
-// 🆕 AUTO THEME (System Preference)
+// 🆕 INITIALIZATION PATCHES — merged into initKeyboardShortcuts
+// These extra shortcuts and UI inits are now handled inside initKeyboardShortcuts()
+// and the DOMContentLoaded handler to avoid duplicate event listeners.
 // ═════════════════════════════════════════════════════════════════════════
-
-function initAutoTheme() {
-  const savedTheme = localStorage.getItem('rudrax-theme') || 'dark';
-  if (savedTheme === 'auto') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    applyTheme(prefersDark ? 'dark' : 'light');
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (localStorage.getItem('rudrax-theme') === 'auto') {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    });
-  } else {
-    applyTheme(savedTheme);
-  }
-}
-
-function applyTheme(theme) {
-  document.documentElement.className = theme === 'dark' ? 'dark-mode' : 'light-mode';
-  state.theme = theme;
-}
-
-// ═════════════════════════════════════════════════════════════════════════
-// 🆕 OVERRIDE initKeyboardShortcuts with new shortcuts
-// ═════════════════════════════════════════════════════════════════════════
-
-// Patch into the existing initKeyboardShortcuts by overriding
-// We keep the original handler and add our shortcuts
-(function patchKeyboardShortcuts() {
-  const origInit = window.initKeyboardShortcuts;
-  const origHandler = document.addEventListener;
-
-  // We'll add our shortcuts after DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', () => {
-    // Add extra keyboard shortcuts
-    const extraShortcuts = (e) => {
-      // Ctrl+K — Command Palette
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        openCommandPalette();
-      }
-      // ? — Show keyboard shortcuts (when not in input)
-      if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        openShortcutsOverlay();
-      }
-      // Ctrl+, — Settings
-      if ((e.ctrlKey || e.metaKey) && e.key === ',') {
-        e.preventDefault();
-        openSettings();
-      }
-      // Ctrl+L — Clear chat
-      if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
-        e.preventDefault();
-        if (state.logs.length > 0) clearMessages();
-      }
-      // Ctrl+Shift+O — Toggle Orchestrator
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'o' || e.key === 'O')) {
-        e.preventDefault();
-        toggleOrchMinimize();
-      }
-      // Ctrl+Shift+A — Toggle Agent Activity
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
-        e.preventDefault();
-        toggleActivityExpand();
-      }
-      // Ctrl+Shift+E — Export Session
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
-        e.preventDefault();
-        exportSession();
-      }
-      // Ctrl+Shift+S — Toggle Security Dashboard
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) {
-        e.preventDefault();
-        switchSidebarTab('security');
-      }
-      // Escape — Close overlays
-      if (e.key === 'Escape') {
-        if (!$('#command-palette')?.classList.contains('hidden')) {
-          closeCommandPalette();
-        }
-        if (!$('#shortcuts-overlay')?.classList.contains('hidden')) {
-          closeShortcutsOverlay();
-        }
-        if (!$('#notification-center')?.classList.contains('hidden')) {
-          closeNotificationCenter();
-        }
-      }
-    };
-    document.addEventListener('keydown', extraShortcuts);
-
-    // Init command palette search handler
-    const cmdInput = $('#cmd-palette-input');
-    if (cmdInput) {
-      cmdInput.addEventListener('input', (e) => filterCommandPalette(e.target.value));
-      cmdInput.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          cmdPaletteSelectedIndex = Math.min(cmdPaletteSelectedIndex + 1, cmdPaletteResults.length - 1);
-          renderCommandPaletteResults();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          cmdPaletteSelectedIndex = Math.max(cmdPaletteSelectedIndex - 1, 0);
-          renderCommandPaletteResults();
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          if (cmdPaletteResults.length > 0) {
-            executeCommandPaletteItem(cmdPaletteSelectedIndex);
-          }
-        }
-      });
-    }
-
-    // Init command palette overlay click-to-close
-    const cpOverlay = $('#command-palette');
-    if (cpOverlay) {
-      cpOverlay.addEventListener('click', (e) => {
-        if (e.target === cpOverlay) closeCommandPalette();
-      });
-    }
-
-    // Init shortcuts overlay click-to-close
-    const scOverlay = $('#shortcuts-overlay');
-    if (scOverlay) {
-      scOverlay.addEventListener('click', (e) => {
-        if (e.target === scOverlay) closeShortcutsOverlay();
-      });
-    }
-
-    // Init resizable panels
-    initResizablePanels();
-
-    // Init auto theme
-    initAutoTheme();
-
-    // Init security dashboard if tab exists
-    if (document.getElementById('tab-security')) {
-      initSecurityDashboard();
-    }
-
-    // Welcome notification
-    setTimeout(() => {
-      addNotification('🛡️ Security Dashboard', 'Live threat monitoring active', '🛡️');
-      addNotification('⌨️ Press ?', 'for keyboard shortcuts', '⌨️');
-      setTimeout(() => {
-        addNotification('🔱 RudraX v4.5.0', '15 advanced agentic capabilities loaded', '🧠');
-      }, 4000);
-    }, 2000);
-  });
-})();
 
 // ═══ Capabilities Panel — Load feature status ═══
 async function loadCapabilities() {

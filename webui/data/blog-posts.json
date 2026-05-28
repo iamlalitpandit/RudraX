@@ -1,0 +1,117 @@
+[
+  {
+    "id": "post-mpiv3izz",
+    "slug": "test-post",
+    "title": "Test Post",
+    "excerpt": "",
+    "content": "<p>Test content here</p>",
+    "author": "Admin",
+    "date": "2026-05-23",
+    "readTime": "1 min read",
+    "category": "General",
+    "tags": [],
+    "icon": "FileText",
+    "published": false,
+    "createdAt": "2026-05-23T21:29:52.367Z",
+    "updatedAt": "2026-05-23T21:29:52.367Z"
+  },
+  {
+    "id": "post-1",
+    "slug": "how-autonomous-ai-agents-are-transforming-customer-support",
+    "title": "How Autonomous AI Agents Are Transforming Customer Support",
+    "excerpt": "Discover how businesses use autonomous AI agents to handle 80% of support tickets autonomously.",
+    "content": "<p>Customer support is undergoing a radical transformation. Autonomous AI agents can now handle the majority of customer inquiries without human intervention.</p><h2>The Numbers</h2><p>80% reduction in first-response time. 60% lower support costs. 35% improvement in CSAT scores. 24/7 availability.</p><h2>How It Works</h2><p>Modern AI agents understand context, access knowledge bases, execute actions, and escalate to humans only when needed.</p>",
+    "author": "Lalit Pandit",
+    "date": "2026-05-18",
+    "readTime": "8 min read",
+    "category": "AI Agents",
+    "tags": [
+      "AI Agents",
+      "Customer Support",
+      "Automation"
+    ],
+    "icon": "Bot",
+    "published": true,
+    "createdAt": "2026-05-18T00:00:00.000Z",
+    "updatedAt": "2026-05-18T00:00:00.000Z"
+  },
+  {
+    "id": "post-2",
+    "slug": "geo-vs-seo-why-your-business-needs-both-in-2026",
+    "title": "GEO vs SEO: Why Your Business Needs Both in 2026",
+    "excerpt": "Generative Engine Optimization (GEO) is the new frontier for appearing in AI answer engines.",
+    "content": "<p>2026 marks a pivotal year in search. While traditional SEO remains essential for Google rankings, GEO has emerged for AI-powered engines like ChatGPT and Perplexity.</p><h2>What is GEO?</h2><p>GEO optimizes content for AI models that generate answers, focusing on entity-rich data and citation-ready content.</p><h2>The Dual Strategy</h2><p>Winning in 2026 requires both: SEO for click-through traffic, and GEO for AI-generated answer inclusion.</p>",
+    "author": "Neel Pandit",
+    "date": "2026-05-12",
+    "readTime": "6 min read",
+    "category": "SEO / GEO",
+    "tags": [
+      "GEO",
+      "SEO",
+      "AI Citations",
+      "Digital Marketing"
+    ],
+    "icon": "Search",
+    "published": true,
+    "createdAt": "2026-05-12T00:00:00.000Z",
+    "updatedAt": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": "post-3",
+    "slug": "roi-of-ai-automation-a-practical-framework",
+    "title": "ROI of AI Automation: A Practical Framework for Decision Makers",
+    "excerpt": "A step-by-step framework to calculate the real ROI of AI automation projects.",
+    "content": "<p>AI automation investments require rigorous ROI analysis. Here is our proven framework.</p><h2>The Framework</h2><p><b>Direct Savings:</b> Labor cost + error reduction + speed<br/><b>Revenue Impact:</b> Time-to-market + capacity scaling<br/><b>Hidden Costs:</b> Integration + maintenance + training</p><h2>Results</h2><p>Our clients typically see 3-5x ROI within the first year.</p>",
+    "author": "Lalit Pandit",
+    "date": "2026-05-05",
+    "readTime": "10 min read",
+    "category": "Automation",
+    "tags": [
+      "ROI",
+      "Automation",
+      "Business Strategy"
+    ],
+    "icon": "BarChart3",
+    "published": true,
+    "createdAt": "2026-05-05T00:00:00.000Z",
+    "updatedAt": "2026-05-05T00:00:00.000Z"
+  },
+  {
+    "id": "post-5",
+    "slug": "open-source-army-349-ai-agents",
+    "title": "How I Built an Open-Source Army of 349 AI Agents (And You Can Too)",
+    "excerpt": "A practical guide to building production-ready multi-agent AI systems using open-source tools. Learn how 349 AI agents work together with a Chief of Staff architecture.",
+    "content": "",
+    "author": "RudraX Team",
+    "date": "2026-05-24",
+    "readTime": "7 min read",
+    "category": "Multi-Agent Systems",
+    "tags": ["AI Agents", "Open Source", "Multi-Agent Systems", "AI Architecture"],
+    "icon": "Sparkles",
+    "externalUrl": "https://rudraxarmy.blogspot.com/2026/05/open-source-army-349-ai-agents.html",
+    "published": true,
+    "createdAt": "2026-05-24T00:00:00.000Z",
+    "updatedAt": "2026-05-24T00:00:00.000Z"
+  },
+  {
+    "id": "post-4",
+    "slug": "multi-agent-ai-systems-guide-2026",
+    "title": "Building Production-Ready Multi-Agent AI Systems in 2026: A Practical Guide",
+    "excerpt": "A comprehensive guide to designing, orchestrating, and deploying multi-agent AI systems in production — covering architecture patterns, agent coordination, tool integration, and real-world results from the open-source RudraX platform.",
+    "content": "<p>A comprehensive guide to designing, orchestrating, and deploying multi-agent AI systems in production.</p><p>The shift from single-model chatbots to multi-agent orchestration is the most significant architectural change in AI since the transformer. In 2026, production AI systems don't just call one LLM — they coordinate dozens or hundreds of specialized agents, each with distinct tools, memory, and personas.</p><h2>Why Multi-Agent Architecture Matters</h2><p>Single-agent systems hit four fundamental ceilings: context window limits, tool proliferation, specialization vs generality tradeoffs, and reliability cascading failures. Multi-agent architectures solve these by dividing and conquering — specialized agents handle specific domains, orchestrated by a coordinator that routes tasks, merges results, and manages state.</p><h2>The Four-Layer Architecture</h2><h3>Layer 1: Agent Registry</h3><p>The registry is the source of truth for every agent in the system. Each agent has a name, persona/prompt, tool bindings, skill dependencies, and capability tags for routing.</p><h3>Layer 2: Orchestration Engine</h3><p>Five production patterns work in practice: sequential pipeline (94% success), fan-out/join (89%), supervisor/worker (92%), debate/consensus (97%), and hierarchical (96%).</p><h3>Layer 3: Tool Integration</h3><p>Each agent needs access to specific tools — file system operations, API calls, database queries, code execution, and human handoff when confidence is low.</p><h3>Layer 4: Observability & Memory</h3><p>Per-agent logs, cross-agent traces, session memory, and cross-session memory enable debugging and continuous improvement.</p><h2>Case Study: 349 Agents in Production</h2><p>A financial services company deployed all RudraX Army agents in production. Results over 30 days: ticket resolution time dropped from 4.2 hours to 12 minutes (95% reduction), human handoff from 67% to 12%, cost per ticket from $8.50 to $0.42, and daily ticket processing from 1,200 to 50,000.</p><p><em>This article was originally published on <a href=\"https://imlalitpandit.medium.com/building-production-ready-multi-agent-ai-systems-in-2026-a-practical-guide-d8d9c5cfa1d1\">Medium</a>. Read the full version there.</em></p>",
+    "author": "Lalit Pandit",
+    "date": "2026-05-24",
+    "readTime": "10 min read",
+    "category": "Multi-Agent Systems",
+    "tags": [
+      "Multi-Agent Systems",
+      "AI Orchestration",
+      "Production AI",
+      "Open Source"
+    ],
+    "icon": "Network",
+    "published": true,
+    "createdAt": "2026-05-24T00:00:00.000Z",
+    "updatedAt": "2026-05-24T00:00:00.000Z"
+  }
+]

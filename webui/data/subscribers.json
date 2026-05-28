@@ -1,0 +1,12 @@
+[
+  {
+    "email": "sub@test.com",
+    "subscribedAt": "2026-05-23T21:18:11.443Z",
+    "ip": "::ffff:127.0.0.1"
+  },
+  {
+    "email": "lalittheonly@gmail.com",
+    "subscribedAt": "2026-05-23T21:23:36.392Z",
+    "ip": "::ffff:127.0.0.1"
+  }
+]
