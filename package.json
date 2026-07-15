@@ -21,6 +21,7 @@
     "test:coverage": "vitest run --coverage",
     "test:smoke": "vitest run tests/smoke.test.js",
     "test:unit": "vitest run tests/unit",
+    "lint": "node --check lib/core/provider-catalog.js && node --check lib/core/model-registry.js && node --check lib/core/auth-storage.js && node --check lib/core/model-resolver.js && node --check webui/provider-api.js && node --check webui/server.js && node --check webui/js/app.js",
     "pretest": "echo '🧪 RudraX Tests — Running vitest...'",
     "install-global": "npm install -g .",
     "tools": "node tools/bin/rudrax-tools",
@@ -102,6 +103,7 @@
     "email": "admin@rudrax.cloud"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "4.1.7",
     "vitest": "^4.1.7"
   }
 }

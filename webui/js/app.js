@@ -2274,6 +2274,69 @@ function openSettings() {
   const okEl = $('#password-change-success');
   if (errEl) errEl.classList.add('hidden');
   if (okEl) okEl.classList.add('hidden');
+  loadProviderSettings();
+}
+
+let providerSettings = [];
+async function loadProviderSettings() {
+  const status = $('#provider-config-status');
+  try {
+    const response = await fetch(`${CONFIG.API_BASE}/api/providers/status`, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error((await response.json()).error || 'Unable to load providers');
+    providerSettings = (await response.json()).providers || [];
+    const select = $('#provider-select');
+    if (!select) return;
+    select.replaceChildren(...providerSettings.map(provider => {
+      const option = document.createElement('option');
+      option.value = provider.id;
+      option.textContent = `${provider.label}${provider.configured ? ' ✓' : ''}`;
+      return option;
+    }));
+    const active = providerSettings.find(p => p.selected) || providerSettings.find(p => p.configured) || providerSettings[0];
+    if (active) { select.value = active.id; loadProviderModels(active.id); }
+    if (status) status.textContent = 'Keys are stored in local auth.json (mode 0600) and are never returned.';
+  } catch (error) { if (status) status.textContent = error.message; }
+}
+function loadProviderModels(providerId) {
+  const provider = providerSettings.find(p => p.id === providerId);
+  const modelInput = $('#provider-model-select');
+  const modelOptions = $('#provider-model-options');
+  if (!provider || !modelInput || !modelOptions) return;
+  modelOptions.replaceChildren(...provider.models.map(model => {
+    const option = document.createElement('option');
+    option.value = model;
+    return option;
+  }));
+  modelInput.value = provider.selectedModel || provider.models[0] || '';
+  const apiModeSelect = $('#provider-api-mode');
+  const apiModeConfigurable = ['azure-foundry', 'custom'].includes(provider.id);
+  apiModeSelect.disabled = !apiModeConfigurable;
+  apiModeSelect.value = provider.apiMode === 'anthropic-messages' ? 'anthropic-messages' : 'openai-completions';
+  $('#provider-endpoint').value = provider.endpoint || '';
+  $('#provider-api-key').value = '';
+}
+async function saveProviderConfig() {
+  const provider = $('#provider-select')?.value;
+  const body = { apiKey: $('#provider-api-key')?.value || undefined, endpoint: $('#provider-endpoint')?.value || undefined, model: $('#provider-model-select')?.value || undefined, apiMode: $('#provider-api-mode')?.disabled ? undefined : ($('#provider-api-mode')?.value || undefined) };
+  const response = await fetch(`${CONFIG.API_BASE}/api/providers/${encodeURIComponent(provider)}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(body) });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? 'Provider saved securely.' : data.error;
+  if (response.ok) loadProviderSettings();
+}
+async function switchActiveModel() {
+  const body = { provider: $('#provider-select')?.value, model: $('#provider-model-select')?.value, context: state.context || undefined };
+  const response = await fetch(`${CONFIG.API_BASE}/api/models/active`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(body) });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? `Active model: ${body.provider}/${body.model}` : data.error;
+  if (response.ok) loadProviderSettings();
+}
+async function removeProviderConfig() {
+  const provider = $('#provider-select')?.value;
+  if (!provider || !window.confirm(`Remove saved configuration for ${provider}?`)) return;
+  const response = await fetch(`${CONFIG.API_BASE}/api/providers/${encodeURIComponent(provider)}`, { method: 'DELETE', headers: getAuthHeaders() });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? `Removed ${provider} configuration.` : data.error;
+  if (response.ok) loadProviderSettings();
 }
 
 function closeSettings() {

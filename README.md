@@ -26,6 +26,63 @@ npm start
 
 Then open **http://localhost:5555** in your browser.
 
+### Model providers
+
+RudraX bootstraps the pi-ai built-ins plus Hermes-style adapters for Azure AI Foundry, OpenAI/Azure OpenAI, Anthropic, Gemini/Vertex, Bedrock, OpenRouter, Ollama/LM Studio/LocalAI and the major hosted inference services. Configure them in **WebUI → Settings → Model Provider**, in `~/.rudrax/agent/auth.json` / `models.json`, or with the variables documented in [`.env.example`](.env.example).
+
+Selection order is deterministic: a saved **configured** provider/model, then an authenticated cloud model, then WebUI Ollama discovery. Azure Foundry uses `AZURE_FOUNDRY_ENDPOINT`, `AZURE_FOUNDRY_DEPLOYMENT` (or `AZURE_FOUNDRY_MODEL`) and `AZURE_FOUNDRY_API_KEY`; its key is sent as the `api-key` header. Endpoint variables override catalog URLs and model variables override representative catalog models.
+
+| Provider group | Provider IDs | Primary credential variables |
+|---|---|---|
+| OpenAI / Azure | `openai`, `openai-codex`, `azure-openai-responses`, `azure-foundry` | `OPENAI_API_KEY`, OAuth, `AZURE_OPENAI_API_KEY`, `AZURE_FOUNDRY_API_KEY` |
+| Anthropic / Google / AWS | `anthropic`, `google` (`gemini`), `google-vertex`, `amazon-bedrock` | `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY` or `GEMINI_API_KEY`, ADC, AWS credential chain |
+| Routers / fast inference | `openrouter`, `groq`, `cerebras`, `fireworks`, `novita`, `together` | `OPENROUTER_API_KEY`, `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `FIREWORKS_API_KEY`, `NOVITA_API_KEY`, `TOGETHER_API_KEY` |
+| Open-model clouds | `deepseek`, `zai`, `kimi-coding`, `minimax`, `alibaba`, `arcee`, `gmi`, `nvidia` | `DEEPSEEK_API_KEY`, `GLM_API_KEY`, `KIMI_API_KEY`, `MINIMAX_API_KEY`, `DASHSCOPE_API_KEY`, `ARCEEAI_API_KEY`, `GMI_API_KEY`, `NVIDIA_API_KEY` |
+| Other hosted providers | `xai`, `mistral`, `opencode`, `opencode-go`, `kilocode`, `huggingface`, `xiaomi`, `tencent-tokenhub`, `ollama-cloud`, `stepfun` | See [`.env.example`](.env.example) for exact names and aliases |
+| Local / custom | `ollama`, `lmstudio`, `localai`, `custom` | Local adapters need an explicit endpoint; remote custom endpoints also require `CUSTOM_API_KEY` |
+
+Azure AI Foundry example:
+
+```bash
+export AZURE_FOUNDRY_ENDPOINT="https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+export AZURE_FOUNDRY_DEPLOYMENT="YOUR-DEPLOYMENT"
+export AZURE_FOUNDRY_API_KEY="YOUR_KEY"
+npm start -- --provider azure-foundry --model "$AZURE_FOUNDRY_DEPLOYMENT"
+```
+
+Custom OpenAI-compatible endpoint (`~/.rudrax/agent/models.json`):
+
+```json
+{
+  "providers": {
+    "custom": {
+      "baseUrl": "https://llm.example.com/v1",
+      "api": "openai-completions",
+      "apiKey": "CUSTOM_API_KEY",
+      "models": [{ "id": "my-model", "name": "my-model" }]
+    }
+  }
+}
+```
+
+CLI discovery and selection:
+
+```bash
+rudrax --list-models
+rudrax --provider anthropic --model claude-sonnet-4-6
+rudrax --provider google --model gemini-2.5-pro
+```
+
+Provider management REST endpoints are authenticated and never return secrets:
+
+- `GET /api/providers/catalog` and `GET /api/providers/status`
+- `PUT /api/providers/:provider` with `{ "apiKey", "endpoint", "model" }`
+- `DELETE /api/providers/:provider`
+- `GET /api/providers/:provider/models`
+- `PUT /api/models/active` with `{ "provider", "model", "context" }`
+
+Credential and model files are written with mode `0600`. Only HTTP(S) endpoint overrides and known provider IDs are accepted.
+
 Or try it instantly at **[rudrax.cloud/playground](https://rudrax.cloud/playground)** — no installation required!
 
 ---

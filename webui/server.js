@@ -24,6 +24,7 @@ import { getAgentDir } from '../lib/config.js';
 import { isOllamaAvailable, isOllamaServerRunning, getOllamaModels, getOllamaModelConfig } from '../lib/core/ollama-openai-provider.js';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { mountProviderApi } from './provider-api.js';
 
 // ═══ Email Configuration ═══
 const EMAIL_CONFIG = {
@@ -237,6 +238,45 @@ app.get('/favicon.ico', (req, res) => {
 // ─── State ──────────────────────────────────────────────────────────────────
 
 const contexts = new Map(); // contextId → { session, name, created, logs[], logVersion, logGuid, running }
+
+// Mounted after the API auth guard. A switch updates both the persisted default
+// and the active AgentSession when a context id is supplied by the WebUI.
+mountProviderApi(app, {
+  authPath: join(getAgentDir(), 'auth.json'),
+  modelsPath: join(getAgentDir(), 'models.json'),
+  settingsPath: join(getAgentDir(), 'settings.json'),
+  onSwitchModel: async ({ provider, model, context }) => {
+    const ctx = contexts.get(context);
+    if (!ctx) throw new Error('Context not found');
+    ctx.session.modelRegistry.authStorage.reload();
+    ctx.session.modelRegistry.refreshModelsOnly();
+    const selected = ctx.session.modelRegistry.find(provider, model);
+    if (!selected || !ctx.session.modelRegistry.hasConfiguredAuth(selected)) {
+      throw new Error(`Provider ${provider} is not configured`);
+    }
+    await ctx.session.setModel(selected);
+  },
+  onConfigChange: async ({ provider, action }) => {
+    for (const ctx of contexts.values()) {
+      try {
+        const current = ctx.session.model;
+        ctx.session.modelRegistry.authStorage.reload();
+        ctx.session.modelRegistry.refreshModelsOnly();
+        if (!current || current.provider !== provider) continue;
+        const refreshed = ctx.session.modelRegistry.find(current.provider, current.id);
+        if (refreshed && ctx.session.modelRegistry.hasConfiguredAuth(refreshed)) {
+          await ctx.session.setModel(refreshed);
+          continue;
+        }
+        const fallback = ctx.session.modelRegistry.getAvailable()[0];
+        if (fallback) await ctx.session.setModel(fallback);
+        else console.warn(`[RudraX] ${action} ${provider}; context ${ctx.id} has no configured fallback model`);
+      } catch (error) {
+        console.error(`[RudraX] Failed to refresh context ${ctx.id} after provider ${action}:`, error.message);
+      }
+    }
+  },
+});
 
 // ─── Orchestration State ────────────────────────────────────────────────────
 
