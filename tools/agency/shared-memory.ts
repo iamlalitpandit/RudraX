@@ -644,9 +644,8 @@ export default function (pi: ExtensionAPI) {
         currentContextId = resolveCtxId(ctx);
       }
       if (!currentContextId) {
-          ctx.ui.notify("⚠️ No active context. Start a chat first to use shared memory.", "warn");
-          return;
-        }
+        ctx.ui.notify("⚠️ No active context. Start a chat first to use shared memory.", "warn");
+        return;
       }
 
       if (sub === "list" || sub === "ls") {

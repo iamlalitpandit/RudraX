@@ -22,7 +22,7 @@
     "test:smoke": "vitest run tests/smoke.test.js",
     "test:unit": "vitest run tests/unit",
     "lint": "node --check lib/core/env-loader.js && node --check lib/core/provider-catalog.js && node --check lib/core/model-registry.js && node --check lib/core/auth-storage.js && node --check lib/core/model-resolver.js && node --check bin/rudrax && node --check webui/provider-api.js && node --check webui/server.js && node --check webui/js/app.js",
-    "pretest": "echo '🧪 RudraX Tests — Running vitest...'",
+    "pretest": "echo '🧪 RudraX Tests — Running vitest...'", "postinstall": "node lib/setup/postinstall.js", "setup": "node bin/rudrax setup", "setup:defaults": "node bin/rudrax setup --defaults",
     "install-global": "npm install -g .",
     "tools": "node tools/bin/rudrax-tools",
     "tools:status": "node tools/bin/rudrax-tools status",

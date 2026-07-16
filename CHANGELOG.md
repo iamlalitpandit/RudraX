@@ -2,6 +2,18 @@
 
 All notable changes to RudraX Army will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- First-run setup command for provider selection and optional capability installation
+- Bundled browser, web, media, memory, debug, Telegram, and WhatsApp runtime helpers
+- Persistent evolving-memory extension and installation documentation
+
+### Security
+- Setup configuration files are written atomically with mode `0600`
+- Gateway runtimes fail closed unless explicit Telegram chat IDs or WhatsApp numbers are allowed
+- Setup rejects environment values containing line breaks
+
 ## [4.6.0] — 2026-07
 
 ### Added

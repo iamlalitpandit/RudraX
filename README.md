@@ -47,8 +47,11 @@ RudraX Army is an open-source, hierarchical multi-agent runtime for building, te
 git clone https://github.com/iamlalitpandit/RudraX.git
 cd RudraX
 npm install
+npm run setup       # provider, skills, tools, memory and gateway wizard
 npm start
 ```
+
+The same wizard runs automatically on the first interactive launch. For CI use `npm run setup:defaults`. See [installation setup](docs/installation-setup.md).
 
 Open `http://localhost:5555`.
 
@@ -214,7 +217,7 @@ Do not open public access with the default local credentials. Keep secrets in en
 
 Copyright © 2026 Lalit Pandit.
 
-RudraX is developed and maintained by **[Lalit Pandit](https://github.com/iamlalitpandit)** and released under the [MIT License](LICENSE). Third-party packages and optional integrations retain their respective licenses.
+RudraX is developed and maintained by **[Lalit Pandit](https://github.com/iamlalitpandit)** and released under the [MIT License](LICENSE). Third-party packages and optional integrations retain their respective licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
 <p align="center">
   <a href="https://rudrax.cloud"><strong>rudrax.cloud</strong></a>

@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@imlalitpandit/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 
 /**
@@ -338,6 +338,23 @@ export default function (pi: ExtensionAPI) {
   // ─── Agency activate tool for LLM ───
   pi.registerTool({
     name: "agency_activate",
+    label: "Activate Agency Agent",
+    description: "Activate a RudraX specialist-agent skill for the current session.",
+    promptSnippet: "Activate a RudraX specialist agent",
+    parameters: Type.Object({
+      agent_name: Type.String({ description: "Installed RudraX skill name" }),
+    }),
+    async execute(_toolCallId, params) {
+      activeAgent = params.agent_name;
+      activeAgentContent = null;
+      activeSquad = [];
+      pi.sendUserMessage(`/skill:${params.agent_name}`, { deliverAs: "steer" });
+      return {
+        content: [{ type: "text", text: `Activated RudraX agent: ${params.agent_name}` }],
+        details: { active: true, agent: params.agent_name },
+      };
+    },
+  });
 
   // ─── Agency deactivate tool ───
   pi.registerTool({

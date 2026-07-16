@@ -114,6 +114,7 @@ describe('registry bootstrap and auth', () => {
       AZURE_FOUNDRY_ENDPOINT: 'https://unit.openai.azure.com/openai/v1',
       AZURE_FOUNDRY_DEPLOYMENT: 'deployment-a',
       AZURE_FOUNDRY_API_KEY: 'azure-secret',
+      XAI_API_KEY: undefined,
     });
     const registry = ModelRegistry.inMemory(AuthStorage.inMemory());
     const result = await findInitialModel({ scopedModels: [], isContinuing: false, modelRegistry: registry });
