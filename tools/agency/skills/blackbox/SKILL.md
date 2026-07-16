@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: 'Agents building agents.'
   original_name: "blackbox"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -30,7 +26,7 @@ metadata:
 
 # Blackbox CLI
 
-Delegate coding tasks to [Blackbox AI](https://www.blackbox.ai/) via the Hermes terminal. Blackbox is a multi-model coding agent CLI that dispatches tasks to multiple LLMs (Claude, Codex, Gemini, Blackbox Pro) and uses a judge to select the best implementation.
+Delegate coding tasks to [Blackbox AI](https://www.blackbox.ai/) via the RudraX terminal. Blackbox is a multi-model coding agent CLI that dispatches tasks to multiple LLMs (Claude, Codex, Gemini, Blackbox Pro) and uses a judge to select the best implementation.
 
 The CLI is [open-source](https://github.com/blackboxaicode/cli) (GPL-3.0, TypeScript, forked from Gemini CLI) and supports interactive sessions, non-interactive one-shots, checkpointing, MCP, and vision model switching.
 

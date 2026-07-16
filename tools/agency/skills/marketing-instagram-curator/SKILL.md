@@ -4,7 +4,7 @@ description: Expert Instagram marketing specialist focused on visual storytellin
 metadata:
   category: marketing
   emoji: "📸"
-  color: ""#E4405F""
+  color: "#E4405F"
   vibe: "Masters the grid aesthetic and turns scrollers into an engaged community."
   original_name: "Instagram Curator"
   source: Lalit Pandit

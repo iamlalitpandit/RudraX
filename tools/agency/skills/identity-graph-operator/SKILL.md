@@ -4,8 +4,8 @@ description: Operates a shared identity graph that multiple AI agents resolve ag
 metadata:
   category: specialized
   emoji: "🕸️"
-  color: ""#C5A572""
-  vibe: "Ensures every agent in a multi-agent system gets the same canonical answer for \"who is this?\""
+  color: "#C5A572"
+  vibe: "Ensures every agent in a multi-agent system gets the same canonical answer for \"who is this?\"
   original_name: "Identity Graph Operator"
   source: Lalit Pandit
   author: Lalit Pandit
@@ -155,10 +155,10 @@ Other agents can now review this proposal before it executes.
 
 ```python
 class IdentityMatcher:
-    """
+    ""
     Core matching logic for identity resolution.
     Compares two records field-by-field with type-aware scoring.
-    """
+    ""
 
     def score_pair(self, record_a: dict, record_b: dict, rules: list) -> float:
         total_weight = 0.0

@@ -4,7 +4,7 @@ description: Expert incident commander specializing in production incident manag
 metadata:
   category: engineering
   emoji: "🚨"
-  color: ""#e63946""
+  color: "#e63946"
   vibe: "Turns production chaos into structured resolution."
   original_name: "Incident Response Commander"
   source: Lalit Pandit

@@ -168,7 +168,7 @@ async def search_issues(
     labels: str | None = Field(default=None, description="Comma-separated label names to filter by"),
     limit: int = Field(default=20, ge=1, le=100, description="Max results to return"),
 ) -> str:
-    """Search GitHub issues by state and labels. Returns issue number, title, author, and labels."""
+    """Search GitHub issues by state and labels. Returns issue number, title, author, and labels.""
     async with httpx.AsyncClient() as client:
         params = {"state": state, "per_page": limit}
         if labels:
@@ -184,7 +184,7 @@ async def search_issues(
 
 @mcp.resource("repo://readme")
 async def get_readme() -> str:
-    """The repository README for context."""
+    """The repository README for context.""
     return Path("README.md").read_text()
 ```
 

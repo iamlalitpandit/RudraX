@@ -4,7 +4,7 @@ description: Expert in historical analysis, periodization, material culture, and
 metadata:
   category: academic
   emoji: "📚"
-  color: ""#B45309""
+  color: "#B45309"
   vibe: "History doesn't repeat, but it rhymes — and I know all the verses"
   original_name: "Historian"
   source: Lalit Pandit

@@ -1,16 +1,12 @@
 ---
 name: page-agent
-description: "Embed alibaba/page-agent into your own web application — a pure-JavaScript in-page GUI agent that ships as a single <script> tag or npm package and lets end-users of your site drive the UI with natural language ("click login, fill username as John"). No Python, no headless browser, no extension required. Use this skill when the user is a web developer who wants to add an AI copilot to their SaaS / admin panel / B2B tool, make a legacy web app accessible via natural language, or evaluate page-agent against a local (Ollama) or cloud (Qwen / OpenAI / OpenRouter) LLM. NOT for server-side browser automation — point those users to Hermes' built-in browser tool instead."
+description: 'Embed alibaba/page-agent into your own web application — a pure-JavaScript in-page GUI agent that ships as a single <script> tag or npm package and lets end-users of your site drive the UI with natural language ("click login, fill username as John"). No Python, no headless browser, no extension required. Use this skill when the user is a web developer who wants to add an AI copilot to their SaaS / admin panel / B2B tool, make a legacy web app accessible via natural language, or evaluate page-agent against a local (Ollama) or cloud (Qwen / OpenAI / OpenRouter) LLM. NOT for server-side browser automation — point those users to RudraX built-in browser tool instead.'
 metadata:
   category: engineering
   emoji: "📄"
   color: "blue"
   vibe: 'Build systems that scale.'
   original_name: "page-agent"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -44,7 +40,7 @@ Load this skill when a user wants to:
 
 ## When NOT to use this skill
 
-- User wants **Hermes itself to drive a browser** → use Hermes' built-in browser tool (Browserbase / Camofox). page-agent is the *opposite* direction.
+- User wants **RudraX itself to drive a browser** → use RudraX' built-in browser tool (Browserbase / Camofox). page-agent is the *opposite* direction.
 - User wants **cross-tab automation without embedding** → use Playwright, browser-use, or the page-agent Chrome extension
 - User needs **visual grounding / screenshots** → page-agent is text-DOM only; use a multimodal browser agent instead
 

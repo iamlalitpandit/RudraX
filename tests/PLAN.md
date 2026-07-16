@@ -5,7 +5,7 @@
 RudraX is a complex multi-agent orchestration framework. Our testing strategy prioritizes:
 
 1. **Correctness** — Core logic works as expected under all conditions
-2. **Stability** — No regressions across releases (v4.5.0+)
+2. **Stability** — No regressions across releases (v4.6.0+)
 3. **Isolation** — Tests run without external dependencies (no API keys, no network)
 4. **Coverage** — Start with critical paths, expand iteratively
 
@@ -125,7 +125,7 @@ npx vitest run tests/unit/event-bus.test.js
 
 ## 🔮 Roadmap
 
-### v4.5.0 (Current)
+### v4.6.0 (Current)
 - ✅ Vitest test infrastructure
 - ✅ Smoke tests for lib/index.js exports
 - ✅ Unit tests: event-bus, source-info, output-guard, resolve-config-value

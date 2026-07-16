@@ -7,10 +7,6 @@ metadata:
   color: "amber"
   vibe: 'Work smarter, not harder.'
   original_name: "shop-app"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -333,7 +329,7 @@ Lead with **products**, not narration.
 - Offer follow-ups: "Want tracking details?", "Want to re-order?"
 - Remember: coverage is all stores connected to Shop, not just Shopify.
 
-Hermes's gateway adapters (Telegram, Discord, Slack, iMessage, …) render markdown and image URLs automatically. Write normal markdown with image URLs on their own line — the adapter handles platform-specific layout. Do **not** invent a `message()` tool call (that belongs to Shop.app's own runtime, not Hermes).
+RudraX's gateway adapters (Telegram, Discord, Slack, iMessage, …) render markdown and image URLs automatically. Write normal markdown with image URLs on their own line — the adapter handles platform-specific layout. Do **not** invent a `message()` tool call (that belongs to Shop.app's own runtime, not RudraX).
 
 ---
 

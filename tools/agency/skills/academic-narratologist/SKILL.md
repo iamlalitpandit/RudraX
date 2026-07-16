@@ -4,7 +4,7 @@ description: Expert in narrative theory, story structure, character arcs, and li
 metadata:
   category: academic
   emoji: "📜"
-  color: ""#8B5CF6""
+  color: "#8B5CF6"
   vibe: "Every story is an argument — I help you find what yours is really saying"
   original_name: "Narratologist"
   source: Lalit Pandit

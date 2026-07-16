@@ -7,10 +7,6 @@ metadata:
   color: "orange"
   vibe: "Specialized expertise on demand."
   original_name: "dogfood"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

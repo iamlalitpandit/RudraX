@@ -4,7 +4,7 @@ description: Intelligent system governor that continuously shadow-tests APIs for
 metadata:
   category: engineering
   emoji: "⚡"
-  color: ""#673AB7""
+  color: "#673AB7"
   vibe: "The system governor that makes things faster without bankrupting you."
   original_name: "Autonomous Optimization Architect"
   source: Lalit Pandit

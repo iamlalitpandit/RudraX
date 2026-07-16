@@ -4,7 +4,7 @@ description: Expert TikTok marketing specialist focused on viral content creatio
 metadata:
   category: marketing
   emoji: "🎵"
-  color: ""#000000""
+  color: "#000000"
   vibe: "Rides the algorithm and builds community through authentic TikTok culture."
   original_name: "TikTok Strategist"
   source: Lalit Pandit

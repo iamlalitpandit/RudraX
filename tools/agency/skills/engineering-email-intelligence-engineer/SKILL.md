@@ -142,7 +142,7 @@ import email
 from email import policy
 
 def fetch_thread(imap_conn, thread_ids):
-    """Fetch and parse raw messages, preserving full MIME structure."""
+    """Fetch and parse raw messages, preserving full MIME structure.""
     messages = []
     for msg_id in thread_ids:
         _, data = imap_conn.fetch(msg_id, "(RFC822)")
@@ -173,7 +173,7 @@ def reconstruct_thread(messages):
     - Forwarded chains collapse multiple conversations into one message body
     - Quoted replies duplicate content (20-msg thread = ~4-5x token bloat)
     - Thread forks when people reply to different messages in the chain
-    """
+    ""
     # Build reply graph from In-Reply-To and References headers
     graph = {}
     for msg in messages:
@@ -205,7 +205,7 @@ def strip_quoted_content(body, parent_bodies):
     - Prefix quoting: lines starting with '>'
     - Delimiter quoting: '---Original Message---', 'On ... wrote:'
     - Outlook XML quoting: nested <div> blocks with specific classes
-    """
+    ""
     lines = body.split("\n")
     unique_lines = []
     in_quote_block = False
@@ -234,7 +234,7 @@ def extract_structured_context(thread_graph):
     - Decision timeline (explicit commitments + implicit agreements)
     - Action items with correct participant attribution
     - Attachment references linked to discussion context
-    """
+    ""
     participants = build_participant_map(thread_graph)
     decisions = extract_decisions(thread_graph, participants)
     action_items = extract_action_items(thread_graph, participants)
@@ -257,7 +257,7 @@ def extract_action_items(thread_graph, participants):
     in different messages. Without preserved From: headers, an LLM
     will misattribute tasks. This function binds each commitment
     to the actual sender of that message.
-    """
+    ""
     items = []
     for msg_id, node in thread_graph.items():
         sender = node["message"]["from"]
@@ -285,7 +285,7 @@ def build_agent_context(thread_graph, query, token_budget=4000):
     
     Returns structured JSON with source citations so the agent
     can ground its reasoning in specific messages.
-    """
+    ""
     # Retrieve relevant segments using hybrid search
     semantic_hits = semantic_search(query, thread_graph, top_k=20)
     keyword_hits = fulltext_search(query, thread_graph)
@@ -331,7 +331,7 @@ def email_ask(query: str, datasource_id: str) -> dict:
     
     Returns a structured answer with source citations grounded
     in specific messages from the thread.
-    """
+    ""
     thread_graph = load_indexed_thread(datasource_id)
     context = build_agent_context(thread_graph, query)
     return context
@@ -344,7 +344,7 @@ def email_search(query: str, datasource_id: str, filters: dict = None) -> list:
     thread_subject, label.
     
     Returns ranked message segments with metadata.
-    """
+    ""
     results = hybrid_search(query, datasource_id, filters)
     return [format_search_result(r) for r in results]
 ```

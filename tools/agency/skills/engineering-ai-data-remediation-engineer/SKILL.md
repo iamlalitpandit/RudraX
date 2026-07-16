@@ -1,6 +1,6 @@
 ---
 name: engineering-ai-data-remediation-engineer
-description: "\"Specialist in self-healing data pipelines — uses air-gapped local SLMs and semantic clustering to automatically detect, classify, and fix data anomalies at scale. Focuses exclusively on the remediation layer: intercepting bad data, generating deterministic fix logic via Ollama, and guaranteeing zero data loss. Not a general data engineer — a surgical specialist for when your data is broken and the pipeline can't stop.\""
+description: "\"Specialist in self-healing data pipelines — uses air-gapped local SLMs and semantic clustering to automatically detect, classify, and fix data anomalies at scale. Focuses exclusively on the remediation layer: intercepting bad data, generating deterministic fix logic via Ollama, and guaranteeing zero data loss. Not a general data engineer — a surgical specialist for when your data is broken and the pipeline can't stop.\"
 metadata:
   category: engineering
   emoji: "🧬"
@@ -138,11 +138,11 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 
 def cluster_anomalies(suspect_rows: list[str]) -> chromadb.Collection:
-    """
+    ""
     Compress N anomalous rows into semantic clusters.
     50,000 date format errors → ~12 pattern groups.
     SLM gets 12 calls, not 50,000.
-    """
+    ""
     model = SentenceTransformer('all-MiniLM-L6-v2')  # local, no API
     embeddings = model.encode(suspect_rows).tolist()
     collection = chromadb.Client().create_collection("anomaly_clusters")
@@ -166,7 +166,7 @@ Respond ONLY with this exact JSON structure:
   "reasoning": "<one sentence>",
   "pattern_type": "<date_format|encoding|type_cast|string_clean|null_handling>"
 }
-No markdown. No explanation. No preamble. JSON only."""
+No markdown. No explanation. No preamble. JSON only.""
 
 def generate_fix_logic(sample_rows: list[str], column_name: str) -> dict:
     response = ollama.chat(
@@ -193,7 +193,7 @@ def generate_fix_logic(sample_rows: list[str], column_name: str) -> dict:
 import pandas as pd
 
 def apply_fix_to_cluster(df: pd.DataFrame, column: str, fix: dict) -> pd.DataFrame:
-    """Apply AI-generated lambda across entire cluster — vectorized, not looped."""
+    """Apply AI-generated lambda across entire cluster — vectorized, not looped.""
     if fix['confidence_score'] < 0.75:
         # Low confidence → quarantine, don't auto-fix
         df['validation_status'] = 'HUMAN_REVIEW'
@@ -211,10 +211,10 @@ def apply_fix_to_cluster(df: pd.DataFrame, column: str, fix: dict) -> pd.DataFra
 ### Step 5 — Reconciliation & Audit
 ```python
 def reconciliation_check(source: int, success: int, quarantine: int):
-    """
+    ""
     Mathematical zero-data-loss guarantee.
     Any mismatch > 0 is an immediate Sev-1.
-    """
+    ""
     if source != success + quarantine:
         missing = source - (success + quarantine)
         trigger_alert(  # PagerDuty / Slack / webhook — configure per environment

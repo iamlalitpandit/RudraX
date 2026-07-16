@@ -30,7 +30,7 @@ export function createTempDir() {
 export function createMockConfig(overrides = {}) {
   return {
     agentDir: "/tmp/.rudrax-test",
-    version: "4.5.0-test",
+    version: "4.6.0-test",
     ...overrides,
   };
 }

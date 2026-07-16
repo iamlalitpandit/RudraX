@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Creativity is intelligence having fun."
   original_name: "baoyu-infographic"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -34,7 +30,7 @@ metadata:
 
 # Infographic Generator
 
-Adapted from [baoyu-infographic](https://github.com/JimLiu/baoyu-skills) for Hermes Agent's tool ecosystem.
+Adapted from [baoyu-infographic](https://github.com/JimLiu/baoyu-skills) for RudraX's tool ecosystem.
 
 Two dimensions: **layout** (information structure) × **style** (visual aesthetics). Freely combine any layout with any style.
 

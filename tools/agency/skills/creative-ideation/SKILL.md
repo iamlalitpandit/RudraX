@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Creativity is intelligence having fun."
   original_name: "creative-ideation"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

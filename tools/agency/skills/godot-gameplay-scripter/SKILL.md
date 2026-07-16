@@ -225,7 +225,7 @@ func _on_health_changed(new_health: float) -> void:
 class_name EnemyData
 extends Resource
 
-@export var display_name: String = ""
+@export var display_name: String = "
 @export var max_health: float = 100.0
 @export var move_speed: float = 150.0
 @export var damage: float = 10.0

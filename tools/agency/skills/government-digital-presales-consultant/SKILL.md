@@ -4,7 +4,7 @@ description: Presales expert for China's government digital transformation marke
 metadata:
   category: specialized
   emoji: "🏛️"
-  color: ""#8B0000""
+  color: "#8B0000"
   vibe: "Navigates the Chinese government IT procurement maze — from policy signals to winning bids — so your team lands digital transformation projects."
   original_name: "Government Digital Presales Consultant"
   source: Lalit Pandit

@@ -7,10 +7,6 @@ metadata:
   color: "amber"
   vibe: "Work smarter, not harder."
   original_name: "ocr-and-documents"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

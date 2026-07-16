@@ -4,7 +4,7 @@ description: Expert in human behavior, personality theory, motivation, and cogni
 metadata:
   category: academic
   emoji: "🧠"
-  color: ""#EC4899""
+  color: "#EC4899"
   vibe: "People don't do things for no reason — I find the reason"
   original_name: "Psychologist"
   source: Lalit Pandit

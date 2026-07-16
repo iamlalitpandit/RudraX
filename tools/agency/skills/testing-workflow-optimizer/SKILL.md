@@ -142,7 +142,7 @@ class WorkflowOptimizer:
         self.automation_recommendations = []
     
     def analyze_current_workflow(self, process_steps: List[ProcessStep]) -> WorkflowMetrics:
-        """Comprehensive current state analysis"""
+        """Comprehensive current state analysis""
         total_duration = sum(step.duration_minutes for step in process_steps)
         total_cost = sum(
             (step.duration_minutes / 60) * step.cost_per_hour 
@@ -177,7 +177,7 @@ class WorkflowOptimizer:
         return metrics
     
     def identify_optimization_opportunities(self, process_steps: List[ProcessStep]) -> List[Dict]:
-        """Systematic opportunity identification using multiple frameworks"""
+        """Systematic opportunity identification using multiple frameworks""
         opportunities = []
         
         # Lean analysis - eliminate waste
@@ -226,7 +226,7 @@ class WorkflowOptimizer:
     
     def design_optimized_workflow(self, current_steps: List[ProcessStep], 
                                  opportunities: List[Dict]) -> List[ProcessStep]:
-        """Create optimized future state workflow"""
+        """Create optimized future state workflow""
         optimized_steps = current_steps.copy()
         
         for opportunity in opportunities:
@@ -282,7 +282,7 @@ class WorkflowOptimizer:
     
     def calculate_improvement_impact(self, current_metrics: WorkflowMetrics, 
                                    optimized_metrics: WorkflowMetrics) -> Dict:
-        """Calculate quantified improvement impact"""
+        """Calculate quantified improvement impact""
         improvements = {
             "cycle_time_reduction": {
                 "absolute": current_metrics.total_cycle_time - optimized_metrics.total_cycle_time,
@@ -314,7 +314,7 @@ class WorkflowOptimizer:
         return improvements
     
     def create_implementation_plan(self, opportunities: List[Dict]) -> Dict:
-        """Create prioritized implementation roadmap"""
+        """Create prioritized implementation roadmap""
         # Score opportunities by impact vs effort
         for opp in opportunities:
             impact_score = {"high": 3, "medium": 2, "low": 1}[opp["impact"]]
@@ -342,7 +342,7 @@ class WorkflowOptimizer:
         }
     
     def generate_automation_strategy(self, process_steps: List[ProcessStep]) -> Dict:
-        """Create comprehensive automation strategy"""
+        """Create comprehensive automation strategy""
         automation_candidates = [
             step for step in process_steps 
             if step.automation_potential > 0.5

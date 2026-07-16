@@ -4,7 +4,7 @@ description: CQ specialist that detects invisible exclusion, researches global c
 metadata:
   category: specialized
   emoji: "🌍"
-  color: ""#FFA000""
+  color: "#FFA000"
   vibe: "Detects invisible exclusion and ensures your software resonates across cultures."
   original_name: "Cultural Intelligence Strategist"
   source: Lalit Pandit

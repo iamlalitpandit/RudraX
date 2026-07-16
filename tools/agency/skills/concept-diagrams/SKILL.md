@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: 'Design is not just how it looks.'
   original_name: "concept-diagrams"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

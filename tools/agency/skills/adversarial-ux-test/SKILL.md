@@ -7,10 +7,6 @@ metadata:
   color: "orange"
   vibe: 'Break it before it breaks you.'
   original_name: "adversarial-ux-test"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

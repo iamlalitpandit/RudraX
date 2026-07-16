@@ -420,7 +420,7 @@ phase_6:
 
         Story: {storyId}
 
-        Co-Authored-By: Claude <noreply@anthropic.com>
+
 
     - action: git_commit
       message: '{generatedCommitMessage}'

@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Specialized expertise on demand."
   original_name: "native-mcp"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -34,12 +30,12 @@ metadata:
 
 # Native MCP Client
 
-Hermes Agent has a built-in MCP client that connects to MCP servers at startup, discovers their tools, and makes them available as first-class tools the agent can call directly. No bridge CLI needed -- tools from MCP servers appear alongside built-in tools like `terminal`, `read_file`, etc.
+RudraX has a built-in MCP client that connects to MCP servers at startup, discovers their tools, and makes them available as first-class tools the agent can call directly. No bridge CLI needed -- tools from MCP servers appear alongside built-in tools like `terminal`, `read_file`, etc.
 
 ## When to Use
 
 Use this whenever you want to:
-- Connect to MCP servers and use their tools from within Hermes Agent
+- Connect to MCP servers and use their tools from within RudraX
 - Add external capabilities (filesystem access, GitHub, databases, APIs) via MCP
 - Run local stdio-based MCP servers (npx, uvx, or any command)
 - Connect to remote HTTP/StreamableHTTP MCP servers
@@ -63,7 +59,7 @@ uv pip install mcp
 
 ## Quick Start
 
-Add MCP servers to `~/.hermes/config.yaml` under the `mcp_servers` key:
+Add MCP servers to `~/.rudrax/agent/config.yaml` under the `mcp_servers` key:
 
 ```yaml
 mcp_servers:
@@ -72,7 +68,7 @@ mcp_servers:
     args: ["mcp-server-time"]
 ```
 
-Restart Hermes Agent. On startup it will:
+Restart RudraX. On startup it will:
 1. Connect to the server
 2. Discover available tools
 3. Register them with the prefix `mcp_time_*`
@@ -127,12 +123,12 @@ Note: A server config must have either `command` (stdio) or `url` (HTTP), not bo
 
 ### Startup Discovery
 
-When Hermes Agent starts, `discover_mcp_tools()` is called during tool initialization:
+When RudraX starts, `discover_mcp_tools()` is called during tool initialization:
 
-1. Reads `mcp_servers` from `~/.hermes/config.yaml`
+1. Reads `mcp_servers` from `~/.rudrax/agent/config.yaml`
 2. For each server, spawns a connection in a dedicated background event loop
 3. Initializes the MCP session and calls `list_tools()` to discover available tools
-4. Registers each tool in the Hermes tool registry
+4. Registers each tool in the RudraX tool registry
 
 ### Tool Naming Convention
 
@@ -151,7 +147,7 @@ Examples:
 
 ### Auto-Injection
 
-After discovery, MCP tools are automatically injected into all `hermes-*` platform toolsets (CLI, Discord, Telegram, etc.). This means MCP tools are available in every conversation without any additional configuration.
+After discovery, MCP tools are automatically injected into all `rudrax-*` platform toolsets (CLI, Discord, Telegram, etc.). This means MCP tools are available in every conversation without any additional configuration.
 
 ### Connection Lifecycle
 
@@ -168,7 +164,7 @@ After discovery, MCP tools are automatically injected into all `hermes-*` platfo
 
 ### Stdio Transport
 
-The most common transport. Hermes launches the MCP server as a subprocess and communicates over stdin/stdout.
+The most common transport. RudraX launches the MCP server as a subprocess and communicates over stdin/stdout.
 
 ```yaml
 mcp_servers:
@@ -197,7 +193,7 @@ If HTTP support is not available in your installed `mcp` version, the server wil
 
 ### Environment Variable Filtering
 
-For stdio servers, Hermes does NOT pass your full shell environment to MCP subprocesses. Only safe baseline variables are inherited:
+For stdio servers, RudraX does NOT pass your full shell environment to MCP subprocesses. Only safe baseline variables are inherited:
 
 - `PATH`, `HOME`, `USER`, `LANG`, `LC_ALL`, `TERM`, `SHELL`, `TMPDIR`
 - Any `XDG_*` variables
@@ -235,7 +231,7 @@ pip install mcp
 
 ### "No MCP servers configured"
 
-No `mcp_servers` key in `~/.hermes/config.yaml`, or it's empty. Add at least one server.
+No `mcp_servers` key in `~/.rudrax/agent/config.yaml`, or it's empty. Add at least one server.
 
 ### "Failed to connect to MCP server 'X'"
 
@@ -257,7 +253,7 @@ pip install --upgrade mcp
 
 - Check that the server is listed under `mcp_servers` (not `mcp` or `servers`)
 - Ensure the YAML indentation is correct
-- Look at Hermes Agent startup logs for connection messages
+- Look at RudraX startup logs for connection messages
 - Tool names are prefixed with `mcp_{server}_{tool}` -- look for that pattern
 
 ### Connection keeps dropping
@@ -345,7 +341,7 @@ All tools from all servers are registered and available simultaneously. Each ser
 
 ## Sampling (Server-Initiated LLM Requests)
 
-Hermes supports MCP's `sampling/createMessage` capability — MCP servers can request LLM completions through the agent during tool execution. This enables agent-in-the-loop workflows (data analysis, content generation, decision-making).
+RudraX supports MCP's `sampling/createMessage` capability — MCP servers can request LLM completions through the agent during tool execution. This enables agent-in-the-loop workflows (data analysis, content generation, decision-making).
 
 Sampling is **enabled by default**. Configure per server:
 

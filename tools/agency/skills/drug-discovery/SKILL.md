@@ -7,10 +7,6 @@ metadata:
   color: "cyan"
   vibe: 'Knowledge is power.'
   original_name: "drug-discovery"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

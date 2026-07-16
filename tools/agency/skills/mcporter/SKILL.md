@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: 'Connect everything.'
   original_name: "mcporter"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -86,7 +82,7 @@ mcporter call --stdio "bun run ./server.ts" scrape url=https://example.com
 # JSON payload
 mcporter call <server.tool> --args '{"limit": 5}'
 
-# Machine-readable output (recommended for Hermes)
+# Machine-readable output (recommended for RudraX)
 mcporter call <server.tool> key=value --output json
 ```
 

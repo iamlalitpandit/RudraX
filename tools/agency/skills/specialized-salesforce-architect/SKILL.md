@@ -4,7 +4,7 @@ description: Solution architecture for Salesforce platform — multi-cloud desig
 metadata:
   category: specialized
   emoji: "☁️"
-  color: ""#00A1E0""
+  color: "#00A1E0"
   vibe: "The calm hand that turns a tangled Salesforce org into an architecture that scales — one governor limit at a time"
   original_name: "Salesforce Architect"
   source: Lalit Pandit

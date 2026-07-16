@@ -180,7 +180,7 @@ security = HTTPBearer()
 limiter = Limiter(key_func=get_remote_address)
 
 class UserInput(BaseModel):
-    """Strict input validation — reject anything unexpected."""
+    """Strict input validation — reject anything unexpected.""
     username: str = Field(..., min_length=3, max_length=30)
     email: str = Field(..., max_length=254)
 
@@ -192,7 +192,7 @@ class UserInput(BaseModel):
         return v
 
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Validate JWT — signature, expiry, issuer, audience. Never allow alg=none."""
+    """Validate JWT — signature, expiry, issuer, audience. Never allow alg=none.""
     try:
         payload = jwt.decode(
             credentials.credentials,

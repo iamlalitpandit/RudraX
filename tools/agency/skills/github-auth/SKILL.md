@@ -7,10 +7,6 @@ metadata:
   color: "gray"
   vibe: "Code shouldn't just work. It should be reviewable."
   original_name: "github-auth"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -73,7 +69,7 @@ This is the most portable method — works everywhere, no SSH config needed.
 Tell the user to go to: **https://github.com/settings/tokens**
 
 - Click "Generate new token (classic)"
-- Give it a name like "hermes-agent"
+- Give it a name like "rudrax-agent"
 - Select scopes:
   - `repo` (full repository access — read, write, push, PRs)
   - `workflow` (trigger and manage GitHub Actions)
@@ -143,7 +139,7 @@ ls -la ~/.ssh/id_*.pub 2>/dev/null || echo "No SSH keys found"
 
 ```bash
 # Generate an ed25519 key (modern, secure, fast)
-ssh-keygen -t ed25519 -C "their-email@example.com" -f ~/.ssh/id_ed25519 -N ""
+ssh-keygen -t ed25519 -C "their-email@example.com" -f ~/.ssh/id_ed25519 -N "
 
 # Display the public key for them to add to GitHub
 cat ~/.ssh/id_ed25519.pub
@@ -152,7 +148,7 @@ cat ~/.ssh/id_ed25519.pub
 Tell the user to add the public key at: **https://github.com/settings/keys**
 - Click "New SSH key"
 - Paste the public key content
-- Give it a title like "hermes-agent-<machine-name>"
+- Give it a title like "rudrax-agent-<machine-name>"
 
 **Step 3: Test the connection**
 
@@ -241,8 +237,8 @@ if command -v gh &>/dev/null && gh auth status &>/dev/null; then
   echo "AUTH_METHOD=gh"
 elif [ -n "$GITHUB_TOKEN" ]; then
   echo "AUTH_METHOD=curl"
-elif [ -f ~/.hermes/.env ] && grep -q "^GITHUB_TOKEN=" ~/.hermes/.env; then
-  export GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.hermes/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
+elif [ -f ~/.rudrax/agent/.env ] && grep -q "^GITHUB_TOKEN=" ~/.rudrax/agent/.env; then
+  export GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.rudrax/agent/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
   echo "AUTH_METHOD=curl"
 elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
   export GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')

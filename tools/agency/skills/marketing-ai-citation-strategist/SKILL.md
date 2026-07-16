@@ -4,7 +4,7 @@ description: Expert in AI recommendation engine optimization (AEO/GEO) — audit
 metadata:
   category: marketing
   emoji: "🔮"
-  color: ""#6D28D9""
+  color: "#6D28D9"
   vibe: "Figures out why the AI recommends your competitor and rewires the signals so it recommends you instead"
   original_name: "AI Citation Strategist"
   source: Lalit Pandit

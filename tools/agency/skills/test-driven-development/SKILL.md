@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Specialized expertise on demand."
   original_name: "test-driven-development"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -301,7 +297,7 @@ Can't check all boxes? You skipped TDD. Start over.
 | Must mock everything | Code too coupled. Use dependency injection. |
 | Test setup huge | Extract helpers. Still complex? Simplify the design. |
 
-## Hermes Agent Integration
+## RudraX Integration
 
 ### Running Tests
 
@@ -325,7 +321,7 @@ When dispatching subagents for implementation, enforce TDD in the goal:
 ```python
 delegate_task(
     goal="Implement [feature] using strict TDD",
-    context="""
+    context=""
     Follow test-driven-development skill:
     1. Write failing test FIRST
     2. Run test to verify it fails

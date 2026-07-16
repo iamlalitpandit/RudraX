@@ -118,7 +118,7 @@ class EvaluationCriteria:
     name: str
     weight: float  # 0-1 importance weight
     max_score: int = 10
-    description: str = ""
+    description: str = "
 
 @dataclass
 class ToolScoring:
@@ -136,7 +136,7 @@ class ToolEvaluator:
         self.risk_assessment = {}
     
     def _define_evaluation_criteria(self) -> List[EvaluationCriteria]:
-        """Define weighted evaluation criteria"""
+        """Define weighted evaluation criteria""
         return [
             EvaluationCriteria("functionality", 0.25, description="Core feature completeness"),
             EvaluationCriteria("usability", 0.20, description="User experience and ease of use"),
@@ -148,7 +148,7 @@ class ToolEvaluator:
         ]
     
     def evaluate_tool(self, tool_name: str, tool_config: Dict) -> ToolScoring:
-        """Comprehensive tool evaluation with quantitative scoring"""
+        """Comprehensive tool evaluation with quantitative scoring""
         scores = {}
         notes = {}
         
@@ -203,7 +203,7 @@ class ToolEvaluator:
         )
     
     def _test_functionality(self, tool_config: Dict) -> tuple[float, str]:
-        """Test core functionality against requirements"""
+        """Test core functionality against requirements""
         required_features = tool_config.get("required_features", [])
         optional_features = tool_config.get("optional_features", [])
         
@@ -234,7 +234,7 @@ class ToolEvaluator:
         return final_score, notes
     
     def _test_performance(self, tool_config: Dict) -> tuple[float, str]:
-        """Performance testing with quantitative metrics"""
+        """Performance testing with quantitative metrics""
         api_endpoint = tool_config.get("api_endpoint")
         if not api_endpoint:
             return 5.0, "No API endpoint for performance testing"
@@ -269,7 +269,7 @@ class ToolEvaluator:
         return speed_score, notes
     
     def calculate_total_cost_ownership(self, tool_config: Dict, years: int = 3) -> Dict:
-        """Calculate comprehensive TCO analysis"""
+        """Calculate comprehensive TCO analysis""
         costs = {
             "licensing": tool_config.get("annual_license_cost", 0) * years,
             "implementation": tool_config.get("implementation_cost", 0),
@@ -294,7 +294,7 @@ class ToolEvaluator:
         }
     
     def generate_comparison_report(self, tool_evaluations: List[ToolScoring]) -> Dict:
-        """Generate comprehensive comparison report"""
+        """Generate comprehensive comparison report""
         # Create comparison matrix
         comparison_df = pd.DataFrame([
             {

@@ -4,7 +4,7 @@ description: Expert in physical and human geography, climate systems, cartograph
 metadata:
   category: academic
   emoji: "🗺️"
-  color: ""#059669""
+  color: "#059669"
   vibe: "Geography is destiny — where you are determines who you become"
   original_name: "Geographer"
   source: Lalit Pandit

@@ -7,10 +7,6 @@ metadata:
   color: "cyan"
   vibe: "Knowledge is power."
   original_name: "llm-wiki"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -55,7 +51,7 @@ Use this skill when the user:
 
 ## Wiki Location
 
-**Location:** Set via `WIKI_PATH` environment variable (e.g. in `~/.hermes/.env`).
+**Location:** Set via `WIKI_PATH` environment variable (e.g. in `~/.rudrax/agent/.env`).
 
 If unset, defaults to `~/wiki`.
 

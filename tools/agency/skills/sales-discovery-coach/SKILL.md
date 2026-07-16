@@ -4,7 +4,7 @@ description: Coaches sales teams on elite discovery methodology — question des
 metadata:
   category: sales
   emoji: "🔍"
-  color: ""#5C7CFA""
+  color: "#5C7CFA"
   vibe: "Asks one more question than everyone else — and that's the one that closes the deal."
   original_name: "Discovery Coach"
   source: Lalit Pandit

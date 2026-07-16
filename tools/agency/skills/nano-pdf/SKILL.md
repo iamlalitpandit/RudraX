@@ -7,10 +7,6 @@ metadata:
   color: "amber"
   vibe: "Work smarter, not harder."
   original_name: "nano-pdf"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -39,7 +35,7 @@ Edit PDFs using natural-language instructions. Point it at a page and describe w
 ## Prerequisites
 
 ```bash
-# Install with uv (recommended — already available in Hermes)
+# Install with uv (recommended — already available in RudraX)
 uv pip install nano-pdf
 
 # Or with pip

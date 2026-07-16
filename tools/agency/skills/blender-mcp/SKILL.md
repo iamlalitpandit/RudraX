@@ -1,16 +1,12 @@
 ---
 name: blender-mcp
-description: "Control Blender directly from Hermes via socket connection to the blender-mcp addon. Create 3D objects, materials, animations, and run arbitrary Blender Python (bpy) code. Use when user wants to create or modify anything in Blender."
+description: "Control Blender directly from RudraX via socket connection to the blender-mcp addon. Create 3D objects, materials, animations, and run arbitrary Blender Python (bpy) code. Use when user wants to create or modify anything in Blender."
 metadata:
   category: design
   emoji: "🟠"
   color: "purple"
   vibe: 'Design is not just how it looks.'
   original_name: "blender-mcp"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -30,7 +26,7 @@ metadata:
 
 # Blender MCP
 
-Control a running Blender instance from Hermes via socket on TCP port 9876.
+Control a running Blender instance from RudraX via socket on TCP port 9876.
 
 ## Setup (one-time)
 
@@ -80,7 +76,7 @@ Use this inside execute_code tool calls:
         s.settimeout(timeout)
         payload = json.dumps({"type": "execute_code", "params": {"code": code}})
         s.sendall(payload.encode("utf-8"))
-        buf = b""
+        buf = b"
         while True:
             try:
                 chunk = s.recv(4096)

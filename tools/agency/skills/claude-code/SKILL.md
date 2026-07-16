@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Agents building agents."
   original_name: "claude-code"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -32,9 +28,9 @@ metadata:
 
 ---
 
-# Claude Code — Hermes Orchestration Guide
+# Claude Code — RudraX Orchestration Guide
 
-Delegate coding tasks to [Claude Code](https://code.claude.com/docs/en/cli-reference) (Anthropic's autonomous coding agent CLI) via the Hermes terminal. Claude Code v2.x can read files, write code, run shell commands, spawn subagents, and manage git workflows autonomously.
+Delegate coding tasks to [Claude Code](https://code.claude.com/docs/en/cli-reference) (Anthropic's autonomous coding agent CLI) via the RudraX terminal. Claude Code v2.x can read files, write code, run shell commands, spawn subagents, and manage git workflows autonomously.
 
 ## Prerequisites
 
@@ -49,7 +45,7 @@ Delegate coding tasks to [Claude Code](https://code.claude.com/docs/en/cli-refer
 
 ## Two Orchestration Modes
 
-Hermes interacts with Claude Code in two fundamentally different ways. Choose based on the task.
+RudraX interacts with Claude Code in two fundamentally different ways. Choose based on the task.
 
 ### Mode 1: Print Mode (`-p`) — Non-Interactive (PREFERRED for most tasks)
 
@@ -739,7 +735,7 @@ Use `/context` in interactive mode to see a colored grid of context usage. Key t
 
 ## Pitfalls & Gotchas
 
-1. **Interactive mode REQUIRES tmux** — Claude Code is a full TUI app. Using `pty=true` alone in Hermes terminal works but tmux gives you `capture-pane` for monitoring and `send-keys` for input, which is essential for orchestration.
+1. **Interactive mode REQUIRES tmux** — Claude Code is a full TUI app. Using `pty=true` alone in RudraX terminal works but tmux gives you `capture-pane` for monitoring and `send-keys` for input, which is essential for orchestration.
 2. **`--dangerously-skip-permissions` dialog defaults to "No, exit"** — you must send Down then Enter to accept. Print mode (`-p`) skips this entirely.
 3. **`--max-budget-usd` minimum is ~$0.05** — system prompt cache creation alone costs this much. Setting lower will error immediately.
 4. **`--max-turns` is print-mode only** — ignored in interactive sessions.
@@ -752,7 +748,7 @@ Use `/context` in interactive mode to see a colored grid of context usage. Key t
 11. **`--bare` skips OAuth** — requires `ANTHROPIC_API_KEY` env var or an `apiKeyHelper` in settings.
 12. **Context degradation is real** — AI output quality measurably degrades above 70% context window usage. Monitor with `/context` and proactively `/compact`.
 
-## Rules for Hermes Agents
+## Rules for RudraXs
 
 1. **Prefer print mode (`-p`) for single tasks** — cleaner, no dialog handling, structured output
 2. **Use tmux for multi-turn interactive work** — the only reliable way to orchestrate the TUI

@@ -4,7 +4,7 @@ description: Expert LinkedIn content strategist focused on thought leadership, p
 metadata:
   category: marketing
   emoji: "💼"
-  color: ""#0A66C2""
+  color: "#0A66C2"
   vibe: "Turns professional expertise into scroll-stopping content that makes the right people find you."
   original_name: "LinkedIn Content Creator"
   source: Lalit Pandit

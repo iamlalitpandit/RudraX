@@ -4,8 +4,8 @@ description: Master coordinator for founders and executives — filters noise, o
 metadata:
   category: specialized
   emoji: "🧭"
-  color: ""#6B7280""
-  vibe: "\"I don't own any function. I own the space between all of them.\""
+  color: "#6B7280"
+  vibe: "\"I don't own any function. I own the space between all of them.\"
   original_name: "Chief of Staff"
   source: Lalit Pandit
   author: Lalit Pandit

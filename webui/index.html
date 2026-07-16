@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RudraX Army v4.5.0 — Build · Break · Deploy by Lalit Pandit</title>
-  <meta name="description" content="RudraX Army v4.5.0 — 349 AI Agents, 15 Advanced Capabilities, 9 Squads. Build, Break, Deploy by Lalit Pandit.">
+  <title>RudraX Army v4.6.0 — Build · Break · Deploy by Lalit Pandit</title>
+  <meta name="description" content="RudraX Army v4.6.0 — 349 AI Agents, 15 Advanced Capabilities, 9 Squads. Build, Break, Deploy by Lalit Pandit.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
         <div class="login-logo">🔱</div>
         <div class="login-title">RudraX Army</div>
         <div class="login-subtitle">Build · Break · Deploy by Lalit Pandit</div>
-        <div class="login-version">v4.5.0 &middot; 349 Agents &middot; 15 Capabilities &middot; 9 Squads</div>
+        <div class="login-version">v4.6.0 &middot; 349 Agents &middot; 15 Capabilities &middot; 9 Squads</div>
       </div>
       <form class="login-form" id="login-form" autocomplete="off">
         <div class="login-field">
@@ -262,7 +262,7 @@
             <span id="squad-badge-count" class="badge-text"></span>
             <span class="badge-close" onclick="deactivateSquad()">✕</span>
           </div>
-          <span id="version-badge" class="version-badge">v4.5.0</span>
+          <span id="version-badge" class="version-badge">v4.6.0</span>
         </div>
         <div class="header-right">
           <button class="btn-icon icon-only" id="notif-bell" onclick="openNotificationCenter()" title="Notifications">🔔</button>
@@ -294,7 +294,7 @@
           <div class="welcome-title">RudraX Chief of Staff</div>
           <div class="welcome-subtitle">Strategic Commander · 349 Agents · 9 Squads · 45 Categories</div>
           <div class="welcome-subtitle">Autonomous Agentic AI · Build · Break · Deploy · Orchestrate</div>
-          <div class="welcome-version">v4.5.0</div>
+          <div class="welcome-version">v4.6.0</div>
           <div class="welcome-shortcuts">
             <div class="welcome-shortcut" onclick="insertPrompt('/orchestrate ')">
               <span class="welcome-shortcut-icon">🧠</span>
@@ -574,10 +574,35 @@
           <option value="manual">Manual — You pick agents</option>
         </select>
 
+        <div style="margin-top:var(--sp-lg);padding:var(--sp-md);background:var(--void-800);border:1px solid var(--border-secondary);border-radius:var(--border-radius-sm)">
+          <div style="font-weight:700;margin-bottom:var(--sp-sm)">🤖 Model Provider</div>
+          <label for="provider-select">Provider</label>
+          <select id="provider-select" onchange="loadProviderModels(this.value)"></select>
+          <label for="provider-model-select">Model / deployment</label>
+          <input id="provider-model-select" list="provider-model-options" placeholder="Model ID or Azure deployment name" autocomplete="off">
+          <datalist id="provider-model-options"></datalist>
+          <label for="provider-api-mode">API mode</label>
+          <select id="provider-api-mode">
+            <option value="openai-completions">OpenAI Chat Completions</option>
+            <option value="anthropic-messages">Anthropic Messages</option>
+          </select>
+          <label for="provider-endpoint">Endpoint override (optional)</label>
+          <input id="provider-endpoint" type="url" placeholder="https://api.example.com/v1" autocomplete="off">
+          <label for="provider-api-key">API key (stored locally, never returned)</label>
+          <input id="provider-api-key" type="password" placeholder="Leave blank to keep existing key" autocomplete="new-password">
+          <div id="provider-config-status" style="font-size:var(--fs-xs);margin:var(--sp-sm) 0;color:var(--text-muted)"></div>
+          <div style="display:flex;gap:var(--sp-sm);flex-wrap:wrap">
+            <button class="login-btn" onclick="saveProviderConfig()" style="flex:1">Save provider</button>
+            <button class="login-btn" onclick="switchActiveModel()" style="flex:1">Use model</button>
+            <button class="login-btn" onclick="loadProviderSettings()" style="flex:1">Refresh</button>
+            <button class="login-btn" onclick="removeProviderConfig()" style="flex:1">Remove</button>
+          </div>
+        </div>
+
         <button class="login-btn" onclick="exportSession()" style="margin-top:var(--sp-md)">💾 Export Session</button>
 
         <div style="margin-top:var(--sp-xl);padding:var(--sp-md);background:var(--void-800);border-radius:var(--border-radius-sm);border:1px solid var(--border-gold)">
-          <div style="font-weight:700;color:var(--gold-primary);margin-bottom:var(--sp-sm)">🔱 RudraX Army v4.5.0</div>
+          <div style="font-weight:700;color:var(--gold-primary);margin-bottom:var(--sp-sm)">🔱 RudraX Army v4.6.0</div>
           <div style="font-size:var(--fs-xs);color:var(--text-muted);line-height:1.5">
             <strong style="color:var(--text-primary)">Build · Break · Deploy · Orchestrate</strong><br>
             Autonomous Agentic AI by <strong style="color:var(--gold-primary)">Lalit Pandit</strong><br><br>

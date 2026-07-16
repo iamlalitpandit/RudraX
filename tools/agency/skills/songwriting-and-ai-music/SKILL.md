@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Creativity is intelligence having fun."
   original_name: "songwriting-and-ai-music"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -252,7 +248,6 @@ AI vocalists don't read — they pronounce. Help them:
 PHONETIC RESPELLING:
 - Spell words as they SOUND: "through" -> "thru"
 - Proper nouns are highest failure rate — test early
-- "Nous" -> "Noose" (forces correct pronunciation)
 - Hyphenate to guide syllables: "Re-search", "bio-engineering"
 
 DELIVERY CONTROL:

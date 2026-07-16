@@ -1,7 +1,7 @@
 # 🧬 Evolving Memory System
 
 > **Self-learning intelligence engine for RudraX Agent.** 
-> Inspired by [Hermes Agent](https://github.com/nousresearch/hermes-agent)'s memory architecture.
+> Inspired by [RudraX](https://github.com/iamlalitpandit/RudraX)'s memory architecture.
 > Ported and extended with autonomous skill evolution.
 
 ---

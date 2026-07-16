@@ -2,7 +2,7 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
 /**
- * Agency Manager Extension for RudraX — v4.5.0 (State-of-the-Art Upgrade)
+ * Agency Manager Extension for RudraX — v4.6.0 (State-of-the-Art Upgrade)
  *
  * Provides:
  * - /agency list        — List all installed agency agents
@@ -14,7 +14,7 @@ import { Type } from "@sinclair/typebox";
  * - /agency activate-nexus — Activate NEXUS multi-agent orchestrator
  * - /agency squad       — Activate a team of agents
  *
- * Integrated Capabilities (v4.5.0+):
+ * Integrated Capabilities (v4.6.0+):
  *   🧠 vector-knowledge.ts   — Semantic search & RAG via vector KB
  *   📡 communication-bus.ts  — Pub/sub messaging between agents
  *   🛡️ approval-gates.ts     — Human-in-the-loop safety gates
@@ -269,7 +269,7 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("help-agency", {
     description: "Show comprehensive command reference for all RudraX Army capabilities",
     handler: async (_args: string, ctx) => {
-      const help = `🔱 **RudraX Army v4.5.0 — Complete Command Reference**
+      const help = `🔱 **RudraX Army v4.6.0 — Complete Command Reference**
 
 **🎯 AGENCY COMMANDS**
 /agency list                       — List all specialization agents
@@ -444,7 +444,7 @@ export default function (pi: ExtensionAPI) {
 
     // Show integrated capabilities on first session
     ctx.ui.notify(
-      `🔱 RudraX Army v4.5.0 — ${features.length} Advanced Capabilities\n` +
+      `🔱 RudraX Army v4.6.0 — ${features.length} Advanced Capabilities\n` +
       `${features.join(" · ")}\n\n` +
       `📌 /help-agency — Full command reference`,
       "info"

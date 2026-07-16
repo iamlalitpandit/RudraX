@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "guidance"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -209,13 +205,13 @@ from guidance import models, gen
 lm = models.Anthropic("claude-sonnet-4-5-20250929")
 
 # JSON grammar (simplified)
-json_grammar = """
+json_grammar = ""
 {
     "name": <gen name regex="[A-Za-z ]+" max_tokens=20>,
     "age": <gen age regex="[0-9]+" max_tokens=3>,
     "email": <gen email regex="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}" max_tokens=50>
 }
-"""
+""
 
 # Generate valid JSON
 lm += gen("person", grammar=json_grammar)
@@ -238,7 +234,7 @@ from guidance import guidance, gen, models
 
 @guidance
 def generate_person(lm):
-    """Generate a person with name and age."""
+    """Generate a person with name and age.""
     lm += "Name: " + gen("name", max_tokens=20, stop="\n")
     lm += "\nAge: " + gen("age", regex=r"[0-9]+", max_tokens=3)
     return lm
@@ -256,7 +252,7 @@ print(lm["age"])
 ```python
 @guidance(stateless=False)
 def react_agent(lm, question, tools, max_rounds=5):
-    """ReAct agent with tool use."""
+    """ReAct agent with tool use.""
     lm += f"Question: {question}\n\n"
 
     for i in range(max_rounds):
@@ -344,8 +340,8 @@ with assistant():
     lm += """{
     "name": """ + gen("name", regex=r'"[A-Za-z ]+"', max_tokens=30) + """,
     "age": """ + gen("age", regex=r"[0-9]+", max_tokens=3) + """,
-    "email": """ + gen("email", regex=r'"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"', max_tokens=50) + """
-}"""
+    "email": """ + gen("email", regex=r'"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"', max_tokens=50) + ""
+}""
 
 print(lm)  # Valid JSON guaranteed
 ```
@@ -374,7 +370,7 @@ from guidance import models, gen, guidance
 
 @guidance
 def chain_of_thought(lm, question):
-    """Generate answer with step-by-step reasoning."""
+    """Generate answer with step-by-step reasoning.""
     lm += f"Question: {question}\n\n"
 
     # Generate multiple reasoning steps
@@ -399,7 +395,7 @@ from guidance import models, gen, select, guidance
 
 @guidance(stateless=False)
 def react_agent(lm, question):
-    """ReAct agent with tool use."""
+    """ReAct agent with tool use.""
     tools = {
         "calculator": lambda expr: eval(expr),
         "search": lambda query: f"Search results for: {query}",
@@ -440,7 +436,7 @@ from guidance import models, gen, guidance
 
 @guidance
 def extract_entities(lm, text):
-    """Extract structured entities from text."""
+    """Extract structured entities from text.""
     lm += f"Text: {text}\n\n"
 
     # Extract person

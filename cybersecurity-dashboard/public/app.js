@@ -11,7 +11,7 @@
 
   // ─── Agent Names for Squads ────────────────────────────────────────────────
   const AGENT_NAMES = {
-    threat: ['Athena', 'Ares', 'Hades', 'Zeus', 'Poseidon', 'Apollo', 'Artemis', 'Hermes', 'Hephaestus', 'Dionysus'],
+    threat: ['Athena', 'Ares', 'Hades', 'Zeus', 'Poseidon', 'Apollo', 'Artemis', 'RudraX', 'Hephaestus', 'Dionysus'],
     network: ['Odin', 'Thor', 'Loki', 'Freya', 'Heimdall', 'Balder', 'Tyr', 'Frigg', 'Njord', 'Idun'],
     auth: ['Merlin', 'Morgana', 'Galahad', 'Lancelot', 'Percival', 'Gawain', 'Tristan', 'Bedivere', 'Guinevere', 'Arthur'],
     intel: ['Moriarty', 'Sherlock', 'Watson', 'Mycroft', 'Irene', 'Lestrade', 'Hudson', 'Gregson', 'Holmes', 'Adler'],

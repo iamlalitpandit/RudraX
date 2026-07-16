@@ -4,7 +4,7 @@ description: Expert post-sale account strategist specializing in land-and-expand
 metadata:
   category: sales
   emoji: "🗺️"
-  color: ""#2E7D32""
+  color: "#2E7D32"
   vibe: "Maps the org, finds the whitespace, and turns customers into platforms."
   original_name: "Account Strategist"
   source: Lalit Pandit

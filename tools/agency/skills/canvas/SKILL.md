@@ -7,10 +7,6 @@ metadata:
   color: "amber"
   vibe: 'Work smarter, not harder.'
   original_name: "canvas"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -41,8 +37,8 @@ Read-only access to Canvas LMS for listing courses and assignments.
 1. Log in to your Canvas instance in a browser
 2. Go to **Account → Settings** (click your profile icon, then Settings)
 3. Scroll to **Approved Integrations** and click **+ New Access Token**
-4. Name the token (e.g., "Hermes Agent"), set an optional expiry, and click **Generate Token**
-5. Copy the token and add to `~/.hermes/.env`:
+4. Name the token (e.g., "RudraX"), set an optional expiry, and click **Generate Token**
+5. Copy the token and add to `~/.rudrax/agent/.env`:
 
 ```
 CANVAS_API_TOKEN=your_token_here
@@ -54,7 +50,7 @@ The base URL is whatever appears in your browser when you're logged into Canvas 
 ## Usage
 
 ```bash
-CANVAS="python $HERMES_HOME/skills/productivity/canvas/scripts/canvas_api.py"
+CANVAS="python $RUDRAX_CODING_AGENT_DIR/skills/productivity/canvas/scripts/canvas_api.py"
 
 # List all active courses
 $CANVAS list_courses --enrollment-state active

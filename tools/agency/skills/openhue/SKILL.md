@@ -7,10 +7,6 @@ metadata:
   color: "green"
   vibe: "A smart home is a happy home."
   original_name: "openhue"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -121,7 +117,7 @@ openhue set room "Living Room" --off
 
 ## Notes
 
-- Bridge must be on the same local network as the machine running Hermes
+- Bridge must be on the same local network as the machine running RudraX
 - First run requires physically pressing the button on the Hue Bridge to authorize
 - Colors only work on color-capable bulbs (not white-only models)
 - Light and room names are case-sensitive — use `openhue get light` to check exact names

@@ -4,7 +4,7 @@ description: Expert in cultural systems, rituals, kinship, belief systems, and e
 metadata:
   category: academic
   emoji: "🌍"
-  color: ""#D97706""
+  color: "#D97706"
   vibe: "No culture is random — every practice is a solution to a problem you might not see yet"
   original_name: "Anthropologist"
   source: Lalit Pandit

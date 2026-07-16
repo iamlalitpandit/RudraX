@@ -340,7 +340,7 @@ steps:
 
       {body - what was changed and why}
 
-      Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
     type_map:
       BUG: fix
       FEATURE: feat

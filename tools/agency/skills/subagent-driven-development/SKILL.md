@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Specialized expertise on demand."
   original_name: "subagent-driven-development"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -85,7 +81,7 @@ Use `delegate_task` with complete context:
 ```python
 delegate_task(
     goal="Implement Task 1: Create User model with email and password_hash fields",
-    context="""
+    context=""
     TASK FROM PLAN:
     - Create: src/models/user.py
     - Add User class with email (str) and password_hash (str) fields
@@ -117,7 +113,7 @@ After the implementer completes, verify against the original spec:
 ```python
 delegate_task(
     goal="Review if implementation matches the spec from the plan",
-    context="""
+    context=""
     ORIGINAL TASK SPEC:
     - Create src/models/user.py with User class
     - Fields: email (str), password_hash (str)
@@ -146,7 +142,7 @@ After spec compliance passes:
 ```python
 delegate_task(
     goal="Review code quality for Task 1 implementation",
-    context="""
+    context=""
     FILES TO REVIEW:
     - src/models/user.py
     - tests/models/test_user.py
@@ -184,7 +180,7 @@ After ALL tasks are complete, dispatch a final integration reviewer:
 ```python
 delegate_task(
     goal="Review the entire implementation for consistency and integration issues",
-    context="""
+    context=""
     All tasks from the plan are complete. Review the full implementation:
     - Do all components work together?
     - Any inconsistencies between tasks?

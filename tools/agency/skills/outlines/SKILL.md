@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "outlines"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -329,10 +325,10 @@ class CompanyInfo(BaseModel):
 model = outlines.models.transformers("microsoft/Phi-3-mini-4k-instruct")
 generator = outlines.generate.json(model, CompanyInfo)
 
-text = """
+text = ""
 Apple Inc. was founded in 1976 in the technology industry.
 The company employs approximately 164,000 people worldwide.
-"""
+""
 
 prompt = f"Extract company information:\n{text}\n\nCompany:"
 company = generator(prompt)
@@ -383,7 +379,7 @@ class UserProfile(BaseModel):
 model = outlines.models.transformers("microsoft/Phi-3-mini-4k-instruct")
 generator = outlines.generate.json(model, UserProfile)
 
-prompt = """
+prompt = ""
 Extract user profile from:
 Name: Alice Johnson
 Age: 28
@@ -391,7 +387,7 @@ Email: alice@example.com
 Phone: 555-0123
 Country: USA
 Interests: hiking, photography, cooking
-"""
+""
 
 profile = generator(prompt)
 print(profile.full_name)
@@ -443,7 +439,7 @@ print(f"    {func.body}")
 
 ```python
 def batch_extract(texts: list[str], schema: type[BaseModel]):
-    """Extract structured data from multiple texts."""
+    """Extract structured data from multiple texts.""
     model = outlines.models.transformers("microsoft/Phi-3-mini-4k-instruct")
     generator = outlines.generate.json(model, schema)
 
@@ -589,11 +585,11 @@ class Task(BaseModel):
 
 ```python
 # ✅ Good: Clear context
-prompt = """
+prompt = ""
 Extract product information from the following text.
 Text: iPhone 15 Pro costs $999 and is currently in stock.
 Product:
-"""
+""
 
 # ❌ Bad: Minimal context
 prompt = "iPhone 15 Pro costs $999 and is currently in stock."

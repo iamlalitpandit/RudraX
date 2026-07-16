@@ -129,10 +129,10 @@ class InventoryManager:
         self.params = params
 
     def calculate_eoq(self) -> float:
-        """
+        ""
         Calculate Economic Order Quantity (EOQ)
         EOQ = sqrt(2 * D * S / H)
-        """
+        ""
         d = self.params.annual_demand
         s = self.params.order_cost
         h = self.params.unit_price * self.params.holding_cost_rate
@@ -140,12 +140,12 @@ class InventoryManager:
         return round(eoq)
 
     def calculate_safety_stock(self) -> float:
-        """
+        ""
         Calculate safety stock
         SS = Z * sigma_dLT
         Z: Z-value corresponding to the service level
         sigma_dLT: Standard deviation of demand during lead time
-        """
+        ""
         from scipy.stats import norm
         z = norm.ppf(self.params.service_level)
         lead_time_factor = np.sqrt(self.params.lead_time_days / 365)
@@ -154,18 +154,18 @@ class InventoryManager:
         return round(safety_stock)
 
     def calculate_reorder_point(self) -> float:
-        """
+        ""
         Calculate Reorder Point (ROP)
         ROP = daily demand x lead time + safety stock
-        """
+        ""
         daily_demand = self.params.annual_demand / 365
         rop = daily_demand * self.params.lead_time_days + self.calculate_safety_stock()
         return round(rop)
 
     def analyze_dead_stock(self, inventory_df):
-        """
+        ""
         Dead stock analysis and disposition recommendations
-        """
+        ""
         dead_stock = inventory_df[
             (inventory_df['last_movement_days'] > 180) |
             (inventory_df['turnover_rate'] < 1.0)
@@ -195,9 +195,9 @@ class InventoryManager:
         return recommendations
 
     def inventory_strategy_report(self):
-        """
+        ""
         Generate inventory strategy report
-        """
+        ""
         eoq = self.calculate_eoq()
         safety_stock = self.calculate_safety_stock()
         rop = self.calculate_reorder_point()
@@ -250,9 +250,9 @@ class InventoryManager:
 
 ```python
 class SupplyChainDigitalization:
-    """
+    ""
     Supply chain digital maturity assessment and roadmap planning
-    """
+    ""
 
     # Comparison of major ERP systems in China
     ERP_SYSTEMS = {
@@ -292,9 +292,9 @@ class SupplyChainDigitalization:
     }
 
     def assess_digital_maturity(self, company_profile: dict) -> dict:
-        """
+        ""
         Assess enterprise supply chain digital maturity (Level 1-5)
-        """
+        ""
         dimensions = {
             'procurement_digitalization': self._assess_procurement(company_profile),
             'inventory_visibility': self._assess_inventory(company_profile),
@@ -368,9 +368,9 @@ class SupplyChainDigitalization:
 
 ```python
 class SupplyChainRiskManager:
-    """
+    ""
     Supply chain risk identification, assessment, and response
-    """
+    ""
 
     RISK_CATEGORIES = {
         'supply_disruption_risk': {
@@ -396,9 +396,9 @@ class SupplyChainRiskManager:
     }
 
     def risk_assessment(self, supplier_data: dict) -> dict:
-        """
+        ""
         Comprehensive supplier risk assessment
-        """
+        ""
         risk_scores = {}
 
         # Supply concentration risk

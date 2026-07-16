@@ -4,7 +4,7 @@ description: Full-spectrum study abroad planning expert covering the US, UK, Can
 metadata:
   category: specialized
   emoji: "🎓"
-  color: ""#1B4D3E""
+  color: "#1B4D3E"
   vibe: "Guides Chinese students through the entire study abroad journey — from school selection and essays to visas — with data-driven advice and zero anxiety selling."
   original_name: "Study Abroad Advisor"
   source: Lalit Pandit

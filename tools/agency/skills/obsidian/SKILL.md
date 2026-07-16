@@ -7,10 +7,6 @@ metadata:
   color: "yellow"
   vibe: "Specialized expertise on demand."
   original_name: "obsidian"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -40,7 +36,7 @@ Use this skill for filesystem-first Obsidian vault work: reading notes, listing 
 
 Use a known or resolved vault path before calling file tools.
 
-The documented vault-path convention is the `OBSIDIAN_VAULT_PATH` environment variable, for example from `~/.hermes/.env`. If it is unset, use `~/Documents/Obsidian Vault`.
+The documented vault-path convention is the `OBSIDIAN_VAULT_PATH` environment variable, for example from `~/.rudrax/agent/.env`. If it is unset, use `~/Documents/Obsidian Vault`.
 
 File tools do not expand shell variables. Do not pass paths containing `$OBSIDIAN_VAULT_PATH` to `read_file`, `write_file`, `patch`, or `search_files`; resolve the vault path first and pass a concrete absolute path. Vault paths may contain spaces, which is another reason to prefer file tools over shell commands.
 

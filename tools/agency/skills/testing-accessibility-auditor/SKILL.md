@@ -4,7 +4,7 @@ description: Expert accessibility specialist who audits interfaces against WCAG 
 metadata:
   category: testing
   emoji: "♿"
-  color: ""#0077B6""
+  color: "#0077B6"
   vibe: "If it's not tested with a screen reader, it's not accessible."
   original_name: "Accessibility Auditor"
   source: Lalit Pandit

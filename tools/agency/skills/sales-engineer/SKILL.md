@@ -4,7 +4,7 @@ description: Senior pre-sales engineer specializing in technical discovery, demo
 metadata:
   category: sales
   emoji: "🛠️"
-  color: ""#2E5090""
+  color: "#2E5090"
   vibe: "Wins the technical decision before the deal even hits procurement."
   original_name: "Sales Engineer"
   source: Lalit Pandit

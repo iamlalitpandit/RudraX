@@ -4,7 +4,7 @@ description: AI agent that automates distribution of consolidated sales reports 
 metadata:
   category: specialized
   emoji: "📤"
-  color: ""#d69e2e""
+  color: "#d69e2e"
   vibe: "Automates delivery of consolidated sales reports to the right reps."
   original_name: "Report Distribution Agent"
   source: Lalit Pandit

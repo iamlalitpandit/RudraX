@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "slime"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -229,7 +225,7 @@ Use this workflow for training agents with tool use or multi-step reasoning.
 ```python
 # custom_generate.py
 async def custom_generate(args, samples, evaluation=False):
-    """Multi-turn generation with tool calling."""
+    """Multi-turn generation with tool calling.""
     for sample in samples:
         conversation = sample.prompt
 
@@ -331,11 +327,11 @@ slime's data buffer enables flexible data management:
 ```python
 class RolloutDataSource:
     def get_samples(self, num_samples):
-        """Fetch prompts from dataset."""
+        """Fetch prompts from dataset.""
         return self.dataset.sample(num_samples)
 
     def add_samples(self, samples):
-        """Called after generation (no-op by default)."""
+        """Called after generation (no-op by default).""
         pass
 ```
 
@@ -347,11 +343,11 @@ class RolloutDataSourceWithBuffer(RolloutDataSource):
         self.buffer = []
 
     def add_samples(self, samples):
-        """Store generated samples for reuse."""
+        """Store generated samples for reuse.""
         self.buffer.extend(samples)
 
     def buffer_filter(self, args, buffer, num_samples):
-        """Custom selection logic (prioritized, stratified, etc.)."""
+        """Custom selection logic (prioritized, stratified, etc.).""
         return select_best(buffer, num_samples)
 ```
 

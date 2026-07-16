@@ -7,10 +7,6 @@ metadata:
   color: "pink"
   vibe: "Content is king."
   original_name: "gif-search"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -42,7 +38,7 @@ Useful for finding reaction GIFs, creating visual content, and sending GIFs in c
 
 ## Setup
 
-Set your Tenor API key in your environment (add to `~/.hermes/.env`):
+Set your Tenor API key in your environment (add to `~/.rudrax/agent/.env`):
 
 ```bash
 TENOR_API_KEY=your_key_here

@@ -5,7 +5,7 @@ metadata:
   category: engineering
   emoji: "🧱"
   color: "blue"
-  vibe: ""
+  vibe: "Build systems that scale."
   original_name: "CMS Developer"
   source: Lalit Pandit
   author: Lalit Pandit

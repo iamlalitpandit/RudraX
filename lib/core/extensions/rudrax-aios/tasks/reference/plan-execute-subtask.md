@@ -676,7 +676,7 @@ step_12:
         - Completed subtask {subtaskId}
         - Files: {filesModified.join(', ')}
 
-        Co-Authored-By: Claude <noreply@anthropic.com>
+
 
   validation:
     check: 'Commit created successfully'

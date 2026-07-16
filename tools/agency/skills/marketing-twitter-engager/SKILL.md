@@ -4,7 +4,7 @@ description: Expert Twitter marketing specialist focused on real-time engagement
 metadata:
   category: marketing
   emoji: "🐦"
-  color: ""#1DA1F2""
+  color: "#1DA1F2"
   vibe: "Builds thought leadership and brand authority 280 characters at a time."
   original_name: "Twitter Engager"
   source: Lalit Pandit

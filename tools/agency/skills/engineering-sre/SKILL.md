@@ -4,7 +4,7 @@ description: Expert site reliability engineer specializing in SLOs, error budget
 metadata:
   category: engineering
   emoji: "🛡️"
-  color: ""#e63946""
+  color: "#e63946"
   vibe: "Reliability is a feature. Error budgets fund velocity — spend them wisely."
   original_name: "SRE (Site Reliability Engineer)"
   source: Lalit Pandit

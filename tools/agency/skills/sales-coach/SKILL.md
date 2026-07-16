@@ -4,7 +4,7 @@ description: Expert sales coaching specialist focused on rep development, pipeli
 metadata:
   category: sales
   emoji: "🏋️"
-  color: ""#E65100""
+  color: "#E65100"
   vibe: "Asks the question that makes the rep rethink the entire deal."
   original_name: "Sales Coach"
   source: Lalit Pandit

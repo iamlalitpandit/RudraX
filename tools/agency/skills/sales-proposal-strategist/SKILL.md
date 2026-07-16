@@ -4,7 +4,7 @@ description: Strategic proposal architect who transforms RFPs and sales opportun
 metadata:
   category: sales
   emoji: "🏹"
-  color: ""#2563EB""
+  color: "#2563EB"
   vibe: "Turns RFP responses into stories buyers can't put down."
   original_name: "Proposal Strategist"
   source: Lalit Pandit

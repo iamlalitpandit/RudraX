@@ -7,10 +7,6 @@ metadata:
   color: "silver"
   vibe: "Think different."
   original_name: "macos-computer-use"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -194,7 +190,7 @@ your conversation context.
 
 ## Failure modes
 
-- **"cua-driver not installed"** — Run `hermes tools` and enable Computer
+- **"cua-driver not installed"** — Run `rudrax tools` and enable Computer
   Use; the setup will install cua-driver via its upstream script. Requires
   macOS + Accessibility + Screen Recording permissions.
 - **Element index stale** — SOM indices come from the last `capture` call.

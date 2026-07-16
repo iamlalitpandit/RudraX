@@ -1,21 +1,47 @@
-# 🔱 RudraX Army v4.5.0
+<p align="center">
+  <img src="assets/rudrax-banner.svg" alt="RudraX Army — 349 specialists, 43 model providers, 9 tactical squads" width="100%" />
+</p>
 
-[![Website](https://img.shields.io/badge/Website-rudrax.cloud-B45309?style=flat-square)](https://rudrax.cloud)
-[![Agents](https://img.shields.io/badge/Agents-349-B45309?style=flat-square)](https://rudrax.cloud/autonomous-agents)
-[![Playground](https://img.shields.io/badge/Try%20Now-Playground-B45309?style=flat-square)](https://rudrax.cloud/playground)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
-![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green?style=flat-square)
-![Version](https://img.shields.io/badge/version-4.5.0-gold?style=flat-square)
+<p align="center">
+  <a href="https://github.com/iamlalitpandit/RudraX/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/iamlalitpandit/RudraX/test.yml?branch=main&style=flat-square&label=tests" alt="Tests" /></a>
+  <a href="https://github.com/iamlalitpandit/RudraX/actions/workflows/docker-publish.yml"><img src="https://img.shields.io/github/actions/workflow/status/iamlalitpandit/RudraX/docker-publish.yml?branch=main&style=flat-square&label=docker" alt="Docker" /></a>
+  <a href="https://github.com/iamlalitpandit/RudraX/releases"><img src="https://img.shields.io/github/v/release/iamlalitpandit/RudraX?style=flat-square&color=f97316" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D20.19-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node 20.19+" />
+  <a href="https://github.com/iamlalitpandit/RudraX/stargazers"><img src="https://img.shields.io/github/stars/iamlalitpandit/RudraX?style=flat-square&color=f59e0b" alt="GitHub stars" /></a>
+</p>
 
-> **India's largest open-source multi-agent AI orchestration platform — 349 specialized agents, 32 categories, 9 tactical squads.**
+<p align="center">
+  <strong>349 specialist agents. 43 model providers. One command center.</strong>
+</p>
 
-RudraX Army is a **hierarchical command-and-control multi-agent system**. Instead of a single AI trying to do everything, you get a **Chief of Staff** that strategically delegates tasks through a **Deputy Chief of Staff** to **349 specialized agents** across **32 operational divisions**.
+<p align="center">
+  <a href="https://rudrax.cloud/playground"><strong>Try the live playground</strong></a>
+  ·
+  <a href="https://rudrax.cloud/autonomous-agents">Browse all agents</a>
+  ·
+  <a href="https://rudrax.cloud">Documentation</a>
+</p>
 
-🌟 **Completely free & open source** — MIT licensed. Bring your own API keys.
+RudraX Army is an open-source, hierarchical multi-agent runtime for building, testing, deploying, and operating real software. A Chief of Staff breaks down the mission, a Deputy coordinates execution, and specialist agents do the work through tools, quality gates, memory, and tactical squads.
 
----
+**Project developed by [Lalit Pandit](https://github.com/iamlalitpandit).** Free to use under the MIT License.
 
-## 🚀 Quick Start
+> If RudraX saves you time, star the repository. It helps more builders discover the project.
+
+## Why RudraX
+
+| What you get | RudraX |
+|---|---|
+| Specialist workforce | 349 agents across engineering, security, product, design, finance, legal, healthcare, research, and more |
+| Model freedom | 43 provider integrations covering major cloud APIs, Azure AI Foundry, routers, and local inference |
+| Tactical execution | 9 ready-made squads for startups, enterprise delivery, security, QA, AI infrastructure, Web3, growth, incidents, and full products |
+| Real interfaces | WebUI, terminal UI, CLI, REST API, WebSocket streaming, MCP, and webhooks |
+| Local-first operation | Ollama, LM Studio, LocalAI, custom OpenAI-compatible endpoints, and air-gapped deployments |
+| Operational controls | Approval gates, sandboxing, PII guardrails, audit logs, cost tracking, scheduling, and observability |
+| Persistent intelligence | Cross-session memory, vector knowledge, reflection, knowledge graph, and reusable skills |
+
+## Quick start
 
 ```bash
 git clone https://github.com/iamlalitpandit/RudraX.git
@@ -24,161 +50,176 @@ npm install
 npm start
 ```
 
-Then open **http://localhost:5555** in your browser.
+Open `http://localhost:5555`.
 
-Or try it instantly at **[rudrax.cloud/playground](https://rudrax.cloud/playground)** — no installation required!
+Default WebUI credentials on a fresh local install are printed in the terminal. Change the password immediately from Settings before exposing the server to a network.
 
----
+### Run with a local model
 
-## 🎯 What Makes RudraX Different?
-
-| Feature | RudraX Army | Others |
-|---------|------------|--------|
-| **Agent Count** | 349 pre-built agents | 10-50 typically |
-| **Categories** | 32 (engineering, design, finance, marketing, legal, healthcare, game dev, XR, DevOps, AI/ML, support, content & more) | 3-5 |
-| **Tactical Squads** | 9 pre-assembled multi-agent teams | None |
-| **Orchestration** | Hierarchical (Chief of Staff → Deputy → Specialists) | Flat / Sequential |
-| **Pricing** | **$0 — Free & Open Source** | $20-200/mo per user |
-| **Infrastructure** | Bring your own server (air-gap ready) | Cloud-only |
-| **Models** | Any LLM (OpenAI, Anthropic, Google, Ollama local) | Vendor locked |
-| **Auth** | JWT, RBAC, audit trails | Often basic |
-| **Memory** | Vector KB, cross-session, Honcho integration | Context window only |
-
----
-
-## ✨ Features
-
-### 🧠 349 Pre-Built Agents
-Specialized AI agents spanning software engineering, design, marketing, finance, game development, healthcare, legal, DevOps, XR/spatial computing, AI/ML, content creation, support, research, security, and 20+ more categories. Each agent has a focused skill set and personality.
-
-### 👥 9 Tactical Squads
-Pre-assembled multi-agent teams for common missions:
-- **Startup Squad** — MVP in 24 hours (design + code + content)
-- **Enterprise Squad** — Full product lifecycle management
-- **Security Squad** — Code audit, threat modeling, compliance
-- **QA Lead Squad** — Testing, benchmarking, code review
-- **AI Infra Squad** — Model deployment, fine-tuning, optimization
-- **Web3 Squad** — Smart contracts, DeFi, blockchain audit
-- **Growth Squad** — Marketing, SEO, analytics, conversion
-- **Incident Squad** — 24/7 monitoring, triage, remediation
-- **Full Product Squad** — Everything squad for end-to-end delivery
-
-### 🎛️ Agency Orchestrator
-Hierarchical command system:
-1. 🔱 **Chief of Staff** — Analyzes intent, creates execution plans
-2. 🎛️ **Deputy Chief of Staff** — Deploys specialist agents, manages pipelines
-3. 👷 **Specialist Agents** — Execute domain-specific tasks
-4. ✅ **Quality Gates** — Dev↔QA refinement loops
-5. 📋 **Consolidated Reports** — Structured output with artifacts
-
-### 🔒 Enterprise Security
-- JWT authentication with role-based access control
-- PII detection guardrails (SSN, email, API keys)
-- Code sandboxing and approval gates
-- Audit logging and session management
-- Air-gapped deployment support
-
-### 💾 Persistent Memory
-- Vector-based knowledge base with semantic search
-- Cross-session user modeling via Honcho
-- Conversation summaries and compaction
-- Context budget enforcement
-
-### 🌐 Every Interface
-- **Beautiful WebUI** — Dark-themed dashboard with terminal, agent status, capabilities grid
-- **REST API** — All functionality available via HTTP endpoints
-- **MCP Server** — Model Context Protocol support for agent-to-agent communication
-- **WebSocket** — Real-time agent streaming and state updates
-- **CLI Tools** — Headless operation and automation
-- **Webhook Subscriptions** — Event-driven agent runs
-
----
-
-## 📋 Architecture
-
-```
-User Request 
-    ↓
-🔱 Chief of Staff (Intent Analysis)
-    ↓
-🎛️ Deputy Chief of Staff (Task Decomposition)
-    ↓
-┌─────────────────────────────────────────────┐
-│  👷 Specialist Agent 1   👷 Specialist Agent 2 │
-│  👷 Specialist Agent 3   👷 Specialist Agent 4 │
-│  ... (up to 349 agents)                       │
-└─────────────────────────────────────────────┘
-    ↓
-✅ Quality Check → Dev↔QA Loop
-    ↓
-📋 Response Synthesis
-    ↓
-User Response
+```bash
+ollama pull llama3.2
+ollama serve
+npm start
 ```
 
----
+RudraX discovers the running Ollama server and its installed models.
 
-## 🛡️ Agent Categories (32 Total)
+### Choose a cloud model
 
-| Category | Count | Category | Count |
-|----------|-------|----------|-------|
-| Engineering | 42 | AI/ML | 28 |
-| Marketing | 18 | Finance | 12 |
-| Design | 16 | Game Dev | 24 |
-| DevOps | 14 | Content | 14 |
-| Support | 16 | Healthcare | 8 |
-| Legal | 8 | XR / Spatial | 10 |
-| Research | 10 | Security | 8 |
-| Recruitment | 6 | HR | 6 |
-| Hospitality | 6 | Real Estate | 6 |
-| Supply Chain | 6 | Education | 6 |
-| *Plus 10 more categories* | | | |
+Copy `.env.example`, add only the credentials you use, then list available models:
 
-**Full directory**: [rudrax.cloud/autonomous-agents](https://rudrax.cloud/autonomous-agents)
+```bash
+cp .env.example .env
+rudrax --list-models
+rudrax --provider anthropic --model claude-sonnet-4-6
+```
 
----
+You can also configure providers from **WebUI → Settings → Model Provider**. Stored credentials are never returned by the provider API and local credential files use mode `0600`.
 
-## 📖 Documentation
+## Universal model support
 
-Full documentation at **[rudrax.cloud](https://rudrax.cloud)**
+RudraX keeps provider identity, authentication, endpoints, aliases, and representative models in one catalog. It preserves the built-in model registry and adds missing adapters without duplicate provider/model pairs.
 
-- [Army Page](https://rudrax.cloud/army) — Open-source overview
-- [Playground](https://rudrax.cloud/playground) — Try agents live
-- [Autonomous Agents](https://rudrax.cloud/autonomous-agents) — Complete agent directory
-- [Dashboard](https://rudrax.cloud/dashboard) — Real-time monitoring
-- [Blog](https://rudrax.cloud/blog) — AI insights & tutorials
+| Category | Supported examples |
+|---|---|
+| Frontier APIs | OpenAI, Anthropic, Google AI Studio, Vertex AI, xAI |
+| Enterprise cloud | Azure OpenAI, Azure AI Foundry, AWS Bedrock |
+| Routers and inference | OpenRouter, Vercel AI Gateway, Groq, Cerebras, Fireworks, Novita, Together |
+| Open-model platforms | DeepSeek, Z.AI/GLM, Kimi, MiniMax, Alibaba, NVIDIA NIM, Hugging Face, StepFun |
+| Local and private | Ollama, LM Studio, LocalAI, custom OpenAI-compatible endpoints |
 
----
+### Azure AI Foundry
 
-## 🤝 Contributing
+```bash
+export AZURE_FOUNDRY_ENDPOINT="https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+export AZURE_FOUNDRY_DEPLOYMENT="YOUR-DEPLOYMENT"
+export AZURE_FOUNDRY_API_KEY="YOUR-KEY"
 
-We welcome contributions of all kinds!
+rudrax --provider azure-foundry --model "$AZURE_FOUNDRY_DEPLOYMENT"
+```
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing`)
-5. **Open** a Pull Request
+RudraX supports both OpenAI-compatible chat and Anthropic-compatible message modes for Foundry endpoints. The OpenAI-compatible adapter sends the Azure `api-key` header without leaking an extra bearer token.
 
-Or suggest ideas at **[rudrax.cloud/contact](https://rudrax.cloud/contact)**
+### Custom endpoint
 
----
+`~/.rudrax/agent/models.json`:
 
-## 📄 License
+```json
+{
+  "providers": {
+    "custom": {
+      "baseUrl": "https://llm.example.com/v1",
+      "api": "openai-completions",
+      "apiKey": "CUSTOM_API_KEY",
+      "models": [{ "id": "my-model", "name": "my-model" }]
+    }
+  }
+}
+```
 
-MIT License — see [LICENSE](LICENSE) for details.
+## Command hierarchy
 
----
+```text
+User mission
+    │
+    ▼
+RudraX Chief of Staff
+    │  intent, priorities, execution plan
+    ▼
+Deputy Chief of Staff
+    │  decomposition, routing, retries, budgets
+    ├───────────────┬───────────────┐
+    ▼               ▼               ▼
+Specialist       Specialist       Tactical squad
+agent A          agent B          (multi-agent)
+    └───────────────┴───────────────┘
+                    │
+                    ▼
+          Quality gate and synthesis
+                    │
+                    ▼
+             Verified response
+```
 
-## 🙏 Acknowledgements
+## Tactical squads
 
-Built with ❤️ by **[Lalit Pandit](https://github.com/iamlalitpandit)** & the RudraX community.
+- **Startup MVP**: product, design, frontend, backend, content
+- **Enterprise delivery**: architecture, implementation, security, DevOps, review
+- **Security hardening**: threat modeling, audit, remediation, compliance
+- **QA and testing**: API tests, performance, evidence, release checks
+- **AI infrastructure**: model serving, data pipelines, evaluation, operations
+- **Web3**: contracts, security, chain integrations
+- **Growth**: content, SEO, analytics, conversion
+- **Incident response**: triage, debugging, recovery, reporting
+- **Full product**: end-to-end delivery from idea to launch
 
----
+## Built-in systems
+
+- Hierarchical planning and delegation
+- Parallel DAG workflows and agent communication bus
+- Persistent memory and vector knowledge base
+- Reflection, evaluation, and quality loops
+- Tool registry and secure code sandbox
+- Approval gates and human-in-the-loop controls
+- Cost budgets, tracing, schedules, and webhooks
+- Multi-modal input and live streaming WebUI
+- JWT authentication and audit trails
+
+## Provider management API
+
+The provider routes use the existing WebUI authentication guard.
+
+```text
+GET    /api/providers/catalog
+GET    /api/providers/status
+PUT    /api/providers/:provider
+DELETE /api/providers/:provider
+GET    /api/providers/:provider/models
+PUT    /api/models/active
+```
+
+The implementation rejects command-valued credentials, credential-bearing URLs, metadata-service targets, unsafe cloud host overrides, and prototype-sensitive provider IDs. Multi-file configuration updates use coordinated locks and a recoverable transaction journal.
+
+## Project layout
+
+```text
+RudraX/
+├── bin/                    CLI launchers
+├── lib/core/               runtime, sessions, tools, models, memory
+├── lib/core/extensions/    RudraX orchestration system
+├── tools/agency/           specialist skills and workflows
+├── webui/                  command center and REST/WebSocket server
+├── cybersecurity-dashboard/
+├── tests/                  unit and integration verification
+└── docker/                 container deployment
+```
+
+## Contributing
+
+1. Fork the repository.
+2. Create a focused branch.
+3. Add tests for behavior changes.
+4. Run `npm run lint`, `npm test`, and `npm run test:coverage`.
+5. Open a pull request with a clear test plan.
+
+Good first contributions include provider adapters, specialist skills, tactical squads, security hardening, documentation, and reproducible examples.
+
+## Security
+
+Do not open public access with the default local credentials. Keep secrets in environment variables or the local credential store, rotate exposed keys, and report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+
+## License and authorship
+
+Copyright © 2026 Lalit Pandit.
+
+RudraX is developed and maintained by **[Lalit Pandit](https://github.com/iamlalitpandit)** and released under the [MIT License](LICENSE). Third-party packages and optional integrations retain their respective licenses.
 
 <p align="center">
-  <a href="https://rudrax.cloud"><strong>rudrax.cloud</strong></a> ·
-  <a href="https://rudrax.cloud/army">About</a> ·
-  <a href="https://rudrax.cloud/playground">Playground</a> ·
-  <a href="https://rudrax.cloud/contact">Contact</a>
+  <a href="https://rudrax.cloud"><strong>rudrax.cloud</strong></a>
+  ·
+  <a href="https://rudrax.cloud/playground">Playground</a>
+  ·
+  <a href="https://github.com/iamlalitpandit/RudraX/issues">Issues</a>
+  ·
+  <a href="https://github.com/iamlalitpandit/RudraX/discussions">Discussions</a>
 </p>

@@ -7,10 +7,6 @@ metadata:
   color: "pink"
   vibe: "Content is king."
   original_name: "songsee"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

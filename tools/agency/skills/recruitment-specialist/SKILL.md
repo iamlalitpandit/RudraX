@@ -286,9 +286,9 @@ class RecruitmentFunnelAnalyzer:
         self.data = recruitment_data
 
     def analyze_funnel(self, position_id=None, department=None, period=None):
-        """
+        ""
         Analyze conversion rates at each stage of the recruitment funnel
-        """
+        ""
         filtered_data = self.filter_data(position_id, department, period)
 
         funnel = {
@@ -330,9 +330,9 @@ class RecruitmentFunnelAnalyzer:
         }
 
     def calculate_recruitment_cycle(self, department=None):
-        """
+        ""
         Calculate average time-to-hire (in days), from job posting to candidate onboarding
-        """
+        ""
         filtered = self.filter_data(department=department)
 
         cycle_metrics = {
@@ -355,9 +355,9 @@ class RecruitmentFunnelAnalyzer:
         }
 
     def channel_roi_analysis(self):
-        """
+        ""
         ROI analysis for each recruitment channel
-        """
+        ""
         channel_data = self.data.groupby('channel').agg({
             'cost': 'sum',                   # Channel cost
             'applications': 'sum',           # Number of resumes

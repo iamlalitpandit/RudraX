@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: 'Clear communication wins.'
   original_name: "one-three-one-rule"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

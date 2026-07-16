@@ -7,10 +7,6 @@ metadata:
   color: "gray"
   vibe: "Code shouldn't just work. It should be reviewable."
   original_name: "codebase-inspection"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

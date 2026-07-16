@@ -7,10 +7,6 @@ metadata:
   color: "red"
   vibe: 'Health is wealth.'
   original_name: "fitness-nutrition"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

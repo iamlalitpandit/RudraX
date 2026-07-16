@@ -1,5 +1,5 @@
 /**
- * RudraX Web UI — Agency Edition v4.5.0 🔱
+ * RudraX Web UI — Agency Edition v4.6.0 🔱
  * Rudraksh Theme · Incremental Rendering · Socket.IO Streaming
  * Build · Break · Deploy · Orchestrate
  * By Lalit Pandit
@@ -14,7 +14,7 @@ const CONFIG = {
   MAX_RETRIES: 5,
   STREAM_DEBOUNCE: 32,   // ~30fps for smooth streaming
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  APP_VERSION: 'v4.5.0',
+  APP_VERSION: 'v4.6.0',
   AGENT_COUNT: 349,
   SQUAD_COUNT: 9,
   CATEGORY_COUNT: 45,
@@ -2209,7 +2209,7 @@ function initKeyboardShortcuts() {
   setTimeout(() => {
       addNotification('🛡️ Security Dashboard', 'Live threat monitoring active', '🛡️');
       addNotification('⌨️ Press ?', 'for keyboard shortcuts', '⌨️');
-      setTimeout(() => addNotification('🔱 RudraX v4.5.0', '15 advanced agentic capabilities loaded', '🧠'), 4000);
+      setTimeout(() => addNotification('🔱 RudraX v4.6.0', '15 advanced agentic capabilities loaded', '🧠'), 4000);
     }, 2000);
 }
 
@@ -2274,6 +2274,69 @@ function openSettings() {
   const okEl = $('#password-change-success');
   if (errEl) errEl.classList.add('hidden');
   if (okEl) okEl.classList.add('hidden');
+  loadProviderSettings();
+}
+
+let providerSettings = [];
+async function loadProviderSettings() {
+  const status = $('#provider-config-status');
+  try {
+    const response = await fetch(`${CONFIG.API_BASE}/api/providers/status`, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error((await response.json()).error || 'Unable to load providers');
+    providerSettings = (await response.json()).providers || [];
+    const select = $('#provider-select');
+    if (!select) return;
+    select.replaceChildren(...providerSettings.map(provider => {
+      const option = document.createElement('option');
+      option.value = provider.id;
+      option.textContent = `${provider.label}${provider.configured ? ' ✓' : ''}`;
+      return option;
+    }));
+    const active = providerSettings.find(p => p.selected) || providerSettings.find(p => p.configured) || providerSettings[0];
+    if (active) { select.value = active.id; loadProviderModels(active.id); }
+    if (status) status.textContent = 'Keys are stored in local auth.json (mode 0600) and are never returned.';
+  } catch (error) { if (status) status.textContent = error.message; }
+}
+function loadProviderModels(providerId) {
+  const provider = providerSettings.find(p => p.id === providerId);
+  const modelInput = $('#provider-model-select');
+  const modelOptions = $('#provider-model-options');
+  if (!provider || !modelInput || !modelOptions) return;
+  modelOptions.replaceChildren(...provider.models.map(model => {
+    const option = document.createElement('option');
+    option.value = model;
+    return option;
+  }));
+  modelInput.value = provider.selectedModel || provider.models[0] || '';
+  const apiModeSelect = $('#provider-api-mode');
+  const apiModeConfigurable = ['azure-foundry', 'custom'].includes(provider.id);
+  apiModeSelect.disabled = !apiModeConfigurable;
+  apiModeSelect.value = provider.apiMode === 'anthropic-messages' ? 'anthropic-messages' : 'openai-completions';
+  $('#provider-endpoint').value = provider.endpoint || '';
+  $('#provider-api-key').value = '';
+}
+async function saveProviderConfig() {
+  const provider = $('#provider-select')?.value;
+  const body = { apiKey: $('#provider-api-key')?.value || undefined, endpoint: $('#provider-endpoint')?.value || undefined, model: $('#provider-model-select')?.value || undefined, apiMode: $('#provider-api-mode')?.disabled ? undefined : ($('#provider-api-mode')?.value || undefined) };
+  const response = await fetch(`${CONFIG.API_BASE}/api/providers/${encodeURIComponent(provider)}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(body) });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? 'Provider saved securely.' : data.error;
+  if (response.ok) loadProviderSettings();
+}
+async function switchActiveModel() {
+  const body = { provider: $('#provider-select')?.value, model: $('#provider-model-select')?.value, context: state.context || undefined };
+  const response = await fetch(`${CONFIG.API_BASE}/api/models/active`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(body) });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? `Active model: ${body.provider}/${body.model}` : data.error;
+  if (response.ok) loadProviderSettings();
+}
+async function removeProviderConfig() {
+  const provider = $('#provider-select')?.value;
+  if (!provider || !window.confirm(`Remove saved configuration for ${provider}?`)) return;
+  const response = await fetch(`${CONFIG.API_BASE}/api/providers/${encodeURIComponent(provider)}`, { method: 'DELETE', headers: getAuthHeaders() });
+  const data = await response.json();
+  $('#provider-config-status').textContent = response.ok ? `Removed ${provider} configuration.` : data.error;
+  if (response.ok) loadProviderSettings();
 }
 
 function closeSettings() {
@@ -2604,7 +2667,7 @@ async function openMemoryRaw() {
 // ═══ Fallback: Polling starts once app is shown ═══════════════════════════
 
 // Log startup
-console.log('%c🔱 RudraX Army v4.5.0 %c— Build · Break · Deploy by Lalit Pandit',
+console.log('%c🔱 RudraX Army v4.6.0 %c— Build · Break · Deploy by Lalit Pandit',
   'color: #d4a843; font-size: 16px; font-weight: bold;',
   'color: #9e978f;');
 console.log('%c349 Agents %c| %c45 Categories %c| %c9 Squads %c| %cॐ नमः शिवाय',
@@ -3094,5 +3157,5 @@ function closeFeatureReference() {
 }
 
 // ═════════════════════════════════════════════════════════════════════════
-// END NEW FEATURES — RudraX Army v4.5.0 🔱
+// END NEW FEATURES — RudraX Army v4.6.0 🔱
 // ═════════════════════════════════════════════════════════════════════════

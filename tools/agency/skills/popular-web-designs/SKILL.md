@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Creativity is intelligence having fun."
   original_name: "popular-web-designs"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -55,7 +51,7 @@ system, shadows, responsive behavior, and practical agent prompts with exact CSS
 3. Use the design tokens and component specs when generating HTML
 4. Pair with the `generative-widgets` skill to serve the result via cloudflared tunnel
 
-Each template includes a **Hermes Implementation Notes** block at the top with:
+Each template includes a **RudraX Implementation Notes** block at the top with:
 - CDN font substitute and Google Fonts `<link>` tag (ready to paste)
 - CSS font-family stacks for primary and monospace
 - Reminders to use `write_file` for HTML creation and `browser_vision` for verification
@@ -69,7 +65,7 @@ Each template includes a **Hermes Implementation Notes** block at the top with:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Page Title</title>
-  <!-- Paste the Google Fonts <link> from the template's Hermes notes -->
+  <!-- Paste the Google Fonts <link> from the template's RudraX notes -->
   <link href="https://fonts.googleapis.com/css2?family=..." rel="stylesheet">
   <style>
     /* Apply the template's color palette as CSS custom properties */

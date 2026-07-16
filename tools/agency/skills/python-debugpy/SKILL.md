@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Specialized expertise on demand."
   original_name: "python-debugpy"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -50,7 +46,7 @@ Three tools, picked by situation:
 
 - A test fails and the traceback doesn't reveal why a value is wrong
 - You need to step through a function and watch a collection mutate
-- A long-running process (hermes gateway, tui_gateway) misbehaves and you can't restart it
+- A long-running process (rudrax gateway, tui_gateway) misbehaves and you can't restart it
 - Post-mortem: an exception fired in prod-ish code and you want to inspect locals at the crash site
 - A subprocess / child (Python `_SlashWorker`, PTY bridge worker) is the actual bug site
 
@@ -115,7 +111,7 @@ python -m pdb path/to/script.py arg1 arg2
 
 ## Recipe 3: Debug a pytest test
 
-The hermes test runner and pytest both support this:
+The rudrax test runner and pytest both support this:
 
 ```bash
 # Drop to pdb on failure (or on any raised exception):
@@ -167,12 +163,12 @@ sys.excepthook = excepthook
 
 ## Recipe 5: Remote debug with debugpy (attach to running process)
 
-For long-lived processes: Hermes gateway, tui_gateway, a daemon, a process that's already misbehaving and can't be restarted clean.
+For long-lived processes: RudraX gateway, tui_gateway, a daemon, a process that's already misbehaving and can't be restarted clean.
 
 ### Setup
 
 ```bash
-source /home/bb/hermes-agent/.venv/bin/activate
+source /home/bb/rudrax-agent/.venv/bin/activate
 pip install debugpy
 ```
 
@@ -218,7 +214,7 @@ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 
 ### Connecting a client from the terminal
 
-The easiest terminal-side DAP client is VS Code CLI or a small script. From inside Hermes you have two practical options:
+The easiest terminal-side DAP client is VS Code CLI or a small script. From inside RudraX you have two practical options:
 
 **Option 1: `debugpy`'s own CLI REPL** — not an official feature, but a tiny DAP client script:
 
@@ -236,11 +232,11 @@ def send(msg):
     s.sendall(f"Content-Length: {len(body)}\r\n\r\n".encode() + body)
 
 def recv():
-    header = b""
+    header = b"
     while b"\r\n\r\n" not in header:
         header += s.recv(1)
     length = int(header.decode().split("Content-Length:")[1].split("\r\n")[0].strip())
-    body = b""
+    body = b"
     while len(body) < length:
         body += s.recv(length - len(body))
     return json.loads(body)
@@ -263,13 +259,13 @@ This is fine for one-off automation but painful as an interactive UX.
 
 ```json
 {
-  "name": "Attach to Hermes",
+  "name": "Attach to RudraX",
   "type": "debugpy",
   "request": "attach",
   "connect": { "host": "127.0.0.1", "port": 5678 },
   "justMyCode": false,
   "pathMappings": [
-    { "localRoot": "${workspaceFolder}", "remoteRoot": "/home/bb/hermes-agent" }
+    { "localRoot": "${workspaceFolder}", "remoteRoot": "/home/bb/rudrax-agent" }
   ]
 }
 ```
@@ -294,15 +290,15 @@ nc 127.0.0.1 4444
 
 `remote-pdb` is the cleanest agent-friendly choice when `debugpy`'s DAP protocol is overkill. Use `debugpy` only when you actually need IDE integration.
 
-## Debugging Hermes-specific Processes
+## Debugging RudraX-specific Processes
 
 ### Tests
 See Recipe 3. Always add `-p no:xdist` or run single tests without xdist.
 
 ### `run_agent.py` / CLI — one-shot
-Easiest: add `breakpoint()` near the suspect line, then run `hermes` normally. Control returns to your terminal at the pause point.
+Easiest: add `breakpoint()` near the suspect line, then run `rudrax` normally. Control returns to your terminal at the pause point.
 
-### `tui_gateway` subprocess (spawned by `hermes --tui`)
+### `tui_gateway` subprocess (spawned by `rudrax --tui`)
 The gateway runs as a child of the Node TUI. Options:
 
 **A. Source-edit the gateway:**
@@ -312,7 +308,7 @@ import debugpy
 debugpy.listen(("127.0.0.1", 5678))
 debugpy.wait_for_client()
 ```
-Start `hermes --tui`. The TUI will appear frozen (its backend is waiting). Attach a client; execution resumes when you `continue`.
+Start `rudrax --tui`. The TUI will appear frozen (its backend is waiting). Attach a client; execution resumes when you `continue`.
 
 **B. Use `remote-pdb` at a specific handler:**
 ```python
@@ -348,7 +344,7 @@ Long-lived. Use `remote-pdb` at a handler, or `debugpy` with `--wait-for-client`
 
 8. **`scripts/run_tests.sh` strips credentials and sets `HOME=<tmpdir>`.** If your bug depends on user config or real API keys, it won't reproduce under the wrapper. Debug with raw `pytest` first to repro, then re-confirm under the wrapper.
 
-9. **Forking / multiprocessing.** pdb does not follow forks. Each child needs its own `breakpoint()` or `set_trace()`. For Hermes subagents, debug one process at a time.
+9. **Forking / multiprocessing.** pdb does not follow forks. Each child needs its own `breakpoint()` or `set_trace()`. For RudraX subagents, debug one process at a time.
 
 ## Verification Checklist
 

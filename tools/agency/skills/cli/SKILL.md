@@ -7,10 +7,6 @@ metadata:
   color: "cyan"
   vibe: 'Automate everything.'
   original_name: "cli"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

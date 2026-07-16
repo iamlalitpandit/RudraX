@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: "Models are only as good as their infrastructure."
   original_name: "segment-anything"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -408,7 +404,7 @@ def on_click(event, x, y, flags, param):
 
 ```python
 def extract_object(image, point):
-    """Extract object at point with transparent background."""
+    """Extract object at point with transparent background.""
     predictor.set_image(image)
 
     masks, scores, _ = predictor.predict(

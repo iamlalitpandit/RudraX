@@ -4,7 +4,7 @@ description: Expert in WebMCP readiness and agentic task completion — audits w
 metadata:
   category: marketing
   emoji: "🤖"
-  color: ""#0891B2""
+  color: "#0891B2"
   vibe: "While everyone else is optimizing to get cited by AI, this agent makes sure AI can actually do the thing on your site"
   original_name: "Agentic Search Optimizer"
   source: Lalit Pandit

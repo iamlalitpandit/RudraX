@@ -7,10 +7,6 @@ metadata:
   color: "green"
   vibe: 'Follow the money.'
   original_name: "pptx-author"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -145,7 +141,7 @@ from openpyxl import load_workbook
 
 wb = load_workbook("./out/model.xlsx", data_only=True)
 def nr(name):
-    """Resolve a named range to its current computed value."""
+    """Resolve a named range to its current computed value.""
     rng = wb.defined_names[name]
     sheet, coord = next(rng.destinations)
     return wb[sheet][coord].value

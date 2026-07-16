@@ -7,10 +7,6 @@ metadata:
   color: "green"
   vibe: "Data tells a story."
   original_name: "jupyter-live-kernel"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -43,7 +39,7 @@ state incrementally, explore APIs, inspect DataFrames, or iterate on complex cod
 | Tool | Use When |
 |------|----------|
 | **This skill** | Iterative exploration, state across steps, data science, ML, "let me try this and check" |
-| `execute_code` | One-shot scripts needing hermes tool access (web_search, file ops). Stateless. |
+| `execute_code` | One-shot scripts needing rudrax tool access (web_search, file ops). Stateless. |
 | `terminal` | Shell commands, builds, installs, git, process management |
 
 **Rule of thumb:** If you'd want a Jupyter notebook for the task, use this skill.

@@ -154,11 +154,11 @@ SUPPORTED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".mp4", ".mov",
 MAX_DURATION_SECONDS = 14400  # 4 hours
 
 def validate_audio_file(file_path: str) -> dict:
-    """
+    ""
     Validate audio file before processing.
     Uses ffprobe to detect format, duration, codec, and channel layout.
     Never trust file extensions — always probe the actual container.
-    """
+    ""
     path = Path(file_path)
     if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
         raise ValueError(f"Unsupported extension: {path.suffix}")
@@ -198,7 +198,7 @@ import subprocess
 from pathlib import Path
 
 def preprocess_audio(input_path: str, output_path: str) -> str:
-    """
+    ""
     Normalize audio for Whisper-style model input.
 
     Critical steps:
@@ -208,7 +208,7 @@ def preprocess_audio(input_path: str, output_path: str) -> str:
     - Strip video track if present (reduces file size, speeds processing)
 
     Returns path to preprocessed wav file.
-    """
+    ""
     cmd = [
         "ffmpeg", "-y",
         "-i", input_path,
@@ -225,7 +225,7 @@ def preprocess_audio(input_path: str, output_path: str) -> str:
 
 def chunk_audio(input_path: str, chunk_dir: str,
                 chunk_duration: int = 1800, overlap: int = 30) -> list[str]:
-    """
+    ""
     Split long audio into overlapping chunks for model processing.
 
     Uses overlap to prevent word truncation at chunk boundaries.
@@ -233,7 +233,7 @@ def chunk_audio(input_path: str, chunk_dir: str,
 
     chunk_duration: seconds per chunk (default 30 min)
     overlap: overlap window in seconds (default 30s)
-    """
+    ""
     import math, os
     result = subprocess.run([
         "ffprobe", "-v", "quiet", "-show_entries", "format=duration",
@@ -280,7 +280,7 @@ class TranscriptSegment:
 
 def transcribe_chunk(audio_path: str, model: WhisperModel,
                      language: str | None = None) -> list[TranscriptSegment]:
-    """
+    ""
     Transcribe a single audio chunk using faster-whisper.
 
     Returns segments with timestamps. Word-level timestamps enabled
@@ -290,7 +290,7 @@ def transcribe_chunk(audio_path: str, model: WhisperModel,
     - tiny/base: real-time local use, lower accuracy
     - small/medium: balanced accuracy/speed for most use cases
     - large-v3: highest accuracy, requires GPU, ~2-3x real-time on A10G
-    """
+    ""
     segments, info = model.transcribe(
         audio_path,
         language=language,
@@ -313,12 +313,12 @@ def transcribe_chunk(audio_path: str, model: WhisperModel,
 
 def assemble_chunks(chunk_results: list[dict],
                     overlap_seconds: int = 30) -> list[TranscriptSegment]:
-    """
+    ""
     Merge chunked transcript results into a single timeline.
 
     Trims the overlap region from all chunks except the first
     to prevent duplicate segments at chunk boundaries.
-    """
+    ""
     merged = []
     for chunk in sorted(chunk_results, key=lambda c: c["start_offset"]):
         offset = chunk["start_offset"]
@@ -344,7 +344,7 @@ import torch
 
 def run_diarization(audio_path: str, hf_token: str,
                     num_speakers: int | None = None) -> list[dict]:
-    """
+    ""
     Run speaker diarization using pyannote.audio.
 
     Returns speaker segments as [{start, end, speaker}].
@@ -352,7 +352,7 @@ def run_diarization(audio_path: str, hf_token: str,
 
     num_speakers: if known, pass it — improves accuracy significantly.
     If unknown, pyannote will estimate automatically (less accurate).
-    """
+    ""
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
         use_auth_token=hf_token
@@ -372,12 +372,12 @@ def run_diarization(audio_path: str, hf_token: str,
 
 def assign_speakers(transcript_segments: list[TranscriptSegment],
                     diarization_segments: list[dict]) -> list[TranscriptSegment]:
-    """
+    ""
     Assign speaker labels to transcript segments using time overlap.
 
     For each transcript segment, find the diarization segment with
     maximum overlap and assign that speaker label.
-    """
+    ""
     def overlap(seg, dia):
         return max(0, min(seg.end, dia["end"]) - max(seg.start, dia["start"]))
 
@@ -397,7 +397,7 @@ import json
 import re
 
 def normalize_transcript(segments: list[TranscriptSegment]) -> list[TranscriptSegment]:
-    """
+    ""
     Clean transcript text after model output.
 
     Handles common Whisper-style model artifacts:
@@ -405,7 +405,7 @@ def normalize_transcript(segments: list[TranscriptSegment]) -> list[TranscriptSe
     - Double spaces, leading/trailing whitespace
     - Filler word normalization (configurable)
     - Sentence boundary repair across segment splits
-    """
+    ""
     for seg in segments:
         text = seg.text
         text = re.sub(r"\s+", " ", text).strip()
@@ -418,12 +418,12 @@ def normalize_transcript(segments: list[TranscriptSegment]) -> list[TranscriptSe
 
 
 def export_srt(segments: list[TranscriptSegment], output_path: str) -> str:
-    """
+    ""
     Export transcript as SRT subtitle file.
 
     Validates reading speed (max 20 chars/second per broadcast standard).
     Splits long segments to comply with line length limits.
-    """
+    ""
     def format_timestamp(seconds: float) -> str:
         h = int(seconds // 3600)
         m = int((seconds % 3600) // 60)
@@ -435,7 +435,7 @@ def export_srt(segments: list[TranscriptSegment], output_path: str) -> str:
     for i, seg in enumerate(segments, 1):
         lines.append(str(i))
         lines.append(f"{format_timestamp(seg.start)} --> {format_timestamp(seg.end)}")
-        speaker_prefix = f"[{seg.speaker}] " if seg.speaker else ""
+        speaker_prefix = f"[{seg.speaker}] " if seg.speaker else "
         lines.append(f"{speaker_prefix}{seg.text}")
         lines.append("")
 
@@ -447,12 +447,12 @@ def export_srt(segments: list[TranscriptSegment], output_path: str) -> str:
 
 def export_structured_json(segments: list[TranscriptSegment],
                             metadata: dict) -> dict:
-    """
+    ""
     Export full transcript as structured JSON for downstream consumers.
 
     Schema is stable across pipeline versions — consumers depend on it.
     Add fields, never remove or rename without versioning.
-    """
+    ""
     return {
         "schema_version": "1.0",
         "metadata": metadata,
@@ -481,12 +481,12 @@ import httpx
 
 async def post_transcript_to_cms(transcript: dict, cms_endpoint: str,
                                   api_key: str, node_type: str = "transcript") -> dict:
-    """
+    ""
     Deliver structured transcript JSON to a CMS via REST API.
 
     Designed for Drupal JSON:API and WordPress REST API.
     Maps transcript schema fields to CMS content type fields.
-    """
+    ""
     payload = {
         "data": {
             "type": node_type,
@@ -514,16 +514,16 @@ async def post_transcript_to_cms(transcript: dict, cms_endpoint: str,
 
 
 def build_llm_handoff_payload(transcript: dict, task: str = "summarize") -> dict:
-    """
+    ""
     Format transcript for handoff to an LLM summarization agent.
 
     Includes full speaker-attributed text and timestamp anchors
     so the downstream agent can cite specific moments.
-    """
+    ""
     formatted_lines = []
     for seg in transcript["segments"]:
         ts = f"[{seg['start']:.1f}s]"
-        speaker = f"<{seg['speaker']}> " if seg["speaker"] else ""
+        speaker = f"<{seg['speaker']}> " if seg["speaker"] else "
         formatted_lines.append(f"{ts} {speaker}{seg['text']}")
 
     return {

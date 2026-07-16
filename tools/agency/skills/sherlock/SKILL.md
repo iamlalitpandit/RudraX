@@ -7,10 +7,6 @@ metadata:
   color: "dark-red"
   vibe: 'Trust, but verify.'
   original_name: "sherlock"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

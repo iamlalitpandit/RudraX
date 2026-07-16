@@ -109,7 +109,7 @@ import Combine
 
 struct ProductListView: View {
     @StateObject private var viewModel = ProductListViewModel()
-    @State private var searchText = ""
+    @State private var searchText = "
     
     var body: some View {
         NavigationView {

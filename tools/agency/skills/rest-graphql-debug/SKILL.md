@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: 'Build systems that scale.'
   original_name: "rest-graphql-debug"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -30,7 +26,7 @@ metadata:
 
 # API Testing & Debugging
 
-Drive REST and GraphQL diagnosis through Hermes tools — `terminal` for `curl`, `execute_code` for Python `requests`, `web_extract` for vendor docs. Isolate the failing layer before guessing at the fix.
+Drive REST and GraphQL diagnosis through RudraX tools — `terminal` for `curl`, `execute_code` for Python `requests`, `web_extract` for vendor docs. Isolate the failing layer before guessing at the fix.
 
 ## When to Use
 
@@ -414,7 +410,7 @@ class TestAPISmoke:
 
 ### Token handling
 - Never log full tokens. Redact: `Bearer <REDACTED>`.
-- Never hardcode tokens in scripts. Read from env (`os.environ["API_TOKEN"]`) or `~/.hermes/.env`.
+- Never hardcode tokens in scripts. Read from env (`os.environ["API_TOKEN"]`) or `~/.rudrax/agent/.env`.
 - Rotate immediately if a token surfaces in logs, error messages, or git history.
 
 ### Safe logging
@@ -434,7 +430,7 @@ def redact_auth(headers: dict) -> dict:
 - [ ] **Tokens echoed back.** Some APIs include the auth token in error details. Verify they don't.
 - [ ] **Verbose `Server` / `X-Powered-By`.** Stack-info leaks. Note for security review.
 
-## Hermes Tool Patterns
+## RudraX Tool Patterns
 
 ### terminal — for curl, dig, openssl
 
@@ -486,7 +482,7 @@ web_extract(urls=["https://docs.example.com/api/v1/users"])
 ```python
 delegate_task(
     goal="Test all CRUD endpoints for /api/v1/users",
-    context="""
+    context=""
 Follow the rest-graphql-debug skill (optional-skills/software-development/rest-graphql-debug).
 Base URL: https://api.example.com
 Auth: Bearer token from API_TOKEN env var.

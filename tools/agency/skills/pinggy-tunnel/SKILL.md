@@ -7,10 +7,6 @@ metadata:
   color: "cyan"
   vibe: 'Automate everything.'
   original_name: "pinggy-tunnel"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -209,7 +205,7 @@ LOG = pathlib.Path("/tmp/webhook-hits.log")
 class H(http.server.BaseHTTPRequestHandler):
     def _capture(self):
         n = int(self.headers.get("content-length") or 0)
-        body = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+        body = self.rfile.read(n).decode("utf-8", "replace") if n else "
         rec = {"t": datetime.datetime.utcnow().isoformat(), "path": self.path,
                "method": self.command, "headers": dict(self.headers), "body": body}
         with LOG.open("a") as f: f.write(json.dumps(rec) + "\n")
@@ -262,7 +258,7 @@ echo "MCP URL: $URL"
 echo "Bearer token: $TOKEN"
 ```
 
-The remote client connects to `$URL` with `Authorization: Bearer $TOKEN`. Hermes' own native MCP client config: `{"transport": "http", "url": "<URL>", "headers": {"Authorization": "Bearer <TOKEN>"}}`.
+The remote client connects to `$URL` with `Authorization: Bearer $TOKEN`. RudraX' own native MCP client config: `{"transport": "http", "url": "<URL>", "headers": {"Authorization": "Bearer <TOKEN>"}}`.
 
 ### Recipe 3 — Expose a local LLM endpoint (Ollama / vLLM / llama.cpp)
 

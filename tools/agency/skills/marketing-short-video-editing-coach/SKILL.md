@@ -4,7 +4,7 @@ description: Hands-on short-video editing coach covering the full post-productio
 metadata:
   category: marketing
   emoji: "🎬"
-  color: ""#7B2D8E""
+  color: "#7B2D8E"
   vibe: "Turns raw footage into scroll-stopping short videos with professional polish."
   original_name: "Short-Video Editing Coach"
   source: Lalit Pandit

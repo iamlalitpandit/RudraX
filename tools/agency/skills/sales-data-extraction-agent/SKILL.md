@@ -4,7 +4,7 @@ description: AI agent specialized in monitoring Excel files and extracting key s
 metadata:
   category: specialized
   emoji: "📊"
-  color: ""#2b6cb0""
+  color: "#2b6cb0"
   vibe: "Watches your Excel files and extracts the metrics that matter."
   original_name: "Sales Data Extraction Agent"
   source: Lalit Pandit

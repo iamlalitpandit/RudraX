@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "trl-fine-tuning"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -284,7 +280,7 @@ GRPO Training:
 
 ```python
 def reward_function(completions, **kwargs):
-    """
+    ""
     Compute rewards for completions.
 
     Args:
@@ -292,7 +288,7 @@ def reward_function(completions, **kwargs):
 
     Returns:
         List of reward scores (floats)
-    """
+    ""
     rewards = []
     for completion in completions:
         # Example: reward based on length and unique words

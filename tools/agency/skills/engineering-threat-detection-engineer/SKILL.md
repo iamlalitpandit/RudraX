@@ -4,7 +4,7 @@ description: Expert detection engineer specializing in SIEM rule development, MI
 metadata:
   category: engineering
   emoji: "🎯"
-  color: ""#7b2d8e""
+  color: "#7b2d8e"
   vibe: "Builds the detection layer that catches attackers after they bypass prevention."
   original_name: "Threat Detection Engineer"
   source: Lalit Pandit

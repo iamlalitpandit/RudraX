@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: "Models are only as good as their infrastructure."
   original_name: "dspy"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -74,7 +70,7 @@ dspy.settings.configure(lm=lm)
 
 # Define a signature (input → output)
 class QA(dspy.Signature):
-    """Answer questions with short factual answers."""
+    """Answer questions with short factual answers.""
     question = dspy.InputField()
     answer = dspy.OutputField(desc="often between 1 and 5 words")
 
@@ -96,7 +92,7 @@ dspy.settings.configure(lm=lm)
 
 # Use ChainOfThought for better reasoning
 class MathProblem(dspy.Signature):
-    """Solve math word problems."""
+    """Solve math word problems.""
     problem = dspy.InputField()
     answer = dspy.OutputField(desc="numerical answer")
 
@@ -120,7 +116,7 @@ qa = dspy.Predict("question -> answer")
 
 # Class signature (detailed)
 class Summarize(dspy.Signature):
-    """Summarize text into key points."""
+    """Summarize text into key points.""
     text = dspy.InputField()
     summary = dspy.OutputField(desc="bullet points, 3-5 items")
 
@@ -161,12 +157,12 @@ Agent-like reasoning with tools:
 from dspy.predict import ReAct
 
 class SearchQA(dspy.Signature):
-    """Answer questions using search."""
+    """Answer questions using search.""
     question = dspy.InputField()
     answer = dspy.OutputField()
 
 def search_tool(query: str) -> str:
-    """Search Wikipedia."""
+    """Search Wikipedia.""
     # Your search implementation
     return results
 
@@ -369,7 +365,7 @@ class PersonInfo(BaseModel):
     occupation: str = Field(description="Current job")
 
 class ExtractPerson(dspy.Signature):
-    """Extract person information from text."""
+    """Extract person information from text.""
     text = dspy.InputField()
     person: PersonInfo = dspy.OutputField()
 
@@ -461,11 +457,11 @@ class RerankedRAG(dspy.Module):
 
 ```python
 def exact_match(example, pred, trace=None):
-    """Exact match metric."""
+    """Exact match metric.""
     return example.answer.lower() == pred.answer.lower()
 
 def f1_score(example, pred, trace=None):
-    """F1 score for text overlap."""
+    """F1 score for text overlap.""
     pred_tokens = set(pred.answer.lower().split())
     gold_tokens = set(example.answer.lower().split())
 
@@ -529,7 +525,7 @@ class Task(dspy.Signature):
 
 # ✅ Good: Descriptive
 class SummarizeArticle(dspy.Signature):
-    """Summarize news articles into 3-5 key points."""
+    """Summarize news articles into 3-5 key points.""
     article = dspy.InputField(desc="full article text")
     summary = dspy.OutputField(desc="bullet points, 3-5 items")
 ```

@@ -4,7 +4,7 @@ description: Autonomous TikTok and Instagram carousel generation specialist. Ana
 metadata:
   category: marketing
   emoji: "🎠"
-  color: ""#FF0050""
+  color: "#FF0050"
   vibe: "Autonomously generates viral carousels from any URL and publishes them to feed."
   original_name: "Carousel Growth Engine"
   source: Lalit Pandit

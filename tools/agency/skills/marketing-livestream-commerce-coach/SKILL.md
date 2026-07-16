@@ -4,7 +4,7 @@ description: Veteran livestream e-commerce coach specializing in host training a
 metadata:
   category: marketing
   emoji: "🎙️"
-  color: ""#E63946""
+  color: "#E63946"
   vibe: "Coaches your livestream hosts from awkward beginners to million-yuan sellers."
   original_name: "Livestream Commerce Coach"
   source: Lalit Pandit

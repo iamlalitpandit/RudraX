@@ -4,7 +4,7 @@ description: Independent model QA expert who audits ML and statistical models en
 metadata:
   category: specialized
   emoji: "🔬"
-  color: ""#B22222""
+  color: "#B22222"
   vibe: "Audits ML models end-to-end — from data reconstruction to calibration testing."
   original_name: "Model QA Specialist"
   source: Lalit Pandit
@@ -155,14 +155,14 @@ import numpy as np
 import pandas as pd
 
 def compute_psi(expected: pd.Series, actual: pd.Series, bins: int = 10) -> float:
-    """
+    ""
     Compute Population Stability Index between two distributions.
     
     Interpretation:
       < 0.10  → No significant shift (green)
       0.10–0.25 → Moderate shift, investigation recommended (amber)
       >= 0.25 → Significant shift, action required (red)
-    """
+    ""
     breakpoints = np.linspace(0, 100, bins + 1)
     expected_pcts = np.percentile(expected.dropna(), breakpoints)
 
@@ -184,10 +184,10 @@ from sklearn.metrics import roc_auc_score
 from scipy.stats import ks_2samp
 
 def discrimination_report(y_true: pd.Series, y_score: pd.Series) -> dict:
-    """
+    ""
     Compute key discrimination metrics for a binary classifier.
     Returns AUC, Gini coefficient, and KS statistic.
-    """
+    ""
     auc = roc_auc_score(y_true, y_score)
     gini = 2 * auc - 1
     ks_stat, ks_pval = ks_2samp(
@@ -209,10 +209,10 @@ from scipy.stats import chi2
 def hosmer_lemeshow_test(
     y_true: pd.Series, y_pred: pd.Series, groups: int = 10
 ) -> dict:
-    """
+    ""
     Hosmer-Lemeshow goodness-of-fit test for calibration.
     p-value < 0.05 suggests significant miscalibration.
-    """
+    ""
     data = pd.DataFrame({"y": y_true, "p": y_pred})
     data["bucket"] = pd.qcut(data["p"], groups, duplicates="drop")
 
@@ -244,12 +244,12 @@ import shap
 import matplotlib.pyplot as plt
 
 def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = "."):
-    """
+    ""
     Global interpretability via SHAP values.
     Produces summary plot (beeswarm) and bar plot of mean |SHAP|.
     Works with tree-based models (XGBoost, LightGBM, RF) and
     falls back to KernelExplainer for other model types.
-    """
+    ""
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
@@ -285,11 +285,11 @@ def shap_global_analysis(model, X: pd.DataFrame, output_dir: str = "."):
 
 
 def shap_local_explanation(model, X: pd.DataFrame, idx: int):
-    """
+    ""
     Local interpretability: explain a single prediction.
     Produces a waterfall plot showing how each feature pushed
     the prediction from the base value.
-    """
+    ""
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
@@ -316,7 +316,7 @@ def pdp_analysis(
     output_dir: str = ".",
     grid_resolution: int = 50,
 ):
-    """
+    ""
     Partial Dependence Plots for top features.
     Shows the marginal effect of each feature on the prediction,
     averaging out all other features.
@@ -325,7 +325,7 @@ def pdp_analysis(
     - Verifying monotonic relationships where expected
     - Detecting non-linear thresholds the model learned
     - Comparing PDP shapes across train vs. OOT for stability
-    """
+    ""
     for feature in features:
         fig, ax = plt.subplots(figsize=(8, 5))
         PartialDependenceDisplay.from_estimator(
@@ -345,10 +345,10 @@ def pdp_interaction(
     feature_pair: tuple[str, str],
     output_dir: str = ".",
 ):
-    """
+    ""
     2D Partial Dependence Plot for feature interactions.
     Reveals how two features jointly affect predictions.
-    """
+    ""
     fig, ax = plt.subplots(figsize=(8, 6))
     PartialDependenceDisplay.from_estimator(
         model, X, [feature_pair], ax=ax
@@ -370,10 +370,10 @@ def variable_stability_report(
     variables: list[str],
     psi_threshold: float = 0.25,
 ) -> pd.DataFrame:
-    """
+    ""
     Monthly stability report for model features.
     Flags variables exceeding PSI threshold vs. the first observed period.
-    """
+    ""
     periods = sorted(df[date_col].unique())
     baseline = df[df[date_col] == periods[0]]
 

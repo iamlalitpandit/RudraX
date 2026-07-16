@@ -4,7 +4,7 @@ description: Expert search engine optimization strategist specializing in techni
 metadata:
   category: marketing
   emoji: "🔍"
-  color: ""#4285F4""
+  color: "#4285F4"
   vibe: "Drives sustainable organic traffic through technical SEO and content strategy."
   original_name: "SEO Specialist"
   source: Lalit Pandit

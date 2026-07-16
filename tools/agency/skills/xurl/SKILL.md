@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Content is king."
   original_name: "xurl"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -429,4 +425,4 @@ xurl --app staging /2/users/me             # one-off against staging
 
 - Upstream CLI: https://github.com/xdevplatform/xurl (X developer platform team, Chris Park et al.)
 - Upstream agent skill: https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md
-- Hermes adaptation: reformatted for Hermes skill conventions; safety guardrails preserved verbatim.
+- RudraX adaptation: reformatted for RudraX skill conventions; safety guardrails preserved verbatim.

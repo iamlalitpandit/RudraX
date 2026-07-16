@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">RudraX Army</title>
+  <desc id="desc">349 specialist agents, 43 model providers, one command center.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070707"/>
+      <stop offset="0.55" stop-color="#170b05"/>
+      <stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="48%" r="55%">
+      <stop offset="0" stop-color="#f97316" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fire" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset=".5" stop-color="#fb923c"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#fb923c" stroke-opacity=".07"/>
+    </pattern>
+    <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000" flood-opacity=".65"/></filter>
+  </defs>
+  <rect width="1280" height="640" rx="30" fill="url(#bg)"/>
+  <rect width="1280" height="640" rx="30" fill="url(#grid)"/>
+  <rect width="1280" height="640" rx="30" fill="url(#glow)"/>
+  <g opacity=".85">
+    <circle cx="160" cy="112" r="4" fill="#fb923c"/><circle cx="1110" cy="510" r="4" fill="#fb923c"/>
+    <path d="M160 112H360M920 510h190" stroke="#fb923c" stroke-opacity=".35"/>
+  </g>
+  <g filter="url(#shadow)">
+    <path d="M640 102l45 72-45 72-45-72 45-72zm0 42l-18 30 18 30 18-30-18-30z" fill="url(#fire)"/>
+    <path d="M590 194h100l-50 86-50-86z" fill="none" stroke="#fb923c" stroke-width="7" stroke-linejoin="round"/>
+  </g>
+  <text x="640" y="360" text-anchor="middle" fill="#fff7ed" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="800" letter-spacing="8">RUDRAX</text>
+  <text x="640" y="416" text-anchor="middle" fill="#fb923c" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" letter-spacing="9">BUILD · BREAK · DEPLOY · ORCHESTRATE</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#d6d3d1" text-anchor="middle">
+    <text x="370" y="510"><tspan fill="#fb923c" font-size="34" font-weight="800">349</tspan><tspan x="370" dy="31">SPECIALISTS</tspan></text>
+    <text x="640" y="510"><tspan fill="#fb923c" font-size="34" font-weight="800">43</tspan><tspan x="640" dy="31">MODEL PROVIDERS</tspan></text>
+    <text x="910" y="510"><tspan fill="#fb923c" font-size="34" font-weight="800">9</tspan><tspan x="910" dy="31">TACTICAL SQUADS</tspan></text>
+  </g>
+  <text x="640" y="600" text-anchor="middle" fill="#78716c" font-family="Arial, Helvetica, sans-serif" font-size="18">Developed by Lalit Pandit · Open source under the MIT License</text>
+</svg>

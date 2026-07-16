@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "saelens"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -248,7 +244,7 @@ for text in test_texts:
 
 ```python
 def steer_with_feature(model, sae, prompt, feature_idx, strength=5.0):
-    """Add SAE feature direction to residual stream."""
+    """Add SAE feature direction to residual stream.""
     tokens = model.to_tokens(prompt)
 
     # Get feature direction from decoder

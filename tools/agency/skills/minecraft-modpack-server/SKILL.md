@@ -7,10 +7,6 @@ metadata:
   color: "green"
   vibe: "The game is never finished."
   original_name: "minecraft-modpack-server"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

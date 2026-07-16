@@ -1,7 +1,7 @@
 {
   "name": "rudrax",
-  "version": "4.5.0",
-  "description": "RudraX Army v4.5.0 — Build · Break · Deploy · Orchestrate: Hierarchical Multi-Agent Command System with 192 AI Specialists & 15 Advanced Agentic Capabilities by Lalit Pandit",
+  "version": "4.6.0",
+  "description": "RudraX Army v4.6.0 — hierarchical multi-agent runtime with 349 specialist agents, 43 model providers, 9 tactical squads, and a secure WebUI by Lalit Pandit",
   "type": "module",
   "main": "lib/main.js",
   "piConfig": {
@@ -21,6 +21,7 @@
     "test:coverage": "vitest run --coverage",
     "test:smoke": "vitest run tests/smoke.test.js",
     "test:unit": "vitest run tests/unit",
+    "lint": "node --check lib/core/provider-catalog.js && node --check lib/core/model-registry.js && node --check lib/core/auth-storage.js && node --check lib/core/model-resolver.js && node --check webui/provider-api.js && node --check webui/server.js && node --check webui/js/app.js",
     "pretest": "echo '🧪 RudraX Tests — Running vitest...'",
     "install-global": "npm install -g .",
     "tools": "node tools/bin/rudrax-tools",
@@ -52,7 +53,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
@@ -96,12 +97,13 @@
     "type": "git",
     "url": "https://github.com/iamlalitpandit/RudraX"
   },
-  "homepage": "https://github.com/iamlalitpandit/RudraX",
+  "homepage": "https://rudrax.cloud",
   "bugs": {
     "url": "https://github.com/iamlalitpandit/RudraX/issues",
     "email": "admin@rudrax.cloud"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "4.1.7",
     "vitest": "^4.1.7"
   }
 }

@@ -4,7 +4,7 @@ description: Revenue operations analyst specializing in pipeline health diagnost
 metadata:
   category: sales
   emoji: "📊"
-  color: ""#059669""
+  color: "#059669"
   vibe: "Tells you your forecast is wrong before you realize it yourself."
   original_name: "Pipeline Analyst"
   source: Lalit Pandit

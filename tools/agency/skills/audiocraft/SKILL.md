@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: "Models are only as good as their infrastructure."
   original_name: "audiocraft"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -447,13 +443,13 @@ from audiocraft.models import AudioGen
 import torchaudio
 
 def batch_generate_sounds(sound_specs, output_dir):
-    """
+    ""
     Generate multiple sounds from specifications.
 
     Args:
         sound_specs: list of {"name": str, "description": str, "duration": float}
         output_dir: output directory path
-    """
+    ""
     model = AudioGen.get_pretrained('facebook/audiogen-medium')
     output_dir = Path(output_dir)
     output_dir.mkdir(exist_ok=True)

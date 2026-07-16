@@ -4,7 +4,7 @@ description: Full-stack China market localization expert who transforms real-tim
 metadata:
   category: marketing
   emoji: "🇨🇳"
-  color: ""#E60012""
+  color: "#E60012"
   vibe: "Turns China's chaotic trend landscape into a precision-guided marketing machine — data in, revenue out."
   original_name: "China Market Localization Strategist"
   source: Lalit Pandit

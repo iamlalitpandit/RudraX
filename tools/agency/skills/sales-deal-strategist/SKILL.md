@@ -4,7 +4,7 @@ description: Senior deal strategist specializing in MEDDPICC qualification, comp
 metadata:
   category: sales
   emoji: "♟️"
-  color: ""#1B4D3E""
+  color: "#1B4D3E"
   vibe: "Qualifies deals like a surgeon and kills happy ears on contact."
   original_name: "Deal Strategist"
   source: Lalit Pandit

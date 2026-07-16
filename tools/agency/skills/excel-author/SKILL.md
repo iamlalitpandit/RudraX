@@ -7,10 +7,6 @@ metadata:
   color: "green"
   vibe: 'Follow the money.'
   original_name: "excel-author"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

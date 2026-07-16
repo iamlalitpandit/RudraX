@@ -615,7 +615,7 @@ export default function (pi: ExtensionAPI) {
    */
   function resolveCtxId(ctx: any): string {
     const explicit = ctx?.session?.id || ctx?.contextId || ctx?.sessionId ||
-      process.env.RUDRAX_CONTEXT_ID || process.env.HERMES_CONTEXT_ID || "";
+      process.env.RUDRAX_CONTEXT_ID || process.env.RUDRAX_CONTEXT_ID || "";
     if (explicit) return String(explicit);
     const cwd = process.cwd?.() || os.homedir();
     const project = path.basename(cwd) || "default";

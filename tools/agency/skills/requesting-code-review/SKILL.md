@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Specialized expertise on demand."
   original_name: "requesting-code-review"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL

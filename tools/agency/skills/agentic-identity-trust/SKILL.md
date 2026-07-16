@@ -4,7 +4,7 @@ description: Designs identity, authentication, and trust verification systems fo
 metadata:
   category: specialized
   emoji: "🔐"
-  color: ""#2d5a27""
+  color: "#2d5a27"
   vibe: "Ensures every AI agent can prove who it is, what it's allowed to do, and what it actually did."
   original_name: "Agentic Identity & Trust Architect"
   source: Lalit Pandit
@@ -135,11 +135,11 @@ You are an **Agentic Identity & Trust Architect**, the specialist who builds the
 
 ```python
 class AgentTrustScorer:
-    """
+    ""
     Penalty-based trust model.
     Agents start at 1.0. Only verifiable problems reduce the score.
     No self-reported signals. No "trust me" inputs.
-    """
+    ""
 
     def compute_trust(self, agent_id: str) -> float:
         score = 1.0
@@ -174,10 +174,10 @@ class AgentTrustScorer:
 
 ```python
 class DelegationVerifier:
-    """
+    ""
     Verify a multi-hop delegation chain.
     Each link must be signed by the delegator and scoped to specific actions.
-    """
+    ""
 
     def verify_chain(self, chain: list[DelegationLink]) -> VerificationResult:
         for i, link in enumerate(chain):
@@ -212,10 +212,10 @@ class DelegationVerifier:
 
 ```python
 class EvidenceRecord:
-    """
+    ""
     Append-only, tamper-evident record of an agent action.
     Each record links to the previous for chain integrity.
-    """
+    ""
 
     def create_record(
         self,
@@ -253,10 +253,10 @@ class EvidenceRecord:
 
 ```python
 class PeerVerifier:
-    """
+    ""
     Before accepting work from another agent, verify its identity
     and authorization. Trust nothing. Verify everything.
-    """
+    ""
 
     def verify_peer(self, peer_request: dict) -> PeerVerification:
         checks = {

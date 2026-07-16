@@ -7,10 +7,6 @@ metadata:
   color: "purple"
   vibe: "Creativity is intelligence having fun."
   original_name: "baoyu-article-illustrator"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -34,7 +30,7 @@ metadata:
 
 # Article Illustrator
 
-Adapted from [baoyu-article-illustrator](https://github.com/JimLiu/baoyu-skills) for Hermes Agent's tool ecosystem.
+Adapted from [baoyu-article-illustrator](https://github.com/JimLiu/baoyu-skills) for RudraX's tool ecosystem.
 
 Analyze articles, identify illustration positions, generate images with **Type × Style × Palette** consistency.
 

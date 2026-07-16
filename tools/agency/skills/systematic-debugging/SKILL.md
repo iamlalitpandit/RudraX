@@ -7,10 +7,6 @@ metadata:
   color: "blue"
   vibe: "Specialized expertise on demand."
   original_name: "systematic-debugging"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -336,11 +332,11 @@ If you catch yourself thinking:
 | **3. Hypothesis** | Form theory, test minimally, one variable at a time | Confirmed or new hypothesis |
 | **4. Implementation** | Create regression test, fix root cause, verify | Bug resolved, all tests pass |
 
-## Hermes Agent Integration
+## RudraX Integration
 
 ### Investigation Tools
 
-Use these Hermes tools during Phase 1:
+Use these RudraX tools during Phase 1:
 
 - **`search_files`** — Find error strings, trace function calls, locate patterns
 - **`read_file`** — Read source code with line numbers for precise analysis
@@ -354,7 +350,7 @@ For complex multi-component debugging, dispatch investigation subagents:
 ```python
 delegate_task(
     goal="Investigate why [specific test/behavior] fails",
-    context="""
+    context=""
     Follow systematic-debugging skill:
     1. Read the error message carefully
     2. Reproduce the issue

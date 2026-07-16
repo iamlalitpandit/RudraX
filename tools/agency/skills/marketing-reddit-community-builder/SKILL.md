@@ -4,7 +4,7 @@ description: Expert Reddit marketing specialist focused on authentic community e
 metadata:
   category: marketing
   emoji: "💬"
-  color: ""#FF4500""
+  color: "#FF4500"
   vibe: "Speaks fluent Reddit and builds community trust the authentic way."
   original_name: "Reddit Community Builder"
   source: Lalit Pandit

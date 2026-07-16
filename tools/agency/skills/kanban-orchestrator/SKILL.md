@@ -1,16 +1,12 @@
 ---
 name: kanban-orchestrator
-description: "Decomposition playbook + anti-temptation rules for an orchestrator profile routing work through Kanban. The "don't do the work yourself" rule and the basic lifecycle are auto-injected into every kanban worker's system prompt; this skill is the deeper playbook when you're specifically playing the orchestrator role."
+description: 'Decomposition playbook and anti-temptation rules for an orchestrator profile routing work through Kanban. The "do not do the work yourself" rule and the basic lifecycle are auto-injected into every kanban worker system prompt; this skill is the deeper playbook for the orchestrator role.'
 metadata:
   category: devops
   emoji: "🎯"
   color: "cyan"
   vibe: "Automate everything."
   original_name: "kanban-orchestrator"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -38,7 +34,7 @@ metadata:
 
 ## Profiles are user-configured — not a fixed roster
 
-Hermes setups vary widely. Some users run a single profile that does everything; some run a small fleet (`docker-worker`, `cron-worker`); some run a curated specialist team they've named themselves. There is **no default specialist roster** — the orchestrator skill does not know what profiles exist on this machine.
+RudraX setups vary widely. Some users run a single profile that does everything; some run a small fleet (`docker-worker`, `cron-worker`); some run a curated specialist team they've named themselves. There is **no default specialist roster** — the orchestrator skill does not know what profiles exist on this machine.
 
 Before fanning out, you must ground the decomposition in the profiles that actually exist. The dispatcher silently fails to spawn unknown assignee names — it doesn't autocorrect, doesn't suggest, doesn't fall back. So a card assigned to `researcher` on a setup that only has `docker-worker` just sits in `ready` forever.
 
@@ -46,7 +42,7 @@ Before fanning out, you must ground the decomposition in the profiles that actua
 
 Use one of these:
 
-- `hermes profile list` — prints the table of profiles configured on this machine. Run it through your terminal tool if you have one; otherwise ask the user.
+- `rudrax profile list` — prints the table of profiles configured on this machine. Run it through your terminal tool if you have one; otherwise ask the user.
 - `kanban_list(assignee="<some-name>")` — sanity-check a single name. Returns an empty list (rather than an error) for an unknown assignee, so this only confirms a name you're already considering.
 - **Just ask the user.** "What profiles do you have set up?" is a fine first turn when the goal needs more than one specialist.
 
@@ -113,7 +109,7 @@ t1 = kanban_create(
     title="research: Postgres cost vs current",
     assignee="<profile-A>",  # whichever profile handles research on this setup
     body="Compare estimated infrastructure costs, migration costs, and ongoing ops costs over a 3-year window. Sources: AWS/GCP pricing, team time estimates, current Postgres bills from peers.",
-    tenant=os.environ.get("HERMES_TENANT"),
+    tenant=os.environ.get("RUDRAX_TENANT"),
 )["task_id"]
 
 t2 = kanban_create(
@@ -169,7 +165,7 @@ Tell them what you created in plain prose, naming the actual profiles you used:
 > - **T3** (`<profile-B>`): synthesizes T1 + T2 into a recommendation
 > - **T4** (`<profile-C>`): turns T3 into a CTO memo
 >
-> The dispatcher will pick up T1 and T2 now. T3 starts when both finish. You'll get a gateway ping when T4 completes. Use the dashboard or `hermes kanban tail <id>` to follow along.
+> The dispatcher will pick up T1 and T2 now. T3 starts when both finish. You'll get a gateway ping when T4 completes. Use the dashboard or `rudrax kanban tail <id>` to follow along.
 
 ## Common patterns
 
@@ -199,14 +195,14 @@ Tell them what you created in plain prose, naming the actual profiles you used:
 
 **Don't pre-create the whole graph if the shape depends on intermediate findings.** If T3's structure depends on what T1 and T2 find, let T3 exist as a "synthesize findings" task whose own first step is to read parent handoffs and plan the rest. Orchestrators can spawn orchestrators.
 
-**Tenant inheritance.** If `HERMES_TENANT` is set in your env, pass `tenant=os.environ.get("HERMES_TENANT")` on every `kanban_create` call so child tasks stay in the same namespace.
+**Tenant inheritance.** If `RUDRAX_TENANT` is set in your env, pass `tenant=os.environ.get("RUDRAX_TENANT")` on every `kanban_create` call so child tasks stay in the same namespace.
 
 ## Recovering stuck workers
 
 When a worker profile keeps crashing, hallucinating, or getting blocked by its own mistakes (usually: wrong model, missing skill, broken credential), the kanban dashboard flags the task with a ⚠ badge and opens a **Recovery** section in the drawer. Three primary actions:
 
-1. **Reclaim** (or `hermes kanban reclaim <task_id>`) — abort the running worker immediately and reset the task to `ready`. The existing claim TTL is ~15 min; this is the fast path out.
-2. **Reassign** (or `hermes kanban reassign <task_id> <new-profile> --reclaim`) — switch the task to a different profile (one that exists on this setup) and let the dispatcher pick it up with a fresh worker.
-3. **Change profile model** — the dashboard prints a copy-paste hint for `hermes -p <profile> model` since profile config lives on disk; edit it in a terminal, then Reclaim to retry with the new model.
+1. **Reclaim** (or `rudrax kanban reclaim <task_id>`) — abort the running worker immediately and reset the task to `ready`. The existing claim TTL is ~15 min; this is the fast path out.
+2. **Reassign** (or `rudrax kanban reassign <task_id> <new-profile> --reclaim`) — switch the task to a different profile (one that exists on this setup) and let the dispatcher pick it up with a fresh worker.
+3. **Change profile model** — the dashboard prints a copy-paste hint for `rudrax -p <profile> model` since profile config lives on disk; edit it in a terminal, then Reclaim to retry with the new model.
 
 Hallucination warnings appear on tasks where a worker's `kanban_complete(created_cards=[...])` claim included card ids that don't exist or weren't created by the worker's profile (the gate blocks the completion), or where the free-form summary references `t_<hex>` ids that don't resolve (advisory prose scan, non-blocking). Both produce audit events that persist even after recovery actions — the trail stays for debugging.

@@ -5,7 +5,7 @@ metadata:
   category: command
   emoji: "🎛️"
   color: "cyan"
-  vibe: "\"I don't decide WHAT to do. I figure out HOW to do it — and I plan for every path the system can take before a single line is written.\""
+  vibe: "\"I don't decide WHAT to do. I figure out HOW to do it — and I plan for every path the system can take before a single line is written.\"
   original_name: "Deputy Chief of Staff"
   author: "Lalit Pandit"
   system: "RudraX Army v4.1.0"

@@ -2,6 +2,26 @@
 
 All notable changes to RudraX Army will be documented in this file.
 
+## [4.6.0] — 2026-07
+
+### Added
+- Universal provider catalog with 43 cloud, routed, and local integrations
+- Azure AI Foundry support for OpenAI-compatible and Anthropic-compatible endpoints
+- Secure WebUI provider setup, model discovery, credential status, and live model switching
+- Local provider support for Ollama, LM Studio, LocalAI, and custom endpoints
+- Provider integration tests with real streaming against a local mock server
+- Branded project banner, refreshed documentation, and discoverability metadata
+
+### Security
+- Credential files use mode `0600`
+- Provider APIs redact stored secrets
+- Endpoint validation blocks metadata targets, unsafe host overrides, and credential-bearing URLs
+- Multi-file provider updates use coordinated locks and crash-recovery journaling
+
+### Project
+- Project authorship standardized to Lalit Pandit
+- Runtime and skill documentation standardized under the RudraX brand
+
 ## [4.5.0] — 2026-05
 
 ### ✨ Added
@@ -21,7 +41,7 @@ All notable changes to RudraX Army will be documented in this file.
 - 🖼️ Multi-Modal Engine — Image analysis and processing
 - 🛡️ Safety Guardrails — PII detection, code safety, hallucination checking
 - 📦 Code Sandbox — Secure execution for 6 languages
-- 🤖 170 Hermes Agent Skills — Skills ported from Hermes ecosystem
+- 🤖 170 Reusable Operational Skills — Curated for RudraX workflows
 - 🎨 Cybersecurity Dashboard — Live threat simulation & monitoring
 - 🎛️ WebUI Overhaul — 20+ new features, real-time socket streaming
 - 👤 JWT Authentication — PBKDF2-SHA512 password hashing
@@ -29,7 +49,7 @@ All notable changes to RudraX Army will be documented in this file.
 ### 📚 Documentation
 - Full README rewrite with architecture diagram
 - 16 new documentation files in `docs/`
-- HERMES_INTEGRATION.md guide
+- RUDRAX_INTEGRATION.md guide
 - EVOLVING_MEMORY_README.md
 
 ---

@@ -7,10 +7,6 @@ metadata:
   color: "violet"
   vibe: 'Models are only as good as their infrastructure.'
   original_name: "instructor"
-  source: "Hermes Agent by Nous Research (optional)"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
@@ -233,7 +229,7 @@ class Event(BaseModel):
 
     @field_validator('date')
     def validate_date(cls, v):
-        """Ensure date is in YYYY-MM-DD format."""
+        """Ensure date is in YYYY-MM-DD format.""
         import re
         if not re.match(r'\d{4}-\d{2}-\d{2}', v):
             raise ValueError('Date must be YYYY-MM-DD format')
@@ -241,7 +237,7 @@ class Event(BaseModel):
 
     @field_validator('attendees')
     def validate_attendees(cls, v):
-        """Ensure positive attendees."""
+        """Ensure positive attendees.""
         if v < 1:
             raise ValueError('Must have at least 1 attendee')
         return v
@@ -258,7 +254,7 @@ class DateRange(BaseModel):
 
     @model_validator(mode='after')
     def check_dates(self):
-        """Ensure end_date is after start_date."""
+        """Ensure end_date is after start_date.""
         from datetime import datetime
         start = datetime.strptime(self.start_date, '%Y-%m-%d')
         end = datetime.strptime(self.end_date, '%Y-%m-%d')
@@ -419,11 +415,11 @@ class CompanyInfo(BaseModel):
     employees: int
     headquarters: str
 
-text = """
+text = ""
 Tesla, Inc. was founded in 2003. It operates in the automotive and energy
 industry with approximately 140,000 employees. The company is headquartered
 in Austin, Texas.
-"""
+""
 
 company = client.messages.create(
     model="claude-sonnet-4-5-20250929",
@@ -694,7 +690,7 @@ Example format:
   "name": "John Doe",
   "age": 30,
   "occupation": "engineer"
-}"""
+}""
 }]
 ```
 

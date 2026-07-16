@@ -7,10 +7,6 @@ metadata:
   color: "silver"
   vibe: "Think different."
   original_name: "imessage"
-  source: "Hermes Agent by Nous Research"
-  author: "Nous Research"
-  url: "https://github.com/nousresearch/hermes-agent"
-  hermes_skill: true
 ---
 
 ## 🎛️ DEPUTY CHIEF OF STAFF REPORTING PROTOCOL
