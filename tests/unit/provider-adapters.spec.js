@@ -61,6 +61,15 @@ describe('registry bootstrap and auth', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
+  it('accepts an empty models.json object as an empty custom-provider configuration', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rudrax-empty-models-'));
+    const modelsPath = join(dir, 'models.json');
+    writeFileSync(modelsPath, '{}\n', { mode: 0o600 });
+    const registry = ModelRegistry.create(AuthStorage.inMemory(), modelsPath);
+    expect(registry.getError()).toBeUndefined();
+    expect(registry.getAll().some(model => model.provider === 'azure-foundry')).toBe(true);
+  });
+
   it('uses explicit provider env endpoint/model overrides ahead of catalog defaults', () => {
     setEnv({ DEEPSEEK_BASE_URL: 'https://proxy.example/v1', DEEPSEEK_MODEL: 'deepseek-test' });
     const registry = ModelRegistry.inMemory(AuthStorage.inMemory());
@@ -99,6 +108,18 @@ describe('registry bootstrap and auth', () => {
     expect(result.model.provider).toBe('anthropic');
   });
 
+  it('prefers an authenticated cloud model over a configured local fallback', async () => {
+    setEnv({
+      OLLAMA_BASE_URL: 'http://127.0.0.1:11434/v1',
+      AZURE_FOUNDRY_ENDPOINT: 'https://unit.openai.azure.com/openai/v1',
+      AZURE_FOUNDRY_DEPLOYMENT: 'deployment-a',
+      AZURE_FOUNDRY_API_KEY: 'azure-secret',
+    });
+    const registry = ModelRegistry.inMemory(AuthStorage.inMemory());
+    const result = await findInitialModel({ scopedModels: [], isContinuing: false, modelRegistry: registry });
+    expect(result.model.provider).toBe('azure-foundry');
+  });
+
   it('does not select an unauthenticated saved cloud model', async () => {
     const registry = ModelRegistry.inMemory(AuthStorage.inMemory({ anthropic: { type: 'api_key', key: 'x' } }));
     const result = await findInitialModel({ scopedModels: [], isContinuing: false, defaultProvider: 'deepseek', defaultModelId: 'deepseek-chat', modelRegistry: registry });
@@ -114,6 +135,13 @@ describe('registry bootstrap and auth', () => {
 });
 
 describe('provider configuration service and handlers', () => {
+  it('initializes models.json with a schema-valid empty provider map', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rudrax-provider-defaults-'));
+    const modelsPath = join(dir, 'models.json');
+    new ProviderConfigService({ authPath: join(dir, 'auth.json'), modelsPath, settingsPath: join(dir, 'settings.json') });
+    expect(JSON.parse(readFileSync(modelsPath, 'utf8'))).toEqual({ providers: {} });
+  });
+
   it('redacts secrets, validates IDs/URLs, rejects prototype pollution, and persists mode 0600', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'rudrax-provider-'));
     const service = new ProviderConfigService({ authPath: join(dir, 'auth.json'), modelsPath: join(dir, 'models.json'), settingsPath: join(dir, 'settings.json') });

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isIP } from 'node:net';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import lockfile from 'proper-lockfile';
 import { AuthStorage } from '../lib/core/auth-storage.js';
 import { ModelRegistry } from '../lib/core/model-registry.js';
@@ -71,7 +71,8 @@ function withStorageLocks(paths, fn) {
   for (const path of uniquePaths) {
     mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
     if (!existsSync(path)) {
-      try { writeFileSync(path, '{}\n', { mode: 0o600, flag: 'wx' }); }
+      const initialContent = basename(path) === 'models.json' ? '{"providers":{}}\n' : '{}\n';
+      try { writeFileSync(path, initialContent, { mode: 0o600, flag: 'wx' }); }
       catch (error) { if (error?.code !== 'EEXIST') throw error; }
     }
   }

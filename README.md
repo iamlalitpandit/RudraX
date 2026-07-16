@@ -74,6 +74,8 @@ rudrax --list-models
 rudrax --provider anthropic --model claude-sonnet-4-6
 ```
 
+RudraX automatically loads environment files in this order: `~/.rudrax/.env`, `~/.rudrax/agent/.env`, then the current project's `.env`. Later files take precedence, variables already exported by the parent process always win, and blank placeholders never erase a configured value. Keep credential files mode `0600`.
+
 You can also configure providers from **WebUI → Settings → Model Provider**. Stored credentials are never returned by the provider API and local credential files use mode `0600`.
 
 ## Universal model support

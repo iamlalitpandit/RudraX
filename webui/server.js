@@ -25,6 +25,9 @@ import { isOllamaAvailable, isOllamaServerRunning, getOllamaModels, getOllamaMod
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { mountProviderApi } from './provider-api.js';
+import { loadRudraXEnvironment } from '../lib/core/env-loader.js';
+
+loadRudraXEnvironment();
 
 // ═══ Email Configuration ═══
 const EMAIL_CONFIG = {
